@@ -1,74 +1,364 @@
-# Rakefile - Umm, the Rakefile, I guess...
-# Copyright (c) 2005 Ross Bamford (and contributors)
+# Rote Rakefile (run with 'rake' command)
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in 
-# the Software without restriction, including without limitation the rights to 
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
+# Copyright 2005 Ross Bamford (and contributors). All rights reserved.
+# Rote is distributed under an MIT style license.  See LICENSE for details.
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# This Rakefile is heavily based on Rake's own Rakefile.
+# Portions copyright (c)2003, 2004 Jim Weirich (jim <AT> weirichhouse.org)
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# $Id$
+#
 
-require 'rake'
-require 'rake/clean'
-require 'yaml'
-require 'erb'
-
-require 'rote'
-include Rote
-
-PAGES = FileList['site/pages/**/*.rhtml']
-TARGETS = define_file_targets(PAGES)
-RES_INCLUDE = ['*.png','*.css','*.gif','*.jpg','*.jpeg','*.txt','*.groovy','*.tar.gz','*.zip']
-CLEAN[CLEAN.length] = 'target'
-RES = FileList.new { |fl| 
-  RES_INCLUDE.each { |it| fl.include 'site/res/**/' + it }
-}
-
-#######################################
-## Load config
-if (File.exists?('config.rb'))
-  eval(File.read('config.rb'), binding)
-else
-  puts "Warning: config.rb not found"  
+begin
+  require 'rubygems'
+  require 'rake/gempackagetask'
+rescue Exception
+  nil
 end
 
-#######################################
-## 
-## STATIC TASKS
-##
-## Default to doing the index
-task :default => [:site]
+require 'rake/clean'
+require 'rake/testtask'
+require 'rake/rdoctask'
 
-## Build all targets
-desc 'Transform all pages, and copy resources'
-task :site => TARGETS + [:resources]
+$: << 'lib'
+require 'rote'
 
-if (defined?(@ftp_host) && defined?(@ftp_user))
-  @ftp_pass = nil unless defined?(@ftp_pass)
+CLEAN.include('testdata')
+CLOBBER.include('TAGS')
+
+def announce(msg='')
+  STDERR.puts msg
+end
+
+# Determine the current version of the software
+
+if `ruby -Ilib ./bin/rote --version` =~ /\S+$/
+  CURRENT_VERSION = $&
+else
+  CURRENT_VERSION = "0.0.0"
+end
+
+if ENV['REL']
+  PKG_VERSION = ENV['REL']
+else
+  PKG_VERSION = CURRENT_VERSION
+end
+
+
+SRC_RB = FileList['lib/**/*.rb']
+
+# The default task is run if rake is given no explicit arguments.
+
+desc "Default Task (All tests)"
+task :default => :alltests
+
+# Test Tasks ---------------------------------------------------------
+
+task :ta => :alltests
+#task :tf => :funtests
+task :tu => :unittests
+task :test => :unittests
+
+Rake::TestTask.new(:alltests) do |t|
+  t.test_files = FileList[
+    'test/test*.rb',
+    'test/contrib/test*.rb',
+    'test/fun*.rb'
+  ]
+  t.warning = true
+  t.verbose = true
+end
+
+Rake::TestTask.new(:unittests) do |t|
+  t.test_files = FileList['test/test*.rb']
+  t.warning = true
+  t.verbose = false
+end
+
+# Rake::TestTask.new(:funtests) do |t|
+#   t.test_files = FileList['test/fun*.rb']
+#   t.warning = true
+#   t.warning = true
+# end
+
+directory 'testdata'
+[:alltests, :unittests].each do |t|
+  task t => ['testdata']
+end
+
+# CVS Tasks ----------------------------------------------------------
+
+# Install rote using the standard install.rb script.
+desc "Install the application"
+task :install do
+  ruby "install.rb"
+end
+
+# Website / Doc tasks ------------------------------------------------
+
+# Create a task to build the RDOC documentation tree.
+rd = Rake::RDocTask.new("rdoc") { |rdoc|
+  rdoc.rdoc_dir = 'html/rdoc'
+#  rdoc.template = 'kilmer'
+#  rdoc.template = 'css2'
+  rdoc.template = 'doc/jamis.rb'
+  rdoc.title    = "Rote"
+  rdoc.options << '--line-numbers' << '--inline-source' << '--main' << 'README'
+  rdoc.rdoc_files.include('README', 'LICENSE', 'TODO')
+  rdoc.rdoc_files.include('lib/**/*.rb', 'doc/**/*.rdoc')
+  rdoc.rdoc_files.exclude(/\bcontrib\b/)
+}
+
+# Create a task build the website / docs
+CLOBBER.include('html')
+
+ws = Rote::SiteTask.new("doc") { |site| 
+  site.site_dir = 'html'
+  site.layout_dir = 'doc/layouts'
+
+  site.pages.dir = 'doc/pages'
+  site.pages.include('**/*.html')  
   
-  desc 'Upload (FTP)'
-  task :upload => :site do
-    ftp_putdir('target', @ftp_host, @ftp_user, @ftp_pass, @ftp_root)
+  site.res.dir = 'doc/res/'
+  site.res.include('**/*.png')
+  site.res.include('**/*.gif')
+  site.res.include('**/*.jpg')
+  site.res.include('**/*.css')
+}
+
+# ====================================================================
+# Create a task that will package the Rote software into distributable
+# tar, zip and gem files.
+
+PKG_FILES = FileList[
+  'install.rb',
+  '[A-Z]*',
+  'bin/**/*', 
+  'lib/**/*.rb', 
+  'test/**/*.rb',
+  'test/**/*.rf',
+  'test/**/*.mf',
+  'test/**/Rakefile',
+  'doc/**/*'
+]
+
+if ! defined?(Gem)
+  puts "Package Target requires RubyGEMs"
+else
+  spec = Gem::Specification.new do |s|
+    
+    #### Basic information.
+
+    s.name = 'rote'
+    s.version = PKG_VERSION
+    s.summary = "Adds template-based doc support to Rake."
+    s.description = <<-EOF
+      Rote is a set of Rake task libraries and utilities that
+      enable easy rendering of textual documentation formats
+      (like HTML) for websites and offline documentation.
+    EOF
+
+    #### Dependencies and requirements.
+
+    #s.add_dependency('log4r', '> 1.0.4')
+    #s.requirements << ""
+
+    #### Which files are to be included in this gem?  Everything!  (Except CVS directories.)
+
+    s.files = PKG_FILES.to_a
+
+    #### C code extensions.
+
+    #s.extensions << "ext/rmagic/extconf.rb"
+
+    #### Load-time details: library and application (you will need one or both).
+
+    s.require_path = 'lib'                         # Use these for libraries.
+
+    s.bindir = "bin"                               # Use these for applications.
+    s.executables = ["rote"]
+    s.default_executable = "rote"
+
+    #### Documentation and testing.
+
+    s.has_rdoc = true
+    s.extra_rdoc_files = rd.rdoc_files.reject { |fn| fn =~ /\.rb$/ }.to_a
+    s.rdoc_options <<
+      '--title' <<  'Rote -- Template-based doc support for Rake' <<
+      '--main' << 'README' <<
+      '--line-numbers'
+
+    #### Author and project details.
+
+    s.author = "Ross Bamford"
+    s.email = "ross@roscopeco.co.uk"
+    s.homepage = "http://rote.rubyforge.org"
+    s.rubyforge_project = "rote"
+#     if ENV['CERT_DIR']
+#       s.signing_key = File.join(ENV['CERT_DIR'], 'gem-private_key.pem')
+#       s.cert_chain  = [File.join(ENV['CERT_DIR'], 'gem-public_cert.pem')]
+#     end
+  end
+
+  package_task = Rake::GemPackageTask.new(spec) do |pkg|
+    pkg.need_zip = true
+    pkg.need_tar = true
   end
 end
 
-## Copy the resources
-desc 'Copy resources to the target'
-task :resources do
-  RES.each { |src|
-    dest = target_res_fn(src)
-    mkdir_p(File.dirname(dest))    
-    cp_r(src,dest)            
-  }  
+# Misc tasks =========================================================
+
+def count_lines(filename)
+  lines = 0
+  codelines = 0
+  open(filename) { |f|
+    f.each do |line|
+      lines += 1
+      next if line =~ /^\s*$/
+      next if line =~ /^\s*#/
+      codelines += 1
+    end
+  }
+  [lines, codelines]
 end
+
+def show_line(msg, lines, loc)
+  printf "%6s %6s   %s\n", lines.to_s, loc.to_s, msg
+end
+
+desc "Count total lines in source"
+task :lines do
+  total_lines = 0
+  total_code = 0
+  show_line("File Name", "LINES", "LOC")
+  SRC_RB.each do |fn|
+    lines, codelines = count_lines(fn)
+    show_line(fn, lines, codelines)
+    total_lines += lines
+    total_code  += codelines
+  end
+  show_line("TOTAL", total_lines, total_code)
+end
+
+ARCHIVEDIR = '/mnt/usb'
+
+task :archive => [:package] do
+  cp FileList["pkg/*.tgz", "pkg/*.zip", "pkg/*.gem"], ARCHIVEDIR
+end
+
+# Define an optional publish target in an external file.  If the
+# publish.rf file is not found, the publish targets won't be defined.
+
+load "publish.rf" if File.exist? "publish.rf"
+
+# Support Tasks ------------------------------------------------------
+
+desc "Look for TODO and FIXME tags in the code"
+task :todo do
+  FileList['**/*.rb'].egrep /#.*(FIXME|TODO|TBD)/
+end
+
+desc "Look for Debugging print lines"
+task :dbg do
+  FileList['**/*.rb'].egrep /\bDBG|\bbreakpoint\b/
+end
+
+desc "List all ruby files"
+task :rubyfiles do 
+  puts Dir['**/*.rb'].reject { |fn| fn =~ /^pkg/ }
+  puts Dir['bin/*'].reject { |fn| fn =~ /CVS|(~$)|(\.rb$)/ }
+end
+
+# --------------------------------------------------------------------
+# Creating a release
+
+desc "Make a new release"
+task :release => [
+  :prerelease,
+  :clobber,
+  :alltests,
+  :update_version,
+  :package,
+  :tag] do
+  
+  announce 
+  announce "**************************************************************"
+  announce "* Release #{PKG_VERSION} Complete."
+  announce "* Packages ready to upload."
+  announce "**************************************************************"
+  announce 
+end
+
+# Validate that everything is ready to go for a release.
+task :prerelease do
+  announce 
+  announce "**************************************************************"
+  announce "* Making RubyGem Release #{PKG_VERSION}"
+  announce "* (current version #{CURRENT_VERSION})"
+  announce "**************************************************************"
+  announce  
+
+  # Is a release number supplied?
+  unless ENV['REL']
+    fail "Usage: rake release REL=x.y.z [REUSE=tag_suffix]"
+  end
+
+  # Is the release different than the current release.
+  # (or is REUSE set?)
+  if PKG_VERSION == CURRENT_VERSION && ! ENV['REUSE']
+    fail "Current version is #{PKG_VERSION}, must specify REUSE=tag_suffix to reuse version"
+  end
+
+  # Are all source files checked in?
+  if ENV['RELTEST']
+    announce "Release Task Testing, skipping checked-in file test"
+  else
+    announce "Checking for unchecked-in files..."
+    data = `cvs -q update`
+    unless data =~ /^$/
+      fail "CVS update is not clean ... do you have unchecked-in files?"
+    end
+    announce "No outstanding checkins found ... OK"
+  end
+end
+
+task :update_version => [:prerelease] do
+  if PKG_VERSION == CURRENT_VERSION
+    announce "No version change ... skipping version update"
+  else
+    announce "Updating Rote version to #{PKG_VERSION}"
+    open("lib/rote.rb") do |rakein|
+      open("lib/rote.rb.new", "w") do |rakeout|
+	rakein.each do |line|
+	  if line =~ /^ROTEVERSION\s*=\s*/
+	    rakeout.puts "ROTEVERSION = '#{PKG_VERSION}'"
+	  else
+	    rakeout.puts line
+	  end
+	end
+      end
+    end
+    mv "lib/rote.rb.new", "lib/rote.rb"
+    if ENV['RELTEST']
+      announce "Release Task Testing, skipping commiting of new version"
+    else
+      sh %{cvs commit -m "Updated to version #{PKG_VERSION}" lib/rote.rb}
+    end
+  end
+end
+
+desc "Tag all the CVS files with the latest release number (REL=x.y.z)"
+task :tag => [:prerelease] do
+  reltag = "REL_#{PKG_VERSION.gsub(/\./, '_')}"
+  reltag << ENV['REUSE'].gsub(/\./, '_') if ENV['REUSE']
+  announce "Tagging CVS with [#{reltag}]"
+  if ENV['RELTEST']
+    announce "Release Task Testing, skipping CVS tagging"
+  else
+    sh %{cvs tag #{reltag}}
+  end
+end
+
+# Require experimental XForge/Metaproject support.
+# load 'xforge.rf' if File.exist?('xforge.rf')
+
