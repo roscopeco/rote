@@ -1,0 +1,44 @@
+<?xml version='1.0'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/xhtml1-strict.dtd">
+<html>
+
+<head>
+	<title><% if @page_title %><%= @page_title %> - <% end %><%= @site_title %></title>
+	<link rel='stylesheet' href='<%= link_rel '/stylesheets/normal.css' %>' media='screen'/>	
+</head>
+
+<body>
+	<table class='topbar'>
+		<tr>
+			<td class='toplogo'>
+				<!-- LOGO -->
+				<img class='smalllogo' title='Rote' alt='rote' src='<%= link_rel '/images/rote-small.png' %>'/>
+			</td>		
+			<td class='toprpotlogo'>
+				<!-- LOGO -->
+				<img class='smallrpotlogo' title='Roscopeco' alt='roscopeco' src='<%= link_rel '/images/rpot-tiny.png' %>'/>
+			</td>		
+		</tr>		
+		<tr class='topnav'>		
+			<td colspan='2'>
+				<% @navigation.length.times do |i| 
+					nav = @navigation[i] %>
+					<a id='nav' href='<%= link_rel nav[:url] %>'><%= nav[:title] %></a>										
+					<% unless i == (@navigation.length - 1) %>|<% end %>
+				<% end %>
+			</td>									
+		</tr>
+		
+	</table>	
+	
+	<div class='main' background='#c0a0c0'>
+		<%= @content_for_layout %>	
+	</div>
+	
+	<div class='copyright'><strong>&copy; 2005 Ross Bamford</strong><br/>
+		Managed with <a href='http://ruby-lang.org'>Ruby</a> + <a href='http://rake.rubyforge.org'>Rake</a> + <a href='http://rote.rubyforge.org/'>Rote</a><br/>
+		Hosting &amp; development services provided by <a href='http://rubyforge.org/'>RubyForge.org</a>		
+		<p/>&nbsp;
+	</div>			
+</body>
+

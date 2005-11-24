@@ -1,0 +1,1 @@
+@global = 'some other text'

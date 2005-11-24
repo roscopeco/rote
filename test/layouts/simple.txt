@@ -1,0 +1,1 @@
+layout <%= @content_for_layout %> for a change.

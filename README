@@ -1,40 +1,40 @@
-ROTE - A static website build tool for Ruby
+= ROTE - A static website build tool for Ruby
 
-WHAT IS THIS?
+== WHAT IS THIS?
 
-  It's a simple page-based template system for your static website.
+It's a simple page-based template system for your static website.
   
-WHY ROTE?
+== WHY ROTE?
 
-  The name? I tried to come up with a combination of 'Ruby Site', but couldn't
-  get past 'Rite' (it's already taken ;)). So, I changed a letter. I'm short on
-  imagination you know. Oh, you mean why the system? Well, to make it easier 
-  for me to manage roscopeco.co.uk now that I've dumped all the dynamic (JEE) 
-  stuff and gone back to good old Apache sans CGI. I want something that lets 
-  me do the disconnected page rendering and some of the 'dynamic' stuff, 
-  without the dynamic stuff. 
+The name? I tried to come up with a combination of 'Ruby Site', but couldn't
+get past 'Rite' (it's already taken ;)). So, I changed a letter. I'm short on
+imagination you know. Oh, you mean why the system? Well, to make it easier 
+for me to manage roscopeco.co.uk now that I've dumped all the dynamic (JEE) 
+stuff and gone back to good old Apache sans CGI. I want something that lets 
+me do the disconnected page rendering and some of the 'dynamic' stuff, 
+without the dynamic stuff. 
 
-HOW DO I INSTALL IT?
+== HOW DO I INSTALL IT?
 
-  Set it up somewhere warm. DONT modify your path - it's what symlinks are for.
-  If you use a symlink you'll probaby need to point ROTE_HOME to the install
-  directory as well.
-  
-WHAT ELSE DO I NEED?
+Set it up somewhere warm. DONT modify your path - it's what symlinks are for.
+If you use a symlink you'll probaby need to point ROTE_HOME to the install
+directory as well.
+ 
+== WHAT ELSE DO I NEED?
 
-	Rote uses the following (versions are as per my development environment,
-	you may find you can use older versions, you may not).
+Rote uses the following (versions are as per my development environment,
+you may find you can use older versions, you may not).
 	
-			+ Ruby 1.8.3 ('yum install ruby' on Fedora 4)
-			+ RubyGems 0.8.11 (http://rubyforge.org/frs/?group_id=126)
-			+ Rake 0.6.2 ('gem install rake')
-			+ RedCloth 3.0.4 ('gem install RedCloth')
+* Ruby 1.8.3 ('yum install ruby' on Fedora 4)
+* RubyGems 0.8.11 (http://rubyforge.org/frs/?group_id=126)
+* Rake 0.6.2 ('gem install rake')
+* RedCloth 3.0.4 ('gem install RedCloth')
 
-HOW DO I USE IT?
+== HOW DO I USE IT?
 
-  At the moment, it's pretty new (read: limited). I have some ideas for new
-  stuff, and would like to hear yours. Basically, it expects you to make
-  something like the following directory layout:
+At the moment, it's pretty new (read: limited). I have some ideas for new
+stuff, and would like to hear yours. Basically, it expects you to make
+something like the following directory layout:
   
   somesite ( <- this can be called whatever you like)
   |--> [config.rb]
@@ -108,7 +108,7 @@ In all cases you can of course use nested directories under pages and res
 they'll be copied into the target properly. Page has a helper method that
 helps with making relative-root links.
 
-UPLOADING YOUR SITE
+== UPLOADING YOUR SITE
 
 If you're one of the lucky(?) ones who's still using (stuck with) FTP, you
 can upload your site as part of the build. Simply create a config.rb file
@@ -128,7 +128,7 @@ Once you've done that, you're good to go. Run:
 	
 It will render changed pages, and upload the result. (NOTE: below)
 
-THE ROTE SCRIPT
+== THE ROTE SCRIPT
 
 If you installed it properly, you should be able to just run 'rote' from your
 project root directory (if not, you're probably pretty confused by these 
@@ -138,7 +138,7 @@ on it's options, run
 
 	rote --usage
 
-IS THAT IT?
+== IS THAT IT?
 
 For now, yes. As I say, I have some plans, and will be building Rote as I work
 on revamping my site. For starters I'm planning to make better use of the
@@ -148,19 +148,19 @@ auto navigations.
 
 But for now, yes. That's it.
 
-NOTE: 
+=== NOTE: 
 
-	Currently, there isn't enough checking involved on source resources when
-	building pages - Basically, only templates are considered when Rake decides
-	what to update. If you change layouts, code or resources you'll need to 
-	run:
+*Currently, there isn't enough checking involved on source resources when
+building pages* - Basically, only templates are considered when Rake decides
+what to update. If you change layouts, code or resources you'll need to 
+run:
 	
-		rote clean
+	rote clean
 		
-	to make sure everything gets updated. It's recommended to always run upload
-	as:
+to make sure everything gets updated. It's recommended to always run upload
+as:
 	
-		rote clean upload
+	rote clean upload
 		
 	
 	

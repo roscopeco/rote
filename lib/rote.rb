@@ -22,8 +22,13 @@
 # See Rote for full documentation
 
 require 'net/ftp'
-require 'rake'
-require 'page'
+require 'rubygems'
+require_gem 'rake'
+
+require 'rote/rotetasks'
+
+# Master Rote version. Manage this from the Rake release support.
+ROTEVERSION = 0.1
 
 #####
 ## *Rote* is a Rake (http://rake.rubyforge.org) based build tool for page-based
@@ -36,49 +41,15 @@ require 'page'
 ## slower-moving news and information sites, and software documentation.
 ##
 ## Rote is (c)2005 Ross Bamford, and is licensed under an MIT license. 
-## See LICENSE.txt for details.
+## See LICENSE for details.
 module Rote
-  ## Gets target filename for a resource
-  def target_res_fn(fn)
-    fn.sub(/^site\/res/,'target')
-  end
-  
-  def target_page_fn(fn)
-    Rote::Page.target_fn(fn)
-  end
-  
-  ## Build up our file tasks for pages
-  def define_file_targets(pages)
-    targs = FileList.new
-      
-    pages.each { |fn|
-      htm = Rote.target_page_fn(fn)
-              
-      # define task to transform this file
-      desc "<< #{fn}"
-      file htm => [fn] do
-        transform(fn, htm)
-      end
-        
-      # Add to TARGETS array
-      targs += [htm]
-    }
-        
-    return targs
-  end
-  
-  ## Transforms a single document
-  def transform(src, dest)
-    puts "Transforming #{src} to #{dest}"  
-    
-    # assure directory exists
-    mkdir_p(File.dirname(dest))
-    
-    # do it
-    File.open(dest, 'w+') { |f|
-      f << Page.new(src).to_html  
-    }  
-  end
+
+  private
+
+  ####################################################
+  ## WILL BE REMOVED...                             ##
+  ##                   ...I SAID, "WILL BE REMOVED" ##
+  ####################################################
   
   def ftp_putdir(dir, ftp_host, ftp_user, ftp_pass = nil, ftp_root = '/')  
     f = Net::FTP.new(ftp_host, ftp_user, ftp_pass)
@@ -107,5 +78,5 @@ module Rote
     }
     
     f.close   
-  end  
-end
+  end 
+end 
