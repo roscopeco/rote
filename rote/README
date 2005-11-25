@@ -2,14 +2,13 @@
 
 == What is this?
 
-Rote is a simple page-based template system for your static website that was 
-written to make it easier to author and maintain non-dynamic websites and 
-offline documentation. Rote provides a simple commandline or 
-Rake [http://rake.rubyforge.org] based build for your pages, with page 
-rendering (optionally supporting Textile and Markdown with 
-RedCloth [http://redcloth.rubyforge.org/] and ruby code with
-ERB [http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html]), layout,
-and general documentation / website build tasks.
+Rote is a simple page-based template system that was written to make it
+easier to author and maintain non-dynamic websites and offline documentation. 
+Rote provides a simple commandline or Rake [http://rake.rubyforge.org] based 
+build for your pages, with page rendering (optionally supporting Textile, 
+Markdown, and embedded Ruby code with RedCloth [http://redcloth.rubyforge.org/]
+and ERB [http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html]), 
+layout, and general documentation / website build tasks.
 
 == Should I download it?
 
@@ -56,6 +55,8 @@ you may find you can use older versions, you may not).
 * RedCloth 3.0.4 ('gem install RedCloth')
 
 == How do I install it?
+
+TODO This is out of date - install the gem package instead.
 
 Set it up somewhere warm. At the moment, the standard install.rb is broken,
 and so disabled - you will need to install Rote into it's own directory
