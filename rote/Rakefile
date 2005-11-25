@@ -112,12 +112,12 @@ rd = Rake::RDocTask.new("rdoc") { |rdoc|
 # Create a task build the website / docs
 CLOBBER.include('html')
 
-ws = Rote::SiteTask.new("doc") { |site| 
-  site.site_dir = 'html'
+ws = Rote::DocTask.new("doc") { |site| 
+  site.output_dir = 'html'
   site.layout_dir = 'doc/layouts'
 
   site.pages.dir = 'doc/pages'
-  site.pages.include('**/*.html')  
+  site.pages.include('**/*')  
   
   site.res.dir = 'doc/res/'
   site.res.include('**/*.png')
@@ -125,6 +125,9 @@ ws = Rote::SiteTask.new("doc") { |site|
   site.res.include('**/*.jpg')
   site.res.include('**/*.css')
 }
+
+# add rdoc dep to doc task
+task :doc => [:rdoc]
 
 # ====================================================================
 # Create a task that will package the Rote software into distributable
@@ -186,7 +189,8 @@ else
     s.rdoc_options <<
       '--title' <<  'Rote -- Template-based doc support for Rake' <<
       '--main' << 'README' <<
-      '--line-numbers'
+      '--line-numbers' << 
+      '-o' << 'html/rdoc'
 
     #### Author and project details.
 
@@ -202,7 +206,8 @@ else
 
   package_task = Rake::GemPackageTask.new(spec) do |pkg|
     pkg.need_zip = true
-    pkg.need_tar = true
+    pkg.need_tar_gz = true
+    pkg.package_dir = 'pkg'    
   end
 end
 
@@ -243,7 +248,7 @@ end
 ARCHIVEDIR = '/mnt/usb'
 
 task :archive => [:package] do
-  cp FileList["pkg/*.tgz", "pkg/*.zip", "pkg/*.gem"], ARCHIVEDIR
+  cp FileList["pkg/*.tar.gz", "pkg/*.zip", "pkg/*.gem"], ARCHIVEDIR
 end
 
 # Define an optional publish target in an external file.  If the

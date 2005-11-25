@@ -1,10 +1,33 @@
 = ROTE - A static website build tool for Ruby
 
-== WHAT IS THIS?
+== What is this?
 
-It's a simple page-based template system for your static website.
+Rote is a simple page-based template system for your static website that was 
+written to make it easier to author and maintain non-dynamic websites and 
+offline documentation. Rote provides a simple commandline or 
+Rake [http://rake.rubyforge.org] based build for your pages, with page 
+rendering (optionally supporting Textile and Markdown with 
+RedCloth [http://redcloth.rubyforge.org/] and ruby code with
+ERB [http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html]), layout,
+and general documentation / website build tasks.
+
+== Should I download it?
+
+I don't know. Rote offers the following major features:
+
+* Simple set-up based on page templates and sections.
+* ERB, Textile, and Markdown supported out of the box.
+* Multiple configurable layouts apply boilerplate to your pages.
+* 'Scoped' Ruby code support allows fine-grained control of data available across 
+  all documentation, a subset, or individual pages.
+* Can be used standalone (from the command-line) or from within Rake [http://rake.rubyforge.org]
+  as a custom task library.
+* Supports any (text-based) format, while providing utilities and helpers for
+  common formats (HTML at present).
+	  
+So, should you?
   
-== WHY ROTE?
+== Why 'Rote'
 
 The name? I tried to come up with a combination of 'Ruby Site', but couldn't
 get past 'Rite' (it's already taken ;)). So, I changed a letter. I'm short on
@@ -12,15 +35,17 @@ imagination you know. Oh, you mean why the system? Well, to make it easier
 for me to manage roscopeco.co.uk now that I've dumped all the dynamic (JEE) 
 stuff and gone back to good old Apache sans CGI. I want something that lets 
 me do the disconnected page rendering and some of the 'dynamic' stuff, 
-without the dynamic stuff. 
+without the dynamic stuff.
 
-== HOW DO I INSTALL IT?
+If you really need a better explanation for the name, I've come up with these
+alternatives:
 
-Set it up somewhere warm. DONT modify your path - it's what symlinks are for.
-If you use a symlink you'll probaby need to point ROTE_HOME to the install
-directory as well.
- 
-== WHAT ELSE DO I NEED?
+* Something about 'the docs I rote'
+* 'Rake-Oriented Template Extensions'
+* 'Rote Only Talks Erb'
+* 'Really? Ordinary Template Enhancements?'
+
+== What else do I need?
 
 Rote uses the following (versions are as per my development environment,
 you may find you can use older versions, you may not).
@@ -30,17 +55,57 @@ you may find you can use older versions, you may not).
 * Rake 0.6.2 ('gem install rake')
 * RedCloth 3.0.4 ('gem install RedCloth')
 
-== HOW DO I USE IT?
+== How do I install it?
 
-At the moment, it's pretty new (read: limited). I have some ideas for new
-stuff, and would like to hear yours. Basically, it expects you to make
-something like the following directory layout:
+Set it up somewhere warm. At the moment, the standard install.rb is broken,
+and so disabled - you will need to install Rote into it's own directory
+(I know, I know). DONT modify your path - it's what symlinks are for.
+If you use a symlink you'll probaby need to point ROTE_HOME to the install
+directory as well. With that done, you should be able to run 
+
+	rote --version
+	
+to verify that the command-line wrapper is working. If you wish to use the 
+tasks in your own Rakefiles, you will need to modify the library load path. 
+This can be done using the --libdir option to Rake, or alternatively by adding
+something like the following _before_ the +require+ '+rote+' line:
+
+	$: << "#{ENV['ROTE_HOME']}/lib"
+	
+This line does of course place restrictions on the build environment, in that
+Rote will have to be properly installed and configured with the ROTE_HOME
+environment variable.
+
+Obviously once we get into releases, Rote will of course be distributed via
+RubyGems, allowing much of this to be transparent for the user if you have
+Gems. Fixing the proper installation is a priority, and will come soon. 
+
+*Note*: Currently, the +rote+ script supports usage with custom Rakefiles as
+well as the built-in command-line setup. If +rote+ is run from a directory 
+that contains an existing Rakefile, it will use that instead of the built-in
+one. It will *not* search parent directories for a Rakefile.
+
+This feature exists to support custom Rakefiles without libpath twiddling,
+but should be considered a hack that will probably disappear from a (not
+too distant) future version.
+ 
+== How do I use it?
+
+=== From the command-line
+
+If you are generating a standalone documentation set (i.e. not as part of 
+some wider build) then you don't need to worry about writing a +Rakefile+ -
+you can use the built-in build via the +rote+ command. This works with
+a standard directory layout, and wraps invocation of +rake+ to handle
+setting up library dependencies and generation of appropriate tasks.
+
+You'll need something like the following directory layout:
   
-  somesite ( <- this can be called whatever you like)
-  |--> [config.rb]
+  somesite ( <- root, this can be called whatever you like)
+  |--> [publish.rf]
   |
-  |--> site
-  |    |--> [global.rb]
+  |--> doc
+  |    |--> [COMMON.rb]
   |    |
   |    |--> res
   |    |    |--> (resources)
@@ -50,37 +115,130 @@ something like the following directory layout:
   |    |    |--> two.rhtml
   |    | 
   |    |--> pages
-  |    |    |--> apage.rhtml
+  |    |    |--> [COMMON.rb]
+  |    |    |--> apage.txt
   |    |    |--> [apage.rb]
   |    |    |--> adir
-  |    |    |    |--> bpage.rhtml
-  |    |    |    |--> [bpage.rb]
- 
-At the moment, the extensions are fixed, but this will be changed soon. I 
-may also make the _template_ optional, and require the source. But for now,
-if you just create some rhtml files in the pages directory, and then run
+  |    |    |    |--> [COMMON.rb]
+  |    |    |    |--> bpage.html
+  |    |    |    |--> [bpage.rb]   
+
+Template sources under the 'pages' directory may have any extension (except
++rb+), and will be rendered to that same name under the output directory. 
+See the section on Layouts below for details on layout name resolution.
+Set up a simple test site following the above layout, and then run:
 
 	rote
 	
-from the top-level directory, you should get a 'target' directory created
-with the (transformed) templates (with regular 'html' extension). You can
-use textile or HTML for formatting, and can use regular ERB tags to embed
-ruby code.
+from the top-level directory (+somesite+), you should get a 'target' directory
+created with the (transformed) templates.
 
-Prior to rendering a template, Rote looks alongside the file for a ruby 
-source file with the same basename. If found, it's evaluated in the same
-binding as the template is later rendered in. Therefore, you can define
-instance variables to pass data around, or even helper methods if you 
-wish.
+Now try:
 
-The binding in which this happens actually belongs to a Rote::Page instance
-created for this particular page. As well as acting as an easy binding,
-Page also supplies some methods to allow you to control the application
-of layouts, which are handled by a second pass through the renderer. Given
-the hierarchy above, we could apply layout 'one' to '/bpage' by adding 
-the following to pages/bpage.rb:
+	rote --tasks
+	
+to get a list of valid tasks, or 
+	
+	rote --usage
+	
+for further option information.
+
+=== From your +Rakefile+
+
+If you are wanting to build documentation as part of a larger build process, or
+commandline setup, then you'll want to get started on integrating Rote with 
+your own (existing) +Rakefile+. Fortunately, this is very easy to do. Try 
+something like:
+
+	# Rakefile
+	include 'rote'
+	
+	ws = Rote::DocTask.new(:doc) { |site| 
+	  site.site_dir = 'html'
+	  site.layout_dir = 'doc/layouts'
+	
+	  site.pages.dir = 'doc/pages'
+	  site.pages.include('**/*')  
+		  
+	  site.res.dir = 'doc/res/'
+	  site.res.include('**/*.png')
+	  site.res.include('**/*.gif')
+	  site.res.include('**/*.jpg')
+	  site.res.include('**/*.css')
+	}
+	
+Save this as +Rakefile+, and fire up:
+
+	rake --libdir=$ROTE_HOME/lib doc
+
+If all goes well, you should see each command and transformation output to your
+console as Rote runs. 
+
+*Note* that it's safe to include '**/*' in the +pages+ list, since +rb+ 
+files are implicitly excluded.
+
+== Creating templates
+
+As mentioned, templates are simply text files in the doc/pages directory. The
+layout below that directory is retained when transforming pages, and is
+also used to provide simple hierarchical structure to the common page code.
+By default, any file with an extension other than +rb+ will be processed
+as a page template (with it's associated ruby source). The output will have
+the same filename and path, relative to the output directory.
+
+=== Template code and ERB
+
+All templates may contain embedded Ruby code (ERB), delimited by the standard
+<% ... %> (for executed code) and <%= ... %> (for output) tags. Any (valid) 
+Ruby code may be placed in the templates, and variables may be defined to
+allow information to be passed into templates. There are four places where 
+you might define such variables. The following is in order of evaluation:
+
+* This directory's COMMON.rb, or the parent directory's COMMON.rb if
+  +inherit_common+ is used.
+* This page's ruby code, _basename_.rb
+* In a block passed to Page.new
+* In the template itself
+
+When a Rote::Page instance is created, Rote looks for these, and 
+evaluates them, in order, in the same binding as the template is later rendered
+in (i.e. the +Page+ instance binding). Therefore, you can define
+instance variables to pass data around, or even helper methods if you wish.
+
+=== Text to HTML formatting
+
+Rote uses RedCloth (http://redcloth.rubyforge.org) to provide text to HTML 
+formatting, supporting both Textile and Markdown. The formatting applied to a
+given page is controlled by that page's +format_opts+ array. Both are disabled
+by default - to enable formatting you must add something like the following
+somewhere appropriate:
+
+	format_opts << :textile << :markdown
+	
+Although you can directly assign to +format_opts+, this isn't recommended since
+Ruby often interprets it as a local variable set rather than method call, 
+resulting in much head scratching as to why your options are being ignored.
+
+Formatting is applied _after_	any ERB has been evaluated.
+
+*Note* that the options you supply are passed directly to RedCloth, so you can
+exercise much more control over the formatting by using the feature-specific
+symbols defined by RedCloth, rather than the blanket :textile and :markdown
+symbols.
+
+=== Layout
+
+Layouts are stored under the doc/layouts directory (by default). They may
+be organised into subdirectories, but this hierarchy is not connected to
+the hierarchy in +pages+. To apply a layout to a page, simply call the
+Rote::Page.layout method from code applied to that page, passing the
+base-name (and path, relative to +layouts+, if used). If no extension is
+specified, then the same extension as the page itself is assumed. Examples:
 
 	layout 'one'
+	layout 'main/wide'
+	layout 'dark.txt'
+	<% layout 'my' %>
 	
 With that done, Rote would first render the template text (including textile)
 and set the Page instance variable @content_for_layout before rendering 
@@ -90,70 +248,40 @@ e.g.:
 
 	<%= @content_for_layout %>
 	
-This pattern shouldn't be unfamiliar I expect...
+This pattern shouldn't be unfamiliar. Again, note that Rote doesn't mandate 
+HTML, despite the appearance from the ERB tags - any (textual) format can
+be templated and laid out.
 
-If a file 'global.rb' is found in the 'site' directory, then it will be 
-evaluated FOR EACH PAGE (i.e., not once per run), and before the page's
-own ruby. Thus, it can be used for stuff like defaults as well as site
-wide settings. 
+== Resources
 
-Of course, you're likely to have resources for your site (pictures, css, etc)
-and you'll need to copy them over to the target too. Once the dependency on
-rhtml files as source is broken, you might template your CSS, but for now
-you'll just have to put it in the 'res' directory with your images and such,
-to be copied over to the target.
+Of course, you're likely to have resources for your site (images, sounds, etc)
+and you'll need to copy them over to the target too. Such resources should be
+placed under 'res' (with the commandline setup) or in your specified +res+
+directory, and will be copied directly to the output directory after page
+rendering.
 
-In all cases you can of course use nested directories under pages and res 
-(and layout too I guess, if you use e.g. 'category/one' for the name), and
-they'll be copied into the target properly. Page has a helper method that
-helps with making relative-root links.
+Of course, the directory layout beneath +res+ should mirror that of the 
+output, and will be preserved during the copy.
 
-== UPLOADING YOUR SITE
+== Publishing
 
-If you're one of the lucky(?) ones who's still using (stuck with) FTP, you
-can upload your site as part of the build. Simply create a config.rb file
-at the root of the project (above 'site/'), like this:
+Rote does not provide any direct support for publishing your site at present,
+relying on you to configure an appropriate publish task if required, using
+the publishers supplied with Rake (in rake/contrib). This allows maximum 
+flexibility, and allows Rote to concentrate on creating your documents.
 
-	@ftp_host = 'ftp.cruelhosts.co.uk'
-	@ftp_user = 'effteepee'
-	@ftp_pass = 'surelythisshouldbeoutsidethesite,maybeinuserhomedirectory?'
-	@ftp_root = '/htdocs/somesite'
-	
-The last two are optional. This whole config is a bit of a hack - A future
-release will probably switch it for yaml in the user's home directory. 
+The command-line build will automatically look for a file in the top-level
+directory (above +doc+) named publish.rf. If found, this file will be 
+evaluated by Rake, making any tasks defined within it available to your
+build. The most likely use case is to define task that uses an SSH directory
+publisher to publish via SCP.
 
-Once you've done that, you're good to go. Run:
+== A final note about command-line mode
 
-	rote upload
-	
-It will render changed pages, and upload the result. (NOTE: below)
-
-== THE ROTE SCRIPT
-
-If you installed it properly, you should be able to just run 'rote' from your
-project root directory (if not, you're probably pretty confused by these 
-example commands...). This script is a wrapper around the 'Rake' command
-that sets up the library path and rakefile, and so forth. For information
-on it's options, run
-
-	rote --usage
-
-== IS THAT IT?
-
-For now, yes. As I say, I have some plans, and will be building Rote as I work
-on revamping my site. For starters I'm planning to make better use of the
-Page, remove the requirement for pages to have templates, and two-step model
-and view setup, allowing more complex stuff to be done like categories and
-auto navigations.
-
-But for now, yes. That's it.
-
-=== NOTE: 
-
-*Currently, there isn't enough checking involved on source resources when
-building pages* - Basically, only templates are considered when Rake decides
-what to update. If you change layouts, code or resources you'll need to 
-run:
+Currently, there isn't enough checking involved on source resources when
+building pages from the command-line wrapper - Basically, only templates are
+considered when Rake decides what to update. If you change layouts, code or 
+resources you'll need to run:
 	
 	rote clean
 		
@@ -162,5 +290,4 @@ as:
 	
 	rote clean upload
 		
-	
-	
+Please note that this isn't Rake's limitation - it's mine.	

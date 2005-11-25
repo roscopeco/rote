@@ -40,8 +40,12 @@ ROTEVERSION = 0.1
 ## to many different types of website, including basic blog-plus sites,
 ## slower-moving news and information sites, and software documentation.
 ##
+## See +README+ for general usage information. +Rote::DocTask+ documents the
+## Rake task integration, while +Rote::Page+ has information useful to template
+## writers.
+##
 ## Rote is (c)2005 Ross Bamford, and is licensed under an MIT license. 
-## See LICENSE for details.
+## See +LICENSE+ for details.
 module Rote
 
   private
