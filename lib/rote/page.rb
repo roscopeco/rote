@@ -22,8 +22,25 @@ module Rote
     attr_reader :template_text
 
     # The text of the layout to use for this page. This is read in
-    # when (if) the page source calls +layout(basename)+.
+    # when (if) the page source calls layout(basename).
     attr_reader :layout_text
+    
+    # Formatting options passed to RedCloth. This is an array of the
+    # option symbols defined by RedCloth.
+    # The most common are :textile and :markdown. See RedCloth
+    # documentation for full details of supported options.
+    # 
+    # The default is [], which means 'No formatting'. This setting
+    # does not affect ERB rendering (which is always performed, before
+    # any formatting).
+    attr_accessor :format_opts
+    def format_opts=(opts)
+      if !opts.nil? && opts.respond_to?(:to_ary)
+        @format_opts = opts
+      else
+        @format_opts = [opts]
+      end
+    end
     
     # Reads the template, and evaluates the global and page scripts, if 
     # available, using the current binding. You may define any instance
@@ -43,6 +60,7 @@ module Rote
       @layout_text = nil
       @content_for_layout = nil
       @result = nil
+      @format_opts = []
       @layout_defext = default_layout_ext
       @layout_path = layout_path
       @fixme_dir = File.dirname(template_fn)
@@ -106,7 +124,15 @@ module Rote
     def do_render!
       # Render the page content into the @content_for_layout
       if !@template_text.nil?
-        @content_for_layout = RedCloth.new( ERB.new(@template_text).result(binding) ).to_html(:textile) 
+        ctl = ERB.new(@template_text).result(binding)
+        
+        @content_for_layout = 
+            if @format_opts && ((@format_opts.respond_to?(:to_ary) && (!@format_opts.empty?)) || @format_opts.is_a?(Symbol)) 
+              opts = @format_opts.respond_to?(:to_ary) ? @format_opts : [@format_opts]          
+              RedCloth.new(ctl).to_html(*opts) 
+            else
+              ctl
+            end
       end
       
       # render into the layout if supplied.

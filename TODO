@@ -5,10 +5,8 @@ Send any suggestions (or test-driven patches) to:
 
   rosco <at> roscopeco <dot> co <dot> uk
 
-* Support pluggable markup (not just textile)
-* Better integration with rdoc task
+* More flexible markup rendering
 * Integration with test reports
 * Automatic navigation / TOC
 * Index and glossary support
 * statistics
-

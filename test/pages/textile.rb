@@ -1,0 +1,1 @@
+format_opts << :textile

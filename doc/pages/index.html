@@ -1,19 +1,37 @@
 h2. Rote - A static website build tool for Ruby
 
-*Rote is a simple page-based template system for your static website that was written
-to make it easier to author and maintain non-dynamic websites and offline documentation.*
-Rote provides a simple commandline build for your pages (integration with existing Rakefiles
-is also planned) that renders your pages (supporting Textile and ERB), applies layout,
-and optionally handles upload to your (host's) server.
+*Rote is a simple page-based template system for your static website that was 
+written to make it easier to author and maintain non-dynamic websites and 
+offline documentation.* Rote provides a simple commandline or 
+"Rake":http://rake.rubyforge.org based build for your pages, with page 
+rendering (optionally supporting Textile and Markdown with 
+"RedCloth":http://redcloth.rubyforge.org/ and ruby code with
+"ERB":http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html), layout,
+and general documentation / website build tasks.
+
+h3. Features
+
+Rote offers the following major features:
+
+	* Simple set-up based on page templates and sections.
+	* ERB, Textile, and Markdown supported out of the box.
+	* Multiple configurable layouts apply boilerplate to your pages.
+	* 'Scoped' Ruby code support allows fine-grained control of data available across 
+	  all documentation, a subset, or individual pages.
+	* Can be used standalone (from the command-line) or from within "Rake":http://rake.rubyforge.org
+	  as a custom task library.
+	* Supports any (text-based) format, while providing utilities and helpers for
+	  common formats (HTML at present).
 
 h3. So where is it?
 
-Well, it's still in CVS. It's still pretty new and not _quite_ ready for a release yet.
-It won't be long, but if you're impatient (or just bored), the 
+Well, it's still in "CVS":http://rubyforge.org/cgi-bin/viewcvs.cgi/?cvsroot=rote. It's still pretty new
+and not _quite_ ready for a release yet. It won't be long, but if you're impatient (or just bored), the 
 "Project page on Rubyforge":http://rubyforge.org/projects/rote has everything you need
 to get going with the CVS version.
 
-From there, read the README. Obviously, this site is still under construction too.
+The "README":rdoc/files/README.html has the most comprehensive user guide at the moment.  Obviously, this
+site is still under construction too.
 
 h3. Licence
 

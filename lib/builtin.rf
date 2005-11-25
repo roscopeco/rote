@@ -1,0 +1,27 @@
+#
+# Built-in Rakefile for Rote, (c)2005 Ross Bamford
+
+require 'rake'
+require 'rake/clean'
+require 'rote'
+
+CLEAN.include('html')
+
+# Create a task build the website / docs
+ws = Rote::DocTask.new("doc") { |site| 
+  site.output_dir = 'html'
+  site.layout_dir = 'doc/layouts'
+
+  site.pages.dir = 'doc/pages'
+  site.pages.include('**/*')  
+  
+  site.res.dir = 'doc/res/'
+  site.res.include('**/*.png')
+  site.res.include('**/*.gif')
+  site.res.include('**/*.jpg')
+  site.res.include('**/*.css')
+}
+
+task :default => [:doc]
+
+import 'publish.rf' if File.exists?('publish.rf')

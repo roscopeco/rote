@@ -1,7 +1,11 @@
-puts "Not yet implemented"
-exit(1)
-__END__
+puts <<-EOM
+NOT YET SUPPORTED
 
+Please copy 'bin' and 'lib' to a new directory, and set ROTE_HOME to 
+point there. Standard installation is not yet supported.
+EOM
+
+__END__
 require 'rbconfig'
 require 'find'
 require 'ftools'
