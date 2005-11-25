@@ -9,10 +9,12 @@ format_opts << :textile
 @navigation = [
 					{:title => 'Home',
 					 :url => '/index.html'},
+					{:title => 'Download',
+					 :url => 'http://rubyforge.org/frs/?group_id=1120'},					 
 					{:title => 'RDoc',
 					 :url => 'rdoc/'},					 
 					{:title => 'Project home',
 					 :url => 'http://rubyforge.org/projects/rote'},					 
 					{:title => 'Browse CVS',
-					 :url => 'http://rubyforge.org/cgi-bin/viewcvs.cgi/?cvsroot=rote'}
+					 :url => 'http://rubyforge.org/cgi-bin/viewcvs.cgi/?cvsroot=rote'}					 
 					]
