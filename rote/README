@@ -151,7 +151,7 @@ your own (existing) +Rakefile+. Fortunately, this is very easy to do. Try
 something like:
 
 	# Rakefile
-	include 'rote'
+	require 'rote'
 	
 	ws = Rote::DocTask.new(:doc) { |site| 
 	  site.site_dir = 'html'
