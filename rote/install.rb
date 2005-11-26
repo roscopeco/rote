@@ -85,5 +85,27 @@ for fn in files
   File::install(File.join('lib', fn), File.join($sitedir, fn), 0644, true)
 end
 
+$mandir = CONFIG['mandir']
+unless (!$mandir || CONFIG["target_os"] =~ /mswin/i)   # manpages not doable on windows?
+  files = Dir.chdir('doc/man') { Dir['*.gz'] }
+  for fn in files
+    # maybe in locale dir
+    fdn = File.dirname(fn)    
+    target_dir = $mandir
+    target_dir = File.join(target_dir, fdn) unless fdn == '.'
+    
+    fbn = File.basename(fn)    
+    if (fbn =~ /\.([0-9]*)(\.gz)?$/)
+      target_dir = File.join(target_dir,"man#{$~[1]}")
+    end      
+    
+    if ! File.exist?(target_dir)
+      File.makedirs(target_dir)
+    end
+    
+    File::install(File.join('doc/man', fn), File.join(target_dir, fbn), 0644, true)
+  end  
+end
+
 # and the executable
 installBIN("bin/rote", "rote")
