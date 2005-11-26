@@ -25,6 +25,7 @@ require 'rote'
 
 CLEAN.include('testdata')
 CLOBBER.include('TAGS')
+CLOBBER.include('html')
 
 def announce(msg='')
   STDERR.puts msg
@@ -110,9 +111,7 @@ rd = Rake::RDocTask.new("rdoc") { |rdoc|
 }
 
 # Create a task build the website / docs
-CLOBBER.include('html')
-
-ws = Rote::DocTask.new("doc") { |site| 
+ws = Rote::DocTask.new(:doc) { |site| 
   site.output_dir = 'html'
   site.layout_dir = 'doc/layouts'
 
@@ -133,17 +132,19 @@ task :doc => [:rdoc]
 # Create a task that will package the Rote software into distributable
 # tar, zip and gem files.
 
+# don't include rendered website and all that Jazz 
 PKG_FILES = FileList[
   'install.rb',
   '[A-Z]*',
   'bin/**/*', 
   'lib/**/*.rb', 
-  'test/**/*.rb',
-  'test/**/*.rf',
-  'test/**/*.mf',
-  'test/**/Rakefile',
+  'lib/rote/builtin.rf', 
+  'test/**/*',
   'doc/**/*'
 ]
+
+# don't want GIMP originals
+PKG_FILES.exclude('**/*.xcf')
 
 if ! defined?(Gem)
   puts "Package Target requires RubyGEMs"
@@ -163,16 +164,16 @@ else
 
     #### Dependencies and requirements.
 
-    #s.add_dependency('log4r', '> 1.0.4')
+    s.add_dependency('RedCloth', '> 3.0')
+    s.add_dependency('rake', '> 0.6')
     #s.requirements << ""
 
-    #### Which files are to be included in this gem?  Everything!  (Except CVS directories.)
+    #### Which files are to be included in this gem? 
 
     s.files = PKG_FILES.to_a
 
-    #### C code extensions.
-
-    #s.extensions << "ext/rmagic/extconf.rb"
+    #### Install Manpages (abuse C extension feature a bit)
+    #s.extensions << "post-install.rb"
 
     #### Load-time details: library and application (you will need one or both).
 
@@ -181,6 +182,8 @@ else
     s.bindir = "bin"                               # Use these for applications.
     s.executables = ["rote"]
     s.default_executable = "rote"
+    
+    s.autorequire = 'rote'
 
     #### Documentation and testing.
 
@@ -190,7 +193,9 @@ else
       '--title' <<  'Rote -- Template-based doc support for Rake' <<
       '--main' << 'README' <<
       '--line-numbers' << 
-      '-o' << 'html/rdoc'
+      '--inline-source' <<
+      '--template' << 'doc/jamis.rb'
+      '-o' << 'html'      
 
     #### Author and project details.
 

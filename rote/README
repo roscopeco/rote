@@ -50,45 +50,53 @@ Rote uses the following (versions are as per my development environment,
 you may find you can use older versions, you may not).
 	
 * Ruby 1.8.3 ('yum install ruby' on Fedora 4)
-* RubyGems 0.8.11 (http://rubyforge.org/frs/?group_id=126)
 * Rake 0.6.2 ('gem install rake')
 * RedCloth 3.0.4 ('gem install RedCloth')
 
-== How do I install it?
+RubyGems (http://rubyforge.org/frs/?group_id=126) is *highly recommended*,
+and makes for not only an easier install but a cleaner library path.
+Rote is tested with Gems 0.8.11.
 
-TODO This is out of date - install the gem package instead.
+== How do I install it ... 
 
-Set it up somewhere warm. At the moment, the standard install.rb is broken,
-and so disabled - you will need to install Rote into it's own directory
-(I know, I know). DONT modify your path - it's what symlinks are for.
-If you use a symlink you'll probaby need to point ROTE_HOME to the install
-directory as well. With that done, you should be able to run 
+=== ... with RubyGems?
+
+If you have RubyGems, you can install Rote by simply issuing the command:
+
+	gem install rote 
+	
+Which should download the latest version and install it, including
+the 'rote' wrapper script and man pages.	If you experience problems,
+or wish to perform an offline installation, then simply download the 
+.gem file from the FRS, and execute the gem command from within the same
+directory.
+
+=== ... using install.rb?
+
+If you don't have RubyGems, you can install from one of the tarball or zip
+packages, using the following command:
+
+	ruby install.rb
+	
+from the unpacked root directory. This will copy the libaries to the 
+appropriate	place, and set up the rote wrapper script and so on.
+
+=== ... in my own way?
+
+If you're one of those people who just has to be different, then you'll be
+pleased to know you can carry on that tradition, and place the files
+pretty much where you like. Simply point an environment variable, 
+ROTE_LIB, at the top-level lib directory (where rote.rb is found), and
+ensure rote (or a symlink) is visible in your path. 
+
+=== Did it work?
+
+With that done, you should be able to run 
 
 	rote --version
 	
-to verify that the command-line wrapper is working. If you wish to use the 
-tasks in your own Rakefiles, you will need to modify the library load path. 
-This can be done using the --libdir option to Rake, or alternatively by adding
-something like the following _before_ the +require+ '+rote+' line:
-
-	$: << "#{ENV['ROTE_HOME']}/lib"
-	
-This line does of course place restrictions on the build environment, in that
-Rote will have to be properly installed and configured with the ROTE_HOME
-environment variable.
-
-Obviously once we get into releases, Rote will of course be distributed via
-RubyGems, allowing much of this to be transparent for the user if you have
-Gems. Fixing the proper installation is a priority, and will come soon. 
-
-*Note*: Currently, the +rote+ script supports usage with custom Rakefiles as
-well as the built-in command-line setup. If +rote+ is run from a directory 
-that contains an existing Rakefile, it will use that instead of the built-in
-one. It will *not* search parent directories for a Rakefile.
-
-This feature exists to support custom Rakefiles without libpath twiddling,
-but should be considered a hack that will probably disappear from a (not
-too distant) future version.
+to verify that the command-line wrapper is working. You should of course see
+the version number of your Rote installation.
  
 == How do I use it?
 
@@ -138,7 +146,7 @@ Now try:
 
 	rote --tasks
 	
-to get a list of valid tasks, or 
+to get a list of valid tasks, or:
 	
 	rote --usage
 	

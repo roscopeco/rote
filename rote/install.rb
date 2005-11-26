@@ -1,11 +1,3 @@
-puts <<-EOM
-NOT YET SUPPORTED
-
-Please copy 'bin' and 'lib' to a new directory, and set ROTE_HOME to 
-point there. Standard installation is not yet supported.
-EOM
-
-__END__
 require 'rbconfig'
 require 'find'
 require 'ftools'
@@ -17,7 +9,7 @@ $ruby = CONFIG['ruby_install_name']
 ##
 # Install a binary file. We patch in on the way through to
 # insert a #! line. If this is a Unix install, we name
-# the command (for example) 'rake' and let the shebang line
+# the command (for example) 'rote' and let the shebang line
 # handle running it. Under windows, we add a '.rb' extension
 # and let file associations to their stuff
 #
@@ -39,7 +31,7 @@ def installBIN(from, opfile)
   File.open(from) do |ip|
     File.open(tmp_file, "w") do |op|
       ruby = File.join($realbindir, $ruby)
-      op.puts "#!#{ruby} -w"
+      op.puts "#!#{ruby}"
       op.write ip.read
     end
   end
@@ -62,15 +54,18 @@ unless $sitedir
 end
 
 $bindir =  CONFIG["bindir"]
-
+$mandir = CONFIG['mandir']
 $realbindir = $bindir
+$realmandir = $mandir
 
 bindir = CONFIG["bindir"]
 if (destdir = ENV['DESTDIR'])
   $bindir  = destdir + $bindir
+  $mandir = destdir + $mandir
   $sitedir = destdir + $sitedir
   
   File::makedirs($bindir)
+  File::makedirs($mandir)
   File::makedirs($sitedir)
 end
 
@@ -80,8 +75,7 @@ File::chmod(0755, rote_dest)
 
 # The library files
 
-files = Dir.chdir('lib') { Dir['**/*.rb'] }
-
+files = Dir.chdir('lib') { Dir['**/*.rb'] + Dir['**/*.rf'] }
 for fn in files
   fn_dir = File.dirname(fn)
   target_dir = File.join($sitedir, fn_dir)
@@ -92,5 +86,4 @@ for fn in files
 end
 
 # and the executable
-
 installBIN("bin/rote", "rote")
