@@ -285,7 +285,9 @@ evaluated by Rake, making any tasks defined within it available to your
 build. The most likely use case is to define task that uses an SSH directory
 publisher to publish via SCP.
 
-== A final note about command-line mode
+== Final notes
+
+=== Commandline mode
 
 Currently, there isn't enough checking involved on source resources when
 building pages from the command-line wrapper - Basically, only templates are
@@ -300,3 +302,22 @@ as:
 	rote clean upload
 		
 Please note that this isn't Rake's limitation - it's mine.	
+
+=== Versioning
+
+Rote uses odd/even numbers for development/release versions. When the final
+version component is odd, the package is an 'unofficial' build - generally
+this means built manually from source, during development. These will never
+be distributed, and there's no guarantee that any two packages with the same
+development version will actually be the same. These packages will have no
+corresponding CVS tag.
+
+Even numbers always denote 'official' releases, which are released on 
+RubyForge and tagged as such in CVS. These packages can be trusted to exhibit
+version consistency.
+
+If you are bundling Rote with your product, please ensure you use an official
+release version whenever possible. If you must use a developmental version,
+please modify the package version to reflect the fact that it is a custom
+build (e.g. 0.1.3-mycompany-20051021) to prevent inconsistent development
+packages from escaping into the wild.
