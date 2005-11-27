@@ -20,7 +20,10 @@ require 'rake/clean'
 require 'rake/testtask'
 require 'rake/rdoctask'
 
-$: << 'lib'
+# This needs to go at the front of the libpath
+# Otherwise, any pre-installed rote gets found,
+# and used from there.
+$:[0,1] = 'lib'
 require 'rote'
 
 CLEAN.include('testdata')
@@ -204,6 +207,15 @@ else
 #       s.signing_key = File.join(ENV['CERT_DIR'], 'gem-private_key.pem')
 #       s.cert_chain  = [File.join(ENV['CERT_DIR'], 'gem-public_cert.pem')]
 #     end
+  end
+  
+  # Quick fix for Ruby 1.8.3 / YAML bug
+  if (RUBY_VERSION == '1.8.3')
+    def spec.to_yaml
+      out = super
+      out = '--- ' + out unless out =~ /^---/
+      out
+    end  
   end
 
   package_task = Rake::GemPackageTask.new(spec) do |pkg|
