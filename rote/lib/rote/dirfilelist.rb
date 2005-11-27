@@ -13,8 +13,8 @@ module Rote
     # configuration (e.g. if you have a lot of includes/excludes
     # or just don't like arguments for whatever reason).
     def initialize(basedir = '.', *patterns)      
-       @dir = basedir
       super(*patterns)
+      self.dir = basedir
     end
   
     # The root directory from which this filelist matches. All patterns
