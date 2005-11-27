@@ -33,7 +33,7 @@ module Rote
     # The default is [], which means 'No formatting'. This setting
     # does not affect ERB rendering (which is always performed, before
     # any formatting).
-    attr_accessor :format_opts
+    attr_reader :format_opts
     def format_opts=(opts)
       if !opts.nil? && opts.respond_to?(:to_ary)
         @format_opts = opts

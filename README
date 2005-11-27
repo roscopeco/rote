@@ -71,6 +71,10 @@ or wish to perform an offline installation, then simply download the
 .gem file from the FRS, and execute the gem command from within the same
 directory.
 
+*Note* that the gem install currently doesn't install the man pages.
+You will need to copy them to the appropriate location manually if using
+this method.
+
 === ... using install.rb?
 
 If you don't have RubyGems, you can install from one of the tarball or zip
@@ -79,7 +83,7 @@ packages, using the following command:
 	ruby install.rb
 	
 from the unpacked root directory. This will copy the libaries to the 
-appropriate	place, and set up the rote wrapper script and so on.
+appropriate	place, and set up the rote wrapper script, manpages, and so on.
 
 === ... in my own way?
 
