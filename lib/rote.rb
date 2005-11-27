@@ -28,7 +28,7 @@ require_gem 'rake'
 require 'rote/rotetasks'
 
 # Master Rote version. Manage this from the Rake release support.
-ROTEVERSION = '0.1.4'
+ROTEVERSION = '0.1.5'
 
 #####
 ## *Rote* is a Rake (http://rake.rubyforge.org) based build tool for page-based
