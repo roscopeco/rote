@@ -1,5 +1,9 @@
 module Rote
 
+
+# TODO untested
+
+
   # An extension to the Rake +FileList+ class that allows a root
   # directory to be specified.
   class DirectoryFileList < FileList  
@@ -8,17 +12,17 @@ module Rote
     # patterns. You may also pass a block to perform additional
     # configuration (e.g. if you have a lot of includes/excludes
     # or just don't like arguments for whatever reason).
-    def initialize(basedir = '.', *patterns)
-      dir=(basedir)
+    def initialize(basedir = '.', *patterns)      
+       @dir = basedir
       super(*patterns)
     end
   
     # The root directory from which this filelist matches. All patterns
     # are considered relative to this directory.
-    attr_accessor :dir        
+    attr_reader :dir        
     def dir=(newdir)
       newdir = newdir.sub(/\/$/,'')
-      sub!(/^#{@dir}/,newdir)
+      self.sub!(/^#{@dir}/,newdir) unless self.empty?
       @dir = newdir    
     end
    
