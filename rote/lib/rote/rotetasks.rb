@@ -91,8 +91,10 @@ module Rote
     def define_page_tasks
     
       # define a task for each page
+      realpages = FileList[]
       pages.each { |fn| 
         unless File.directory?(fn)    # make dirs only as needed
+          realpages << fn
           tfn = fn.sub(/#{pages.dir}/, output_dir)
           
           desc "#{fn} => #{tfn}" if show_page_tasks?
@@ -109,7 +111,7 @@ module Rote
       
       # this is pretty convenient ;]
       desc "Render all documentation pages"
-      task "#{name}-pages" => pages.sub(/#{pages.dir}/, output_dir)
+      task "#{name}-pages" => realpages.sub(/#{pages.dir}/, output_dir)
     end
     
     def define_main_tasks
