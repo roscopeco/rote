@@ -1,5 +1,3 @@
-h2. Rote - A static website build tool for Ruby
-
 *Rote is a simple page-based template system that was written to make it 
 easier to author and maintain non-dynamic websites and 
 offline documentation.* Rote provides a simple commandline or 
@@ -8,12 +6,6 @@ rendering (optionally supporting Textile and Markdown with
 "RedCloth":http://redcloth.rubyforge.org/ and ruby code with
 "ERB":http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html), layout,
 and general documentation / website build tasks.
-
-Rote is somewhat similar to (though simpler than) 
-"WebGen":http://webgen.rubyforge.org , which provides a richer environment
-geared more toward websites and content publishing (whereas Rote's
-implementation as an extension to Rake reflects a bias toward software 
-documentation).
 
 h3. Features
 
@@ -29,44 +21,31 @@ Rote offers the following major features:
 	* Supports any (text-based) format, while providing utilities and helpers for
 	  common formats (HTML at present).
 
-h3. So where is it?
+Rote is somewhat similar to (though simpler than) 
+"WebGen":http://webgen.rubyforge.org , which provides a richer environment
+geared more toward websites and content publishing (whereas Rote's
+implementation as an extension to Rake reflects a bias toward software 
+documentation).
 
-The first release of Rote can be downloaded from "Our FRS on RubyForge":http://rubyforge.org/frs/?group_id=1120 .
-It should be also available as a RubyGem (rote-0.1.0) in the usual way.
-The "README":rdoc/files/README.html has the most comprehensive user guide at the moment.  Obviously, this
-site is still under construction too.
+See the "User guide":<%= link_rel '/guide' %> and "RDoc":<%= link_rel '/rdoc' %> for usage information.
+
+h3. Download?
+
+You can get Rote via "RubyGems":http://rubyforge.org/projects/rubygems if you have it:
+
+	* <strong><code>gem install -r rote</code></strong>
+
+Alternatively, you can download tarball / zip packages from: 
+
+  * <strong>"http://rubyforge.org/frs/?group_id=1120":http://rubyforge.org/frs/?group_id=1120</strong>
 
 You can also grab the latest code from "CVS":http://rubyforge.org/cgi-bin/viewcvs.cgi/?cvsroot=rote. 
 
-Please note that Rote is still pretty new, and while this first release is fairly functional, it's
+h4. From CVS 
+
+A link to the latest stable release can be found from the "project page":http://rubyforge.org/projects/rote .
+
+Please note that Rote is still pretty new, and while currently fairly functional, it's
 also still shiny and new, and liable to break down, destroy data, and run away with your spouse if
-given half a chance. Check out the "Project page on Rubyforge":http://rubyforge.org/projects/rote 
-for everything you need to get going with the CVS version.
-
-h3. Licence
-
-<ul>
-<pre>
-<code>
-Copyright (c) 2005 Ross Bamford (and contributors)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in 
-the Software without restriction, including without limitation the rights to 
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-</code>
-</pre>
-</ul>
+given half a chance. Sound like fun? Then check out the "Project page on Rubyforge":http://rubyforge.org/projects/rote 
+for everything you need to get going with the CVS version!

@@ -6,7 +6,10 @@ Send any suggestions (or test-driven patches) to:
   rosco <at> roscopeco <dot> co <dot> uk
 
 * More flexible markup rendering
+* Nested layouts
 * Integration with test reports
 * Automatic navigation / TOC
+* Ability to have multiple views of a section, e.g. user guide (separate
+  pages) and user guide (one page) generated from same source.
 * Index and glossary support
 * statistics
