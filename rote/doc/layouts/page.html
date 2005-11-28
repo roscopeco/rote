@@ -32,6 +32,10 @@
 	</table>	
 	
 	<div class='main' background='#c0a0c0'>
+		<% if @page_title %>
+			<h2><%= @page_title %></h2>
+		<% end %>
+		
 		<%= @content_for_layout %>	
 	</div>
 	

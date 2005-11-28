@@ -1,0 +1,311 @@
+<% @page_title = 'User guide' %>
+
+*This guide is still very much under construction!*
+
+It is assumed that you have installed Rote already. If not, please
+consult the <a href="<%= link_rel '/rdoc/files/README.html' %>">README</a> 
+for installation instructions.
+
+<a name='top'/>
+h3. Contents
+
+  * "Getting started with Rote":#getting_started
+  ** "From the command-line":#getting_started_command_line
+  ** "From your Rakefile":#getting_started_rakefile
+  * "Creating templates":#create_templates
+  ** "Basics":#create_templates_basics
+  ** "Formatting":#create_templates_formatting
+  ** "Template code & ERB":create_templates_erb
+  ** "Applying layout":create_templates_layout
+  * "Resources":#resources
+  * "Publishing":#publishing
+  
+<a name='getting_started'/>
+h3. Getting started with Rote
+
+h4. Setting up a project
+
+To get started quickly, we'll use the standard Rote directory layout, which
+can be used immediately with the command-line wrapper, and fits well with
+Rakefile usage too. Basically, Rote expects your documentation source to
+be laid out as follows:
+
+<code><pre>  
+  project_root ( <- root, this can be called whatever you like)
+  |
+  |--> [publish.rf]
+  |
+  |--> doc
+  |    |--> [COMMON.rb]
+  |    |
+  |    |--> res
+  |    |    |--> (resources)
+  |    |
+  |    |--> layouts
+  |    |    |--> one.txt
+  |    |    |--> two.html
+  |    | 
+  |    |--> pages
+  |    |    |--> [COMMON.rb]
+  |    |    |--> apage.txt
+  |    |    |--> [apage.rb]
+  |    |    |--> adir
+  |    |    |    |--> [COMMON.rb]
+  |    |    |    |--> bpage.html
+  |    |    |    |--> [bpage.rb]   
+			  
+</code></pre>
+
+Template sources under the 'pages' directory may have any extension (except
+=rb=), and will be rendered to that same name under the output directory. 
+See the section on Layouts below for details on layout name resolution.
+
+Ruby source is optional, and allows you to define instance variables and 
+methods on a Page instance. COMMON.rb is applied to all pages in a given
+directory. See "the section on templates":#create_templates for more
+information on the specifics.
+
+If you've downloaded Rote, then you can see the canonical example site by
+looking in the =doc/= directory (where you'll find the source for this
+site).
+
+["top":#top]
+
+<a name='getting_started_command_line'/>
+h4. From the command-line
+
+If you are generating a standalone documentation set (i.e. not as part of 
+some wider build) then you don't need to worry about writing a =Rakefile= -
+you can use the built-in build via the +rote+ command. This works with
+a standard directory layout, and wraps invocation of +rake+ to handle
+setting up library dependencies and generation of appropriate tasks.
+
+The command-line wrapper expects the above layout, and requires no direct
+configuration. To generate an entire documentation set, simply run:
+
+<pre><code>        rote</code></pre>
+	
+from the top-level directory (=project= in the example above), you should get
+a 'html' directory created with the (transformed) templates, and any 
+resources should be copied as necessary. 
+
+Being based on Rake, Rote supports last-modified checking, and provides an
+individual file task for each page in your doc set. For example, running 
+the 'rote' command again with no options will cause it to exit almost
+immediately, since all output is up to date. If you change a file, and run
+rote again, then just that file will be updated. There are a few caveats
+with this (see "the notes section":#final_notes).
+
+The file tasks are named for the target files, so for example to generate
+just the top-level index.html (regardless of whether it's been modified)
+you'd run:
+
+<pre><code>        rote html/index.html</code></pre>
+
+The =clean= task supports deleting all output files to start from scratch:
+
+<pre><code>        rote clean</code></pre>
+
+Of course, multiple file or task names (or a mixture) can be specified.
+You can get a list of valid tasks in the current context with:
+
+<pre><code>        rote --tasks</code></pre>
+	
+Further command-line usage information is available with:
+	
+<pre><code>        rote --usage</code></pre>
+	
+and Unix installations performed with =install.rb= should also make a
+manpage available for the =rote= command.
+
+["top":#top]
+
+<a name='getting_started_rakefile'/>
+h4. From your +Rakefile+
+
+If you are wanting to build documentation as part of a larger build process, or
+commandline setup, then you'll want to get started on integrating Rote with 
+your own (existing) +Rakefile+. Fortunately, this is very easy to do. Try 
+something like:
+
+<pre><code>
+	# Rakefile
+	require 'rote'
+	
+	ws = Rote::DocTask.new(:doc) { |site| 
+	  site.site_dir = 'html'
+	  site.layout_dir = 'doc/layouts'
+	
+	  site.pages.dir = 'doc/pages'
+	  site.pages.include('**/*')  
+		  
+	  site.res.dir = 'doc/res/'
+	  site.res.include('**/*.png')
+	  site.res.include('**/*.gif')
+	  site.res.include('**/*.jpg')
+	  site.res.include('**/*.css')
+	}
+	
+</code></pre>
+	
+Save this as =Rakefile=, and fire up:
+
+<pre><code>        rake doc</code></pre>
+
+If all goes well, you should see each command and transformation output to your
+console as Rote runs. 
+
+*Note* that it's safe to include '**/*' in the +pages+ list, since +rb+ 
+files are implicitly excluded.
+
+["top":#top]
+
+<a name='create_templates'/>
+h3. Creating templates
+
+<a name='create_templates_basics'/>
+h4. The basics
+
+As mentioned, templates are simply text files in the =doc/pages= directory. The
+layout below that directory is retained when transforming pages, and is
+also used to provide simple hierarchical structure to the common page code.
+
+By default, any file with an extension other than =rb= will be processed
+as a page template (with it's associated ruby source). The output will have
+the same filename and path, relative to the output directory.
+
+["top":#top]
+
+<a name='create_templates_formatting'/>
+h4. Applying formatting
+
+If you're generating HTML, you'll probably want to use some plaintext 
+formatting, rather than writing HTML by hand. Rote uses 
+"RedCloth":http://redcloth.rubyforge.org to provide text to HTML formatting, 
+supporting both Textile and Markdown. The formatting applied to a given page is
+controlled by that page's +format_opts+ array. Both are disabled by default - to 
+enable formatting you must add something like the following somewhere appropriate:
+
+<pre><code>        format_opts << :textile << :markdown</code></pre>
+	
+This can be done in page code, COMMON.rb, or even inside the template itself.
+See "the section on template code":#create_templates_erb for more information
+on adding code to your templates.
+	
+*Some additional notes on formatting*
+
+  * Although you can directly assign to +format_opts+, this isn't recommended 
+    since Ruby often interprets it as a local variable set rather than method call, 
+    resulting in much head scratching as to why your options are being ignored.
+    
+  * Note that *Formatting is applied _after_ any ERB has been evaluated.*
+
+  * that the options you supply are passed directly to RedCloth, so you can
+    exercise much more control over the formatting by using the feature-specific
+    symbols defined by RedCloth, rather than the blanket :textile and :markdown
+    symbols.
+
+["top":#top]
+
+<a name='create_templates_erb'/>
+h4. Template code and ERB
+
+All templates may contain embedded Ruby code (ERB), delimited by the standard
+&lt;% ... %&gt; (for executed code) and &lt;%= ... %&gt; (for output) tags. Any 
+(valid) Ruby code may be placed in the templates, and variables may be defined to
+allow information to be passed into templates. There are four places where 
+you might define such variables. The following is in order of evaluation:
+
+* This directory's COMMON.rb, or the parent directory's COMMON.rb if
+  =inherit_common= is used.
+* This page's ruby code, _basename_.rb
+* In a block passed to Page.new
+* In the template itself
+
+When a =Rote::Page= instance is created, Rote looks for these, and if found
+evaluates them, in order, in the same binding as the template is later rendered
+in (i.e. the =Page= instance binding). Therefore, you can define
+instance variables to pass data around, or even helper methods if you wish.
+
+["top":#top]
+
+<a name='create_templates_layout'/>
+h4. Layout
+
+Layouts are stored under the =doc/layouts= directory (by default). They may
+be organised into subdirectories, but this hierarchy is not connected to
+the hierarchy in =pages=. To apply a layout to a page, simply call the
+=Rote::Page.layout= method from code applied to that page, passing the
+base-name (and path, relative to =layouts=, if used). If no extension is
+specified, then the same extension as the page itself is assumed. Examples:
+
+<code><pre>
+	layout 'one'
+	layout 'main/wide'
+	layout 'dark.txt'
+	&lt;% layout 'my' %&gt;
+</code></pre>	
+
+With that done, Rote would first render the template text (including textile)
+and set the Page instance variable =@content_for_layout= before rendering 
+the layout (in which textile is currently not supported). The layout is
+responsible for inserting the rendered template where appropriate, with
+e.g.:
+
+<code><pre>        &lt;%= @content_for_layout %&gt;</code></pre>
+
+This pattern shouldn't be unfamiliar. Again, note that Rote doesn't mandate 
+HTML, despite the appearance from the ERB tags - any (textual) format can
+be templated and laid out.
+
+["top":#top]
+
+<a name='resources'/>
+h3. Resources
+
+Of course, you're likely to have resources for your site (images, sounds, etc)
+and you'll need to copy them over to the target too. Such resources should be
+placed under 'res' (with the commandline setup) or in your specified +res+
+directory, and will be copied directly to the output directory after page
+rendering.
+
+As you'd expect, the directory layout beneath =res= should mirror that of the 
+output, and will be preserved during the copy.
+
+["top":#top]
+
+<a name='publishing'/>
+h3. Publishing
+
+Rote does not provide any direct support for publishing your site at present,
+relying on you to configure an appropriate publish task if required, using
+the publishers supplied with Rake (in =rake/contrib=), or your own. This 
+allows maximum flexibility, and allows Rote to concentrate on creating your 
+documents.
+
+The command-line build will automatically look for a file in the top-level
+directory (above =doc=) named =publish.rf=. If found, this file will be 
+evaluated by Rake, making any tasks defined within it available to your
+build. The most likely use case is to define a task that uses an SSH directory
+publisher to publish via SCP.
+
+["top":#top]
+
+<a name='final_notes'/>
+h3. Final notes
+
+Currently, there isn't enough checking involved on source resources when
+building pages - Basically, only templates are considered when Rake decides
+what to update. If you change layouts, code or resources you'll need to run:
+	
+<pre><code>        rote clean</code></pre>
+		
+to make sure everything gets updated. It's recommended to always run upload
+as:
+	
+<pre><code>        rote clean upload</code></pre>
+	
+Please note that this isn't Rake's limitation - it's mine. It will be fixed
+in a later version of Rote.
+
+["top":#top]
