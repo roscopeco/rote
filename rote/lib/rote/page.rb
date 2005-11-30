@@ -1,7 +1,13 @@
 require 'erb'
-require 'rubygems'
+require 'rdoc/markup/simple_markup'
+require 'rdoc/markup/simple_markup/to_html'
 
-require_gem('RedCloth')
+begin
+  require 'redcloth'
+rescue LoadError
+  # optional dep
+  NOREDCLOTH = true
+end
 
 module Rote
 
@@ -15,7 +21,7 @@ module Rote
   ## and set any instance variables, for use later in the template.
   ##
   ## Rendering happens only once for a given page object, when the 
-  ## to_html method is first called. Once a page has been rendered
+  ## +render+ method is first called. Once a page has been rendered
   ## it is frozen.
   class Page  
     # The text of the template to use for this page.
@@ -120,19 +126,51 @@ module Rote
       end
     end  
     
+    def render_fmt(text)
+      result = text
+    
+      # need to get opts to a known state (array), and copy it
+      # so we can modify it.
+      if @format_opts && ((@format_opts.respond_to?(:to_ary) && (!@format_opts.empty?)) || @format_opts.is_a?(Symbol)) 
+        opts = @format_opts.respond_to?(:to_ary) ? @format_opts.dup : [@format_opts] 
+          
+        # Remove :rdoc opts from array (RedCloth doesn't do 'em) 
+        # and remember for after first rendering...
+        #
+        # Cope with multiple occurences of :rdoc
+        unless (rdoc_opt = opts.grep(:rdoc)).empty?
+          opts -= rdoc_opt
+        end
+          
+        # Render out RedCloth / markdown
+        unless opts.empty?
+          unless defined?(NOREDCLOTH)
+            result = RedCloth.new(result).to_html(*opts) 
+          else
+            puts "WARN: RedCloth options specified but no RedCloth installed"
+          end
+        end
+          
+        # Render out Rdoc
+        #
+        # TODO could support alternative output formats by having the user supply
+        #      the formatter class (ToHtml etc).         
+        unless rdoc_opt.empty?
+          p = SM::SimpleMarkup.new
+          h = SM::ToHtml.new
+          result = p.convert(result, h)                      
+        end
+      end
+      
+      result
+    end
+    
+    
     # render, set up @result for next time. Return result too.    
     def do_render!
       # Render the page content into the @content_for_layout
-      if !@template_text.nil?
-        ctl = ERB.new(@template_text).result(binding)
-        
-        @content_for_layout = 
-            if @format_opts && ((@format_opts.respond_to?(:to_ary) && (!@format_opts.empty?)) || @format_opts.is_a?(Symbol)) 
-              opts = @format_opts.respond_to?(:to_ary) ? @format_opts : [@format_opts]          
-              RedCloth.new(ctl).to_html(*opts) 
-            else
-              ctl
-            end
+      unless @template_text.nil?
+        @content_for_layout = render_fmt( ERB.new(@template_text).result(binding) )
       end
       
       # render into the layout if supplied.
@@ -143,6 +181,7 @@ module Rote
       end 
       
       freeze
+      
       @result 
     end
         
