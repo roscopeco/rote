@@ -10,7 +10,6 @@ end
 
 begin 
 	require 'rubygems'
-	require_gem 'rote'
 rescue LoadError
 	# just ignore, don't use gems
 end
@@ -32,8 +31,7 @@ rescue LoadError
 		fail = true		# next time.
 		retry
 	else
-		puts "Cannot execute Rote - Do you need to set $ROTE_LIB ?"
-		exit(1)
+		croak
 	end 
 end
 

@@ -21,11 +21,24 @@
 #
 # See Rote for full documentation
 
-require 'net/ftp'
-require 'rubygems'
-require_gem 'rake'
+# require these before gems, because we want to use them from
+# lib/ , or from normal install, if that's how Rote was started.
+# 
+# If rote has been loaded through Gems, this will automatically
+# come from the right lib directory...
 
 require 'rote/rotetasks'
+require 'rote/page'
+
+# Everything else should come first from Gems, if installed.
+begin
+  require 'rubygems'
+rescue LoadError
+  nil   # just try without then...
+end  
+
+require 'net/ftp'
+require 'rake'
 
 # Master Rote version. Manage this from the Rake release support.
 ROTEVERSION = '0.1.7'
