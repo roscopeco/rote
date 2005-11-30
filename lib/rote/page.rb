@@ -6,7 +6,7 @@ begin
   require 'redcloth'
 rescue LoadError
   # optional dep
-  NOREDCLOTH = true
+  nil
 end
 
 module Rote
@@ -144,8 +144,10 @@ module Rote
           
         # Render out RedCloth / markdown
         unless opts.empty?
-          unless defined?(NOREDCLOTH)
-            result = RedCloth.new(result).to_html(*opts) 
+          if defined?(RedCloth)
+            rc = RedCloth.new(result)
+            rc.instance_eval { @lite_mode = false }   # hack around a warning
+            result = rc.to_html(*opts) 
           else
             puts "WARN: RedCloth options specified but no RedCloth installed"
           end

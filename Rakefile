@@ -196,6 +196,8 @@ else
       '--template' << 'doc/jamis.rb'
       '-o' << 'html'      
 
+    s.test_files = Dir.glob('test/test_*.rb')
+    
     #### Author and project details.
 
     s.author = "Ross Bamford"
