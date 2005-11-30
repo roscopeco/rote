@@ -6,6 +6,50 @@ require 'rote/dirfilelist'
 
 module Rote
 
+  # Just a temporary holder for a set of patterns that are used
+  # to construct a relative +FileList+ for pages and resources.
+  class FilePatterns
+    def initialize(basedir = '.')
+      @dir = basedir    
+      @includes, @excludes = [], []
+    end
+    
+    # Access the pattern arrays
+    attr_reader :includes
+    attr_reader :excludes
+    
+    # Access the base dir for these patterns
+    attr_accessor :dir
+    
+    # Specify glob patterns to include
+    def include(*patterns)
+      patterns.each { |it| 
+        @includes << it
+      }
+    end  
+    
+    # Specify glob patterns or regexps to exclude 
+    def exclude(*patterns)
+      patterns.each { |it|         
+        @excludes << it
+      }
+    end  
+
+    # Create a +FileList+ with these patterns    
+    def to_filelist
+      fl = FileList.new
+      fl.include(*includes.map { |it| "#{dir}/#{it}"} ) unless includes.empty?
+
+      # excludes may be regexp too
+      fl.exclude(*excludes.map { |it| it.is_a?(String) ? "#{dir}/#{it}" : it } ) unless excludes.empty?
+      
+      # don't allow dir to be changed anymore. 
+      freeze
+         
+      fl    
+    end
+  end
+
   #####
   ## Rake task library that provides a set of tasks to transform documentation
   ## using Rote. To use, create a new instance of this class in your Rakefile,
@@ -26,20 +70,19 @@ module Rote
     # instantiation.
     attr_reader :name
     
-    # The directory in which output will be placed.
-    attr_accessor :output_dir
+    # Base directories used by the task.
+    attr_accessor :output_dir, :layout_dir
     
-    # The base directory within which layouts requested by pages will be
-    # resolved.
-    attr_accessor :layout_dir
-    
-    # A DirectoryFileList that supplies the pages to transform. You should
-    # configure the +dir+ and at least one +include+ entry in the 
-    # configuration block.
+    # Globs for the +FileList+ that supplies the pages to transform. You 
+    # should configure the +pages_dir+ and +include+ at least one entry
+    # here. (you may add +exclude+ strings or regexps, too).
+    # Patterns added are made relative to the +pages_dir+ and
+    # added to a FileList once init is complete.
     attr_reader :pages
     
-    # A DirectoryFileList that supplies the resources to copy to the 
-    # output directory.
+    # Globs for the +FileList+ that supplies the resources to copy. You 
+    # should configure the +layout_dir+ and +include+ at least one entry
+    # here (you may add +exclude+ strings or regexps, too).
     attr_reader :res
     
     # If +show_page_tasks+ is +true+, then the file tasks created for each
@@ -52,16 +95,14 @@ module Rote
     def initialize(name = :site) # :yield: self if block_given?
       @name = name
       @output_dir = '.'      
-      @layout_dir = '.'   # layouts are looked up as needed
-      
-      @pages = DirectoryFileList.new
-      @res = DirectoryFileList.new      
+      @pages = FilePatterns.new('.')
+      @res = FilePatterns.new('.')
       DEFAULT_SRC_EXCLUDES.each { |excl| @pages.exclude(excl) }
       
       @show_page_tasks = false
       
       yield self if block_given?
-      
+            
       define
     end    
     
@@ -75,9 +116,11 @@ module Rote
     end
     
     def define_res_tasks
+      res_fl = res.to_filelist
+      
       desc "Copy documentation resources"
       task "#{name}-res" do
-        res.each { |fn|           
+        res_fl.each { |fn|           
           unless File.directory?(fn)    # make dirs only as needed
             tfn = fn.sub(/#{res.dir}/, output_dir)
             dn = File.dirname(tfn)
@@ -89,13 +132,15 @@ module Rote
     end
 
     def define_page_tasks
+      # make file list
+      pages_fl = pages.to_filelist
     
       # define a task for each page
       realpages = FileList[]
-      pages.each { |fn| 
+      pages_fl.each { |fn| 
         unless File.directory?(fn)    # make dirs only as needed
           realpages << fn
-          tfn = fn.sub(/#{pages.dir}/, output_dir)
+          tfn = fn.sub(/^#{pages.dir}/, output_dir)
           
           desc "#{fn} => #{tfn}" if show_page_tasks?
           file tfn => [fn] do

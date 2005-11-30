@@ -117,7 +117,6 @@ rd = Rake::RDocTask.new("rdoc") { |rdoc|
 ws = Rote::DocTask.new(:doc) { |site| 
   site.output_dir = 'html'
   site.layout_dir = 'doc/layouts'
-
   site.pages.dir = 'doc/pages'
   site.pages.include('**/*')  
   
