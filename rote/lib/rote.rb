@@ -44,43 +44,9 @@ ROTEVERSION = '0.1.7'
 ## Rake task integration, while +Rote::Page+ has information useful to template
 ## writers.
 ##
-## Rote is (c)2005 Ross Bamford, and is licensed under an MIT license. 
-## See +LICENSE+ for details.
+## Rote is (c)2005 Ross Bamford. See +LICENSE+ for details.
 module Rote
 
-  private
+  # this space intentionally left blank
 
-  ####################################################
-  ## WILL BE REMOVED...                             ##
-  ##                   ...I SAID, "WILL BE REMOVED" ##
-  ####################################################
-  
-  def ftp_putdir(dir, ftp_host, ftp_user, ftp_pass = nil, ftp_root = '/')  
-    f = Net::FTP.new(ftp_host, ftp_user, ftp_pass)
-    f.passive = true
-    
-    Dir[dir + '/**/*'].sort.each { |fn|    
-      # pretty f*cking trick - it's replacing the local 'target' or whatever prefix 
-      # with remote root ;)
-      rfn = fn.dup
-      rfn[dir] = ftp_root
-      
-      if File.directory?(fn) 
-        puts "Creating remote directory #{rfn}"
-        begin
-          f.mkdir(rfn)
-        rescue
-          # forget it then, already exists prob'ly
-          # TODO maybe should raise if $! != FTP 550?
-        end
-      else
-
-        # TODO continue on error perhaps
-        puts "Uploading #{fn} => #{rfn}"
-        f.put(fn,rfn)        
-      end
-    }
-    
-    f.close   
-  end 
 end 
