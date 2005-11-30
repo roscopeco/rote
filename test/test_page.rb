@@ -1,5 +1,5 @@
 require 'test/unit'
-require 'rote/page'
+require 'rote'
 
 module Rote
   class TestPage < Test::Unit::TestCase
@@ -92,6 +92,11 @@ module Rote
     def test_render_textile
       t = new_test_page('textile').render.chomp
       assert_equal '<p><strong>This</strong> is a <em>simple</em> test of <a href="http://www.textism.org/tools/textile">Textile</a> formatting.</p>', t
+    end
+    
+    def test_render_rdoc
+      t = new_test_page('rdoc').render.chomp
+      assert_equal "<h2>RDoc</h2>\n<h3>Markup</h3>", t
     end
     
     def test_render_markdown
