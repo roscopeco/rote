@@ -180,17 +180,19 @@ the same filename and path, relative to the output directory.
 h4. Applying formatting
 
 If you're generating HTML, you'll probably want to use some plaintext 
-formatting, rather than writing HTML by hand. Rote uses 
-"RedCloth":http://redcloth.rubyforge.org to provide text to HTML formatting, 
-supporting both Textile and Markdown. The formatting applied to a given page is
-controlled by that page's +format_opts+ array. Both are disabled by default - to 
-enable formatting you must add something like the following somewhere appropriate:
+formatting, rather than writing HTML by hand. Rote directly supports
+the Textile, Markdown and Rdoc textual formatting styles.
+The formatting applied to a given page is controlled by that page's _format_opts_
+array. All three are disabled by default - to enable formatting you must add
+appropriate symbols to the array, for example in page code or COMMON.rb:
 
-<pre><code>        format_opts << :textile << :markdown</code></pre>
-	
+<pre><code>        format_opts << :textile << :markdown << :rdoc</code></pre>
+
 This can be done in page code, COMMON.rb, or even inside the template itself.
 See "the section on template code":#create_templates_erb for more information
-on adding code to your templates.
+on adding code to your templates. Obviously you don't have to use all three, 
+and order isn't significant - formatting is applied as Textile, then Markdown,
+then Rdoc.
 	
 *Some additional notes on formatting*
 
