@@ -2,7 +2,6 @@ require 'rake'
 require 'rake/tasklib'
 
 require 'rote/page'
-require 'rote/dirfilelist'
 
 module Rote
 
