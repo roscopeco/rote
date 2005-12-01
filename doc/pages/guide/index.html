@@ -15,8 +15,8 @@ h3. Contents
   * "Creating templates":#create_templates
   ** "Basics":#create_templates_basics
   ** "Formatting":#create_templates_formatting
-  ** "Template code & ERB":create_templates_erb
-  ** "Applying layout":create_templates_layout
+  ** "Template code & ERB":#create_templates_erb
+  ** "Applying layout":#create_templates_layout
   * "Resources":#resources
   * "Publishing":#publishing
   
@@ -57,7 +57,7 @@ be laid out as follows:
 </code></pre>
 
 Template sources under the 'pages' directory may have any extension (except
-=rb=), and will be rendered to that same name under the output directory. 
+@rb@), and will be rendered to that same name under the output directory. 
 See the section on Layouts below for details on layout name resolution.
 
 Ruby source is optional, and allows you to define instance variables and 
@@ -75,9 +75,9 @@ site).
 h4. From the command-line
 
 If you are generating a standalone documentation set (i.e. not as part of 
-some wider build) then you don't need to worry about writing a =Rakefile= -
-you can use the built-in build via the +rote+ command. This works with
-a standard directory layout, and wraps invocation of +rake+ to handle
+some wider build) then you don't need to worry about writing a @Rakefile@ -
+you can use the built-in build via the @rote@ command. This works with
+a standard directory layout, and wraps invocation of @rake@ to handle
 setting up library dependencies and generation of appropriate tasks.
 
 The command-line wrapper expects the above layout, and requires no direct
@@ -85,7 +85,7 @@ configuration. To generate an entire documentation set, simply run:
 
 <pre><code>        rote</code></pre>
 	
-from the top-level directory (=project= in the example above), you should get
+from the top-level directory (@project@ in the example above), you should get
 a 'html' directory created with the (transformed) templates, and any 
 resources should be copied as necessary. 
 
@@ -102,7 +102,7 @@ you'd run:
 
 <pre><code>        rote html/index.html</code></pre>
 
-The =clean= task supports deleting all output files to start from scratch:
+The @clean@ task supports deleting all output files to start from scratch:
 
 <pre><code>        rote clean</code></pre>
 
@@ -116,16 +116,16 @@ Further command-line usage information is available with:
 <pre><code>        rote --usage</code></pre>
 	
 and Unix installations performed with =install.rb= should also make a
-manpage available for the =rote= command.
+manpage available for the @rote@ command.
 
 ["top":#top]
 
 <a name='getting_started_rakefile'/>
-h4. From your +Rakefile+
+h4. From your @Rakefile@
 
 If you are wanting to build documentation as part of a larger build process, or
 commandline setup, then you'll want to get started on integrating Rote with 
-your own (existing) +Rakefile+. Fortunately, this is very easy to do. Try 
+your own (existing) @Rakefile@. Fortunately, this is very easy to do. Try 
 something like:
 
 <pre><code>
@@ -148,14 +148,14 @@ something like:
 	
 </code></pre>
 	
-Save this as =Rakefile=, and fire up:
+Save this as @Rakefile@, and fire up:
 
 <pre><code>        rake doc</code></pre>
 
 If all goes well, you should see each command and transformation output to your
 console as Rote runs. 
 
-*Note* that it's safe to include '**/*' in the +pages+ list, since +rb+ 
+*Note* that it's safe to include '**/*' in the @pages@ list, since @rb@ 
 files are implicitly excluded.
 
 ["top":#top]
@@ -170,7 +170,7 @@ As mentioned, templates are simply text files in the =doc/pages= directory. The
 layout below that directory is retained when transforming pages, and is
 also used to provide simple hierarchical structure to the common page code.
 
-By default, any file with an extension other than =rb= will be processed
+By default, any file with an extension other than @rb@ will be processed
 as a page template (with it's associated ruby source). The output will have
 the same filename and path, relative to the output directory.
 
@@ -182,7 +182,7 @@ h4. Applying formatting
 If you're generating HTML, you'll probably want to use some plaintext 
 formatting, rather than writing HTML by hand. Rote directly supports
 the Textile, Markdown and Rdoc textual formatting styles.
-The formatting applied to a given page is controlled by that page's _format_opts_
+The formatting applied to a given page is controlled by that page's @format_opts@
 array. All three are disabled by default - to enable formatting you must add
 appropriate symbols to the array, for example in page code or COMMON.rb:
 
@@ -196,7 +196,7 @@ then Rdoc.
 	
 *Some additional notes on formatting*
 
-  * Although you can directly assign to +format_opts+, this isn't recommended 
+  * Although you can directly assign to @format_opts@, this isn't recommended 
     since Ruby often interprets it as a local variable set rather than method call, 
     resulting in much head scratching as to why your options are being ignored.
     
@@ -219,14 +219,14 @@ allow information to be passed into templates. There are four places where
 you might define such variables. The following is in order of evaluation:
 
 * This directory's COMMON.rb, or the parent directory's COMMON.rb if
-  =inherit_common= is used.
+  @inherit_common@ is used.
 * This page's ruby code, _basename_.rb
 * In a block passed to Page.new
 * In the template itself
 
 When a =Rote::Page= instance is created, Rote looks for these, and if found
 evaluates them, in order, in the same binding as the template is later rendered
-in (i.e. the =Page= instance binding). Therefore, you can define
+in (i.e. the @Page@ instance binding). Therefore, you can define
 instance variables to pass data around, or even helper methods if you wish.
 
 ["top":#top]
@@ -236,16 +236,16 @@ h4. Layout
 
 Layouts are stored under the =doc/layouts= directory (by default). They may
 be organised into subdirectories, but this hierarchy is not connected to
-the hierarchy in =pages=. To apply a layout to a page, simply call the
+the hierarchy in @pages@. To apply a layout to a page, simply call the
 =Rote::Page.layout= method from code applied to that page, passing the
-base-name (and path, relative to =layouts=, if used). If no extension is
+base-name (and path, relative to @layouts@, if used). If no extension is
 specified, then the same extension as the page itself is assumed. Examples:
 
 <code><pre>
 	layout 'one'
 	layout 'main/wide'
 	layout 'dark.txt'
-	&lt;% layout 'my' %&gt;
+	<% layout 'my' %>
 </code></pre>	
 
 With that done, Rote would first render the template text (including textile)
@@ -254,7 +254,7 @@ the layout (in which textile is currently not supported). The layout is
 responsible for inserting the rendered template where appropriate, with
 e.g.:
 
-<code><pre>        &lt;%= @content_for_layout %&gt;</code></pre>
+<code><pre>        <%= @content_for_layout %></code></pre>
 
 This pattern shouldn't be unfamiliar. Again, note that Rote doesn't mandate 
 HTML, despite the appearance from the ERB tags - any (textual) format can
@@ -267,11 +267,11 @@ h3. Resources
 
 Of course, you're likely to have resources for your site (images, sounds, etc)
 and you'll need to copy them over to the target too. Such resources should be
-placed under 'res' (with the commandline setup) or in your specified +res+
+placed under 'res' (with the commandline setup) or in your specified @res@
 directory, and will be copied directly to the output directory after page
 rendering.
 
-As you'd expect, the directory layout beneath =res= should mirror that of the 
+As you'd expect, the directory layout beneath @res@ should mirror that of the 
 output, and will be preserved during the copy.
 
 ["top":#top]
@@ -286,7 +286,7 @@ allows maximum flexibility, and allows Rote to concentrate on creating your
 documents.
 
 The command-line build will automatically look for a file in the top-level
-directory (above =doc=) named =publish.rf=. If found, this file will be 
+directory (above @doc@) named =publish.rf=. If found, this file will be 
 evaluated by Rake, making any tasks defined within it available to your
 build. The most likely use case is to define a task that uses an SSH directory
 publisher to publish via SCP.

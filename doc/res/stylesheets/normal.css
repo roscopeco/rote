@@ -32,28 +32,28 @@ a:visited {
 	text-decoration: none;
 }
 
-a#nav:link {
+a.nav:link {
 	color: #cc3030;
 	text-decoration: none;
 	font-weight: bold;
 	background: auto;
 }
 
-a#nav:hover {
+a.nav:hover {
 	color: #df3b3b;
 	text-decoration: underline;
 	font-weight: bold;
 	background: #c3c3c3;
 }
 
-a#nav:active {
+a.nav:active {
 	color: #df3b3b;
 	text-decoration: underline;
 	font-weight: bold;
 	background: #c3c3c3;
 }
 
-a#nav:visited {
+a.nav:visited {
 	color: #b02424;
 	text-decoration: none;
 	font-weight: bold;
