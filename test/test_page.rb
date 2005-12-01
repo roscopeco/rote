@@ -101,7 +101,7 @@ module Rote
     end
 
     # FIXME Fails under Gem install, but passes when run normally (???)
-    unless TEST_FROM_GEM       
+    unless defined?(TEST_FROM_GEM)
       def test_render_rdoc
         begin
           t = new_test_page('rdoc').render.chomp
