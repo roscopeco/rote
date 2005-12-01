@@ -241,12 +241,12 @@ the hierarchy in @pages@. To apply a layout to a page, simply call the
 base-name (and path, relative to @layouts@, if used). If no extension is
 specified, then the same extension as the page itself is assumed. Examples:
 
-<code><pre>
+<pre>
 	layout 'one'
 	layout 'main/wide'
 	layout 'dark.txt'
-	<% layout 'my' %>
-</code></pre>	
+	&lt;% layout 'my' %&gt;
+</pre>	
 
 With that done, Rote would first render the template text (including textile)
 and set the Page instance variable =@content_for_layout= before rendering 
@@ -254,7 +254,7 @@ the layout (in which textile is currently not supported). The layout is
 responsible for inserting the rendered template where appropriate, with
 e.g.:
 
-<code><pre>        <%= @content_for_layout %></code></pre>
+<pre>        &lt;%= @content_for_layout %&gt;</pre>
 
 This pattern shouldn't be unfamiliar. Again, note that Rote doesn't mandate 
 HTML, despite the appearance from the ERB tags - any (textual) format can
