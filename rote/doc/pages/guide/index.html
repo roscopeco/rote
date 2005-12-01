@@ -30,7 +30,7 @@ can be used immediately with the command-line wrapper, and fits well with
 Rakefile usage too. Basically, Rote expects your documentation source to
 be laid out as follows:
 
-<code><pre>  
+<p><code><pre>  
   project_root ( <- root, this can be called whatever you like)
   |
   |--> [publish.rf]
@@ -54,7 +54,7 @@ be laid out as follows:
   |    |    |    |--> bpage.html
   |    |    |    |--> [bpage.rb]   
 			  
-</code></pre>
+</pre></code></p>
 
 Template sources under the 'pages' directory may have any extension (except
 @rb@), and will be rendered to that same name under the output directory. 
@@ -66,7 +66,7 @@ directory. See "the section on templates":#create_templates for more
 information on the specifics.
 
 If you've downloaded Rote, then you can see the canonical example site by
-looking in the =doc/= directory (where you'll find the source for this
+looking in the @doc/@ directory (where you'll find the source for this
 site).
 
 ["top":#top]
@@ -83,7 +83,7 @@ setting up library dependencies and generation of appropriate tasks.
 The command-line wrapper expects the above layout, and requires no direct
 configuration. To generate an entire documentation set, simply run:
 
-<pre><code>        rote</code></pre>
+<p><pre><code>        rote</code></pre></p>
 	
 from the top-level directory (@project@ in the example above), you should get
 a 'html' directory created with the (transformed) templates, and any 
@@ -100,20 +100,20 @@ The file tasks are named for the target files, so for example to generate
 just the top-level index.html (regardless of whether it's been modified)
 you'd run:
 
-<pre><code>        rote html/index.html</code></pre>
+<p><pre><code>        rote html/index.html</code></pre></p>
 
 The @clean@ task supports deleting all output files to start from scratch:
 
-<pre><code>        rote clean</code></pre>
+<p><pre><code>        rote clean</code></pre></p>
 
 Of course, multiple file or task names (or a mixture) can be specified.
 You can get a list of valid tasks in the current context with:
 
-<pre><code>        rote --tasks</code></pre>
+<p><pre><code>        rote --tasks</code></pre></p>
 	
 Further command-line usage information is available with:
 	
-<pre><code>        rote --usage</code></pre>
+<p><pre><code>        rote --usage</code></pre></p>
 	
 and Unix installations performed with =install.rb= should also make a
 manpage available for the @rote@ command.
@@ -166,7 +166,7 @@ h3. Creating templates
 <a name='create_templates_basics'/>
 h4. The basics
 
-As mentioned, templates are simply text files in the =doc/pages= directory. The
+As mentioned, templates are simply text files in the @doc/pages@ directory. The
 layout below that directory is retained when transforming pages, and is
 also used to provide simple hierarchical structure to the common page code.
 
@@ -186,7 +186,7 @@ The formatting applied to a given page is controlled by that page's @format_opts
 array. All three are disabled by default - to enable formatting you must add
 appropriate symbols to the array, for example in page code or COMMON.rb:
 
-<pre><code>        format_opts << :textile << :markdown << :rdoc</code></pre>
+<p><pre><code>        format_opts << :textile << :markdown << :rdoc</code></pre></p>
 
 This can be done in page code, COMMON.rb, or even inside the template itself.
 See "the section on template code":#create_templates_erb for more information
@@ -234,7 +234,7 @@ instance variables to pass data around, or even helper methods if you wish.
 <a name='create_templates_layout'/>
 h4. Layout
 
-Layouts are stored under the =doc/layouts= directory (by default). They may
+Layouts are stored under the @doc/layouts@ directory (by default). They may
 be organised into subdirectories, but this hierarchy is not connected to
 the hierarchy in @pages@. To apply a layout to a page, simply call the
 =Rote::Page.layout= method from code applied to that page, passing the
@@ -249,12 +249,12 @@ specified, then the same extension as the page itself is assumed. Examples:
 </pre>	
 
 With that done, Rote would first render the template text (including textile)
-and set the Page instance variable =@content_for_layout= before rendering 
+and set the Page instance variable @\@content_for_layout@ before rendering 
 the layout (in which textile is currently not supported). The layout is
 responsible for inserting the rendered template where appropriate, with
 e.g.:
 
-<pre>        &lt;%= @content_for_layout %&gt;</pre>
+  * <code>&lt;%= @content_for_layout %&gt;</code>
 
 This pattern shouldn't be unfamiliar. Again, note that Rote doesn't mandate 
 HTML, despite the appearance from the ERB tags - any (textual) format can
@@ -281,12 +281,12 @@ h3. Publishing
 
 Rote does not provide any direct support for publishing your site at present,
 relying on you to configure an appropriate publish task if required, using
-the publishers supplied with Rake (in =rake/contrib=), or your own. This 
+the publishers supplied with Rake (in @rake/contrib@), or your own. This 
 allows maximum flexibility, and allows Rote to concentrate on creating your 
 documents.
 
 The command-line build will automatically look for a file in the top-level
-directory (above @doc@) named =publish.rf=. If found, this file will be 
+directory (above @doc@) named @publish.rf@. If found, this file will be 
 evaluated by Rake, making any tasks defined within it available to your
 build. The most likely use case is to define a task that uses an SSH directory
 publisher to publish via SCP.
@@ -300,12 +300,12 @@ Currently, there isn't enough checking involved on source resources when
 building pages - Basically, only templates are considered when Rake decides
 what to update. If you change layouts, code or resources you'll need to run:
 	
-<pre><code>        rote clean</code></pre>
+<p><pre><code>        rote clean</code></pre></p>
 		
 to make sure everything gets updated. It's recommended to always run upload
 as:
 	
-<pre><code>        rote clean upload</code></pre>
+<p><pre><code>        rote clean upload</code></pre></p>
 	
 Please note that this isn't Rake's limitation - it's mine. It will be fixed
 in a later version of Rote.

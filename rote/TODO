@@ -7,9 +7,10 @@ Send any suggestions (or test-driven patches) to:
 
 * More flexible markup rendering
 * Nested layouts
-* Integration with test reports
-* Automatic navigation / TOC
+* Find and Integrate test run / coverage reports
 * Ability to have multiple views of a section, e.g. user guide (separate
   pages) and user guide (one page) generated from same source.
 * Index and glossary support
 * statistics
+* (maybe?) Automatic navigation / TOC
+* (maybe?) Rant integration

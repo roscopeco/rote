@@ -139,3 +139,11 @@ img.smalllogo {
 	width: 147px;
 	height: 68px;
 }
+
+h3 {
+	border-bottom: thin #959595 solid;
+}
+
+h4 {
+	border-bottom: thin #b8c8c8 solid;
+}
