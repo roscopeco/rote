@@ -26,7 +26,7 @@ require 'rake/rdoctask'
 $:[0,1] = 'lib'
 require 'rote'
 
-CLEAN.include('testdata')
+# CLEAN.include('testdata')
 CLOBBER.include('TAGS')
 CLOBBER.include('html')
 
@@ -85,10 +85,10 @@ end
 #   t.warning = true
 # end
 
-directory 'testdata'
-[:alltests, :unittests].each do |t|
-  task t => ['testdata']
-end
+# directory 'testdata'
+# [:alltests, :unittests].each do |t|
+#   task t => ['testdata']
+# end
 
 # CVS Tasks ----------------------------------------------------------
 
@@ -196,7 +196,7 @@ else
       '--template' << 'doc/jamis.rb'
       '-o' << 'html'      
 
-    s.test_files = Dir.glob('test/test_*.rb')
+    s.test_files = Dir.glob('test/gem_*.rb')
     
     #### Author and project details.
 
