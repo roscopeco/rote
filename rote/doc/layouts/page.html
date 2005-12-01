@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/xhtml1-strict.dtd">
 <html>
 
@@ -21,9 +21,8 @@
 		</tr>		
 		<tr class='topnav'>		
 			<td colspan='2'>
-				<% @navigation.length.times do |i| 
-					nav = @navigation[i] %>
-					<a id='nav' href='<%= link_rel nav[:url] %>'><%= nav[:title] %></a>										
+				<% @navigation.each_with_index do |nav, i| %>
+					<a class='nav' href='<%= link_rel nav[:url] %>'><%= nav[:title] %></a>										
 					<% unless i == (@navigation.length - 1) %>|<% end %>
 				<% end %>
 			</td>									
@@ -31,7 +30,7 @@
 		
 	</table>	
 	
-	<div class='main' background='#c0a0c0'>
+	<div class='main'>
 		<% if @page_title %>
 			<h2><%= @page_title %></h2>
 		<% end %>
@@ -45,4 +44,5 @@
 		<p/>&nbsp;
 	</div>			
 </body>
+</html>
 
