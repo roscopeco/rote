@@ -12,20 +12,20 @@ h3. Features
 Rote offers the following major features:
 
 	* Simple set-up based on page templates and sections.
-	* ERB, Textile, and Markdown supported out of the box.
+	* ERB, Textile, Markdown and RDoc supported out of the box.
 	* Multiple configurable layouts apply boilerplate to your pages.
 	* 'Scoped' Ruby code support allows fine-grained control of data available across 
 	  all documentation, a subset, or individual pages.
 	* Can be used standalone (from the command-line) or from within "Rake":http://rake.rubyforge.org
 	  as a custom task library.
 	* Supports any (text-based) format, while providing utilities and helpers for
-	  common formats (HTML at present).
+	  common formats (HTML at present, integration with CSS builder hoped for).
 
 Rote is somewhat similar to (though simpler than) 
 "WebGen":http://webgen.rubyforge.org , which provides a richer environment
 geared more toward websites and content publishing (whereas Rote's
 implementation as an extension to Rake reflects a bias toward software 
-documentation).
+documentation and general textual templating).
 
 See the "User guide":<%= link_rel '/guide' %> and "RDoc":<%= link_rel '/rdoc' %> for usage information.
 
@@ -35,17 +35,17 @@ You can get Rote via "RubyGems":http://rubyforge.org/projects/rubygems if you ha
 
 	* <strong><code>gem install -r rote</code></strong>
 
-Alternatively, you can download tarball / zip packages from: 
+Alternatively, you can download tarball / zip packages if you don't: 
 
   * <strong>"http://rubyforge.org/frs/?group_id=1120":http://rubyforge.org/frs/?group_id=1120</strong>
 
-You can also grab the latest code from "CVS":http://rubyforge.org/cgi-bin/viewcvs.cgi/?cvsroot=rote. 
+You can also grab the latest code from "CVS":http://rubyforge.org/cgi-bin/viewcvs.cgi/?cvsroot=rote.
 
 h4. From CVS 
 
 A link to the latest stable release can be found from the "project page":http://rubyforge.org/projects/rote .
 
-Please note that Rote is still pretty new, and while currently fairly functional, it's
-also still shiny and new, and liable to break down, destroy data, and run away with your spouse if
-given half a chance. Sound like fun? Then check out the "Project page on Rubyforge":http://rubyforge.org/projects/rote 
-for everything you need to get going with the CVS version!
+Please note that Rote is still fairly new, and though it's so far not shown itself to be particularly
+anti-social, it's by no means a complete piece of kit. If that's okay with you (maybe you're 
+pretty happy-go-lucky in general...) then the "Project page on Rubyforge":http://rubyforge.org/projects/rote 
+for everything you need to get going with the CVS version.

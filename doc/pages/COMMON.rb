@@ -33,6 +33,6 @@ format_opts << :textile
 					 :url => 'http://rubyforge.org/projects/rote'},					 
 					{:title => 'Browse CVS',
 					 :url => 'http://rubyforge.org/cgi-bin/viewcvs.cgi/?cvsroot=rote'},
-					{:title => 'License',
+					{:title => 'Licence',
 					 :url => '/license.html'}					 
 					]

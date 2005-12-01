@@ -15,17 +15,17 @@ layout, and general documentation / website build tasks.
 Rote uses the following (versions are as per my development environment,
 you may find you can use older versions, you may not).
 	
-* Ruby 1.8.3 ('yum install ruby' on Fedora 4)
+* Ruby 1.8.x 
 * Rake 0.6.2 ('gem install rake')
-* RedCloth 3.0.4 ('gem install RedCloth')
+* RedCloth 3.0.4 ('gem install RedCloth') (_Only required if :textile or :markdown formatting is used_)
 
 RubyGems [http://rubyforge.org/frs/?group_id=126] is *highly recommended*,
 and makes for not only an easier install but a cleaner library path.
 Rote is tested with Gems 0.8.11.
 
 Please note that Rote is written and tested on Linux - I have no facilities
-to test with, e.g. Windows, and would like to hear about any issues that affect
-usage with other OSes.
+to test with, e.g. Windows, and would like very much to hear about any issues 
+that affect usage with other OSes.
 
 == Installation ... 
 
