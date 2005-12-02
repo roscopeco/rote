@@ -63,7 +63,7 @@ module Rote
   class DocTask < Rake::TaskLib
     # Default exclusion patterns for the page sources. These are
     # applied along with the defaults from +FileList+. 
-    DEFAULT_SRC_EXCLUDES = [ /\.rb$/ ]
+    DEFAULT_SRC_EXCLUDES = [ /\.rb$/, /\.rf$/ ]
     
     # The base-name for tasks created by this instance, supplied at 
     # instantiation.
@@ -92,8 +92,9 @@ module Rote
     # source page will be shown in the Rake task listing from the command line.
     attr_accessor :show_file_tasks         
     alias :show_file_tasks? :show_file_tasks
+    alias :show_file_tasks= :show_file_tasks=
     
-    # This is a *deprecated* alias for +show_file_tasks+. It will be removed.
+    # *Deprecated* alias for +show_file_tasks+. It will be removed.
     alias :show_page_tasks? :show_file_tasks      # vv0.3.0 v-0.5
     alias :show_page_tasks= :show_file_tasks=
     
@@ -141,7 +142,8 @@ module Rote
         tfn
       end
       
-      task "#{name}-res" => tasks     
+      desc "Copy new/changed resources"
+      task "#{name}_res" => tasks     
     end
 
     # define a task for each page, and 'all pages' task
@@ -161,29 +163,29 @@ module Rote
         tfn
       end
       
-      desc "Render all documentation pages"
-      task "#{name}-pages" => tasks
+      desc "Render new/changed documentation pages"
+      task "#{name}_pages" => tasks
     end
     
     def define_main_tasks
       desc "Build the documentation"
-      task name => ["#{name}-pages", "#{name}-res"]
+      task name => ["#{name}_pages", "#{name}_res"]
 
+      task :clobber => [ "clobber_#{name}" ]
       desc "Remove the generated documentation"
-      task :clean => [ "#{name}-clean" ]
-      task "#{name}-clean" do
+      task "clobber_#{name}" do
         rm_rf output_dir
       end    
       
       # thanks to Jonathan Paisley for this :)    
       # Relies on Rake mods made below.
       desc "Monitor and automatically rebuild the documentation"
-      task "#{name}-monitor" do
+      task "#{name}_monitor" do
         loop do
           Rake::Task::tasks.each { |t| t.reset }
           Rake::Task[name].invoke
           if Rake::Task::tasks.grep(Rake::FileTask).detect { |t| t.executed? } then
-            Rake::Task["#{name}-refresh"].invoke if Rake::Task.task_defined?("#{name}-refresh")
+            Rake::Task["#{name}_refresh"].invoke if Rake::Task.task_defined?("#{name}_refresh")
           end
           sleep monitor_interval
         end
