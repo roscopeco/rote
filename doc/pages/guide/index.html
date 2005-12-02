@@ -9,7 +9,9 @@ for installation instructions.
 <a name='top'/>
 h3. Contents
 
+  * "Conventions":#conventions
   * "Getting started with Rote":#getting_started
+  ** "Documentation source layout":#getting_started_source_layout
   ** "From the command-line":#getting_started_command_line
   ** "From your Rakefile":#getting_started_rakefile
   * "Creating templates":#create_templates
@@ -18,12 +20,23 @@ h3. Contents
   ** "Template code & ERB":#create_templates_erb
   ** "Applying layout":#create_templates_layout
   * "Resources":#resources
+  * "Source monitoring":monitor
   * "Publishing":#publishing
   
+<a name='conventions'/>
+h3. Conventions used in this document
+
+*Task names* - Rote's standard tasks are always referred to with the base-name
+_doc_ , e.g. _doc-pages_, _doc-clean_, and just plain _doc_. This is the prefix
+used by the built-in Rakefile, but since it can be changed when using Rote in
+your own Rake builds you should of course substitute the _doc_ prefix for 
+whatever is appropriate if you have chosen to modify it.
+
 <a name='getting_started'/>
 h3. Getting started with Rote
 
-h4. Setting up a project
+<a name='getting_started_source_layout'/>
+h4. Documentation source layout
 
 To get started quickly, we'll use the standard Rote directory layout, which
 can be used immediately with the command-line wrapper, and fits well with
@@ -267,14 +280,38 @@ h3. Resources
 
 Of course, you're likely to have resources for your site (images, sounds, etc)
 and you'll need to copy them over to the target too. Such resources should be
-placed under 'res' (with the commandline setup) or in your specified @res@
-directory, and will be copied directly to the output directory after page
-rendering.
+placed under @doc/res@ (with the commandline setup) or in your specified @res@
+directory (from a Rakefile).
 
 As you'd expect, the directory layout beneath @res@ should mirror that of the 
-output, and will be preserved during the copy.
+output, and will be preserved during the copy. Resources are copied only if
+necessary (determined by existence and last-modified timestamp), in a similar
+way to pages.
 
 ["top":#top]
+
+<a name='monitor'/>
+h3. Source monitoring
+
+When making changes to a documentation set, you frequently need to render out
+your changes to check formatting or ensure something works correctly. In this
+situation it's inconvenient to keep dropping out to your shell to run @rote@
+(or @rake@) manually, particularly when making a lot of incremental changes.
+
+Fortunately, Rote provides a simple mechanism for monitoring your documentation
+source and automatically performing updates as needed. Simply specify the 
+_doc-monitor_ task and Rote will go into a loop, periodically running the
+top-level _doc_ task which will transform / copy any pages or resources that
+have been modified. By default, this check is performed approximately once
+per second, but you can specify a custom value _when using a Rakefile_ by
+setting @monitor_interval@ in the block passed to @DocTask.new@.
+
+*Note* that the monitor functionality is deliberately kept simple with respect
+to IO and concurrency, reflecting the fact that output files are rarely
+anything more than that - it would be almost pointless to complicate the
+way monitoring works with any kind of semaphore or file-locking scheme.
+Of course if this does cause problems in your particular scenario, let me know
+because it just might make me reconsider.
 
 <a name='publishing'/>
 h3. Publishing
