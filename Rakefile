@@ -108,7 +108,7 @@ rd = Rake::RDocTask.new("rdoc") { |rdoc|
   rdoc.template = 'doc/jamis.rb'
   rdoc.title    = "Rote"
   rdoc.options << '--line-numbers' << '--inline-source' << '--main' << 'README'
-  rdoc.rdoc_files.include('README', 'LICENSE', 'TODO')
+  rdoc.rdoc_files.include('README', 'LICENSE', 'TODO', 'CONTRIBUTORS')
   rdoc.rdoc_files.include('lib/**/*.rb', 'doc/**/*.rdoc')
   rdoc.rdoc_files.exclude(/\bcontrib\b/)
 }
@@ -120,7 +120,7 @@ ws = Rote::DocTask.new(:doc) { |site|
   site.pages.dir = 'doc/pages'
   site.pages.include('**/*')  
   
-  site.res.dir = 'doc/res/'
+  site.res.dir = 'doc/res'
   site.res.include('**/*.png')
   site.res.include('**/*.gif')
   site.res.include('**/*.jpg')
