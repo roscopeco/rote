@@ -1,0 +1,14 @@
+== The Contributors
+
+Many of Rote's best bits come from contributions made by other Rubyists,
+whether in the form of fully pegged-out features, patches, or suggestions.
+Without the help and guidance of these people, Rote would almost certainly 
+suck like a hoover.
+
+===== Jonathan Paisley <jp-www at dcs gla ac uk> 
+* Auto -run tasks
+* COMMON.rb inheritance (with BOC)
+* Rake magic
+* better resource management
+* Many other suggestions for improvements
+
