@@ -1,6 +1,7 @@
 require 'erb'
 require 'rdoc/markup/simple_markup'
 require 'rdoc/markup/simple_markup/to_html'
+require 'binding_of_caller'
 
 begin
   require 'redcloth'
@@ -77,8 +78,8 @@ module Rote
       # get script filenames, and eval them if found
       src_rb = template_fn.sub(/\..*$/,'') + '.rb'            
       section_rb = @fixme_dir + '/COMMON.rb'
-      instance_eval(File.read(section_rb)) if File.exists?(section_rb)     
-      instance_eval(File.read(src_rb)) if File.exists?(src_rb)    
+      instance_eval(File.read(section_rb),section_rb) if File.exists?(section_rb)     
+      instance_eval(File.read(src_rb),src_rb) if File.exists?(src_rb)    
       
       # Allow block to have the final say
       yield self if block_given?  
@@ -194,24 +195,30 @@ module Rote
       "#{@layout_path}/#{basename}#{@layout_defext if ext.empty?}"    
     end
     
-    # FIXME NASTY HACK: Allow templates to inherit COMMON.rb. This should be replaced
-    # with a proper search for inherited in Page.new. Call from your COMMON.rb to 
-    # inherit the COMMON.rb immediately above this. If none exists there, this doesn't go
-    # looking beyond that - it just returns false
+    # Allows common template code (COMMON.rb) to inherit from the directory above.
+    # This may be chained through nested directories, of course, but the chain
+    # cannot be broken - if no COMMON is found in the immediately preceeding 
+    # directory (relative to the calling script) then inheritance will not work
+    # and +false+ will be returned.
     def inherit_common
-      inh = "#{@fixme_dir}/../COMMON.rb"
-      if File.exists?(inh)
-        instance_eval(File.read(inh))
-        true              
-      else
-        false
+      Binding.of_caller do |caller|
+        file = eval("__FILE__",caller)
+        inh = "#{File.dirname(file)}/../COMMON.rb"
+        if File.exists?(inh)
+          instance_eval(File.read(inh),inh)
+          true              
+        else
+          false
+        end
       end
     end
     
-    # FIXME NASTY HACK II: relative links (doesn't work)
+    # FIXME NASTY HACK II: relative links (kinda works, but simply. Handy when
+    # you do both local preview from some deep directory, and remote deployment
+    # to a root)
     def link_rel(href) 
       thr = href
-      if thr.is_a?(String) && href[0,1] == '/'
+      if thr.is_a?(String) && href[0,1] == '/'    # only interested in absolute
         thr = href[1..href.length]     
         count = @fixme_dir.split('/').length - 2
         if count > 0 then count.times {
