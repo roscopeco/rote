@@ -5,17 +5,25 @@ require 'rake'
 require 'rake/clean'
 require 'rote'
 
-CLEAN.include('html')
-
-# Create a task build the website / docs
-ws = Rote::DocTask.new("doc") { |site| 
+# Create tasks to build the doc tree
+# 
+# Creates the following tasks
+#
+#		doc                        - Everything
+#   doc-pages                  - Transform all modified pages
+#		doc-res                    - Copy all resources
+#		doc-clean                  - Remove generated documentation
+#		html/[filename]            - Transform single [filename] unconditionally
+#		doc-monitor								 - Start monitor mode on doc source
+#
+ws = Rote::DocTask.new(:doc) { |site| 
   site.output_dir = 'html'
   site.layout_dir = 'doc/layouts'
 
   site.pages.dir = 'doc/pages'
   site.pages.include('**/*')  
   
-  site.res.dir = 'doc/res/'
+  site.res.dir = 'doc/res'
   site.res.include('**/*.png')
   site.res.include('**/*.gif')
   site.res.include('**/*.jpg')
