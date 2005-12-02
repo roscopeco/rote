@@ -1,7 +1,6 @@
 require 'erb'
 require 'rdoc/markup/simple_markup'
 require 'rdoc/markup/simple_markup/to_html'
-require 'binding_of_caller'
 
 begin
   require 'redcloth'
@@ -195,21 +194,17 @@ module Rote
       "#{@layout_path}/#{basename}#{@layout_defext if ext.empty?}"    
     end
     
-    # Allows common template code (COMMON.rb) to inherit from the directory above.
-    # This may be chained through nested directories, of course, but the chain
-    # cannot be broken - if no COMMON is found in the immediately preceeding 
-    # directory (relative to the calling script) then inheritance will not work
-    # and +false+ will be returned.
+    # FIXME NASTY HACK: Allow templates to inherit COMMON.rb. This should be replaced
+    # with a proper search for inherited in Page.new. Call from your COMMON.rb to 
+    # inherit the COMMON.rb immediately above this. If none exists there, this doesn't go
+    # looking beyond that - it just returns false
     def inherit_common
-      Binding.of_caller do |caller|
-        file = eval("__FILE__",caller)
-        inh = "#{File.dirname(file)}/../COMMON.rb"
-        if File.exists?(inh)
-          instance_eval(File.read(inh),inh)
-          true              
-        else
-          false
-        end
+      inh = "#{@fixme_dir}/../COMMON.rb"
+      if File.exists?(inh)
+        instance_eval(File.read(inh))
+        true              
+      else
+        false
       end
     end
     
