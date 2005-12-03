@@ -31,10 +31,12 @@ module Rote
     # when (if) the page source calls layout(basename).
     attr_reader :layout_text
     
-    # Formatting options passed to RedCloth. This is an array of the
-    # option symbols defined by RedCloth.
-    # The most common are :textile and :markdown. See RedCloth
-    # documentation for full details of supported options.
+    # Formatting options for this page. This is an array of the
+    # option symbols, as defined by RedCloth, with a further +:rdoc+ 
+    # symbol that selects RDoc formatting. The most common are 
+    # :textile. :markdown, and :rdoc, but additional options are
+    # supported by RedCloth - see it's documentation for full details
+    # of supported option symbols and their effect.
     # 
     # The default is [], which means 'No formatting'. This setting
     # does not affect ERB rendering (which is always performed, before
