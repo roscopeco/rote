@@ -20,17 +20,17 @@ h3. Contents
   ** "Template code & ERB":#create_templates_erb
   ** "Applying layout":#create_templates_layout
   * "Resources":#resources
-  * "Source monitoring":monitor
+  * "Source monitoring":#monitor
   * "Publishing":#publishing
   
 <a name='conventions'/>
 h3. Conventions used in this document
 
 *Task names* - Rote's standard tasks are always referred to with the base-name
-_doc_ , e.g. _doc-pages_, _doc-clean_, and just plain _doc_. This is the prefix
+_doc_ , e.g. @doc_pages@, @doc_clean@, and just plain @doc@. This is the prefix
 used by the built-in Rakefile, but since it can be changed when using Rote in
-your own Rake builds you should of course substitute the _doc_ prefix for 
-whatever is appropriate if you have chosen to modify it.
+your own Rake builds you should of course substitute whatever is appropriate 
+if you have chosen to modify it.
 
 <a name='getting_started'/>
 h3. Getting started with Rote
@@ -115,9 +115,9 @@ you'd run:
 
 <p><pre><code>        rote html/index.html</code></pre></p>
 
-The @clean@ task supports deleting all output files to start from scratch:
+The @clobber@ task supports deleting all output files to start from scratch:
 
-<p><pre><code>        rote clean</code></pre></p>
+<p><pre><code>        rote clobber</code></pre></p>
 
 Of course, multiple file or task names (or a mixture) can be specified.
 You can get a list of valid tasks in the current context with:
@@ -209,9 +209,10 @@ then Rdoc.
 	
 *Some additional notes on formatting*
 
-  * Although you can directly assign to @format_opts@, this isn't recommended 
-    since Ruby often interprets it as a local variable set rather than method call, 
-    resulting in much head scratching as to why your options are being ignored.
+  * You cannot directly assign to @format_opts@, from page code since Ruby 
+    interprets assignments with no receiver as local variable sets rather than
+    method calls, resulting in much head scratching as to why your options are 
+    being ignored. Always use the << :opt syntax.
     
   * Note that *Formatting is applied _after_ any ERB has been evaluated.*
 
@@ -237,7 +238,7 @@ you might define such variables. The following is in order of evaluation:
 * In a block passed to Page.new
 * In the template itself
 
-When a =Rote::Page= instance is created, Rote looks for these, and if found
+When a @Rote::Page@ instance is created, Rote looks for these, and if found
 evaluates them, in order, in the same binding as the template is later rendered
 in (i.e. the @Page@ instance binding). Therefore, you can define
 instance variables to pass data around, or even helper methods if you wish.
@@ -250,16 +251,18 @@ h4. Layout
 Layouts are stored under the @doc/layouts@ directory (by default). They may
 be organised into subdirectories, but this hierarchy is not connected to
 the hierarchy in @pages@. To apply a layout to a page, simply call the
-=Rote::Page.layout= method from code applied to that page, passing the
+@Rote::Page.layout@ method from code applied to that page, passing the
 base-name (and path, relative to @layouts@, if used). If no extension is
 specified, then the same extension as the page itself is assumed. Examples:
 
-<pre>
-	layout 'one'
-	layout 'main/wide'
-	layout 'dark.txt'
-	&lt;% layout 'my' %&gt;
-</pre>	
+  * layout 'one'
+  * layout 'main/wide'
+  * layout 'dark.txt'
+  * <&#37; layout 'my' &#37;>
+  
+_*Note* the absence of the = sign   in the ERB tag in the last example,_
+_indicating that this is code to be executed rather than code that should_
+_generate output._
 
 With that done, Rote would first render the template text (including textile)
 and set the Page instance variable @\@content_for_layout@ before rendering 
@@ -267,7 +270,7 @@ the layout (in which textile is currently not supported). The layout is
 responsible for inserting the rendered template where appropriate, with
 e.g.:
 
-  * <code>&lt;%= @content_for_layout %&gt;</code>
+  * <&#37;= @content_for_layout &#37;>
 
 This pattern shouldn't be unfamiliar. Again, note that Rote doesn't mandate 
 HTML, despite the appearance from the ERB tags - any (textual) format can
@@ -300,9 +303,20 @@ situation it's inconvenient to keep dropping out to your shell to run @rote@
 
 Fortunately, Rote provides a simple mechanism for monitoring your documentation
 source and automatically performing updates as needed. Simply specify the 
-_doc-monitor_ task and Rote will go into a loop, periodically running the
+@doc_monitor@ task and Rote will go into a loop, periodically running the
 top-level _doc_ task which will transform / copy any pages or resources that
-have been modified. By default, this check is performed approximately once
+have been modified. It will of course take notice of any custom file or directory
+dependencies you add to the doc task (e.g. to generate RDoc as part of a
+website), and in turn monitor their dependent files too (for example rebuilding
+the RDoc if you modify a source file). It does *not* however attempt to track
+format-specific dependencies _between_ resources (such as which pages use which
+CSS), since this would imply some knowledge of the format in use. In practice
+this means that you may need to trigger a clean build after updating such
+resources, although it is actually fairly easy to set up this kind of 
+relationship by specifying that certain file-tasks relating to pages depend 
+on the appropriate file-tasks representing the resources (for instance).
+
+By default, @monitor@ checks for updates approximately once
 per second, but you can specify a custom value _when using a Rakefile_ by
 setting @monitor_interval@ in the block passed to @DocTask.new@.
 
@@ -312,6 +326,9 @@ anything more than that - it would be almost pointless to complicate the
 way monitoring works with any kind of semaphore or file-locking scheme.
 Of course if this does cause problems in your particular scenario, let me know
 because it just might make me reconsider.
+
+When you're done with Rote simply hit CTRL-C (or use @kill@) to stop monitoring
+and exit.
 
 <a name='publishing'/>
 h3. Publishing
@@ -337,12 +354,12 @@ Currently, there isn't enough checking involved on source resources when
 building pages - Basically, only templates are considered when Rake decides
 what to update. If you change layouts, code or resources you'll need to run:
 	
-<p><pre><code>        rote clean</code></pre></p>
+<p><pre><code>        rote clobber</code></pre></p>
 		
 to make sure everything gets updated. It's recommended to always run upload
 as:
 	
-<p><pre><code>        rote clean upload</code></pre></p>
+<p><pre><code>        rote clobber upload</code></pre></p>
 	
 Please note that this isn't Rake's limitation - it's mine. It will be fixed
 in a later version of Rote.
