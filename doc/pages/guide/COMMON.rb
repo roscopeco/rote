@@ -1,7 +1,18 @@
-# This is a hack that exists currently to inherit COMMON.rb
-# from above. Of course, we can still define extra stuff
-# here. 
-#
-# This will be made implicit soon.
-
+# inherit common.rb from above
 inherit_common
+
+def section_anchor(name)
+  name.downcase.gsub(/\s/,'_')
+end
+
+def section_link(name, text = name)
+  %Q{"#{text}":\##{section_anchor(name)}}
+end
+
+def section(level, name, toplink = true)
+%Q{
+#{"[#{section_link('Top')}]" if toplink}
+<a name='#{section_anchor(name)}'/>
+h#{level}. #{name}
+}
+end
