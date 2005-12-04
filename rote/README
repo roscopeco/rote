@@ -71,7 +71,12 @@ With that done, you should be able to run
 	
 to verify that the command-line wrapper is working. You should of course see
 the version number of your Rote installation.
- 
+
+*NOTE* Windows users - you may experience problems at this point, with Rote
+complaining that 'rake' is an invalid command. To fix this, simply set an
+environment variable, RAKE_CMD, with the command to execute for rake
+(e.g. rake.bat).
+
 == How do I use it?
 
 Please see the user guide for usage information. The latest version can be
