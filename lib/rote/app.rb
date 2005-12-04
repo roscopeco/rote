@@ -30,7 +30,7 @@ module Rote
       raise "Missing builtin.rf (expected at '#{@rakefile}')!" unless File.exists?(@rakefile)
       
       @rakeopts = ENV['RAKE_OPTS'] || ''
-      @rake = ENV['RAKE_CMD'] || 'rake'
+      @rake = ENV['RAKE_CMD'] || (PLATFORM =~ /mswin/ ? 'rake.bat' : 'rake')
       
       process_args
       

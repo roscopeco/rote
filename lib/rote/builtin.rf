@@ -32,4 +32,4 @@ ws = Rote::DocTask.new(:doc) { |site|
 
 task :default => [:doc]
 
-import 'publish.rf' if File.exists?('publish.rf')
+import 'local.rf' if File.exists?('local.rf')
