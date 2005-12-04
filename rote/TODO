@@ -7,10 +7,14 @@ Send any suggestions (or test-driven patches) to:
 
 * More flexible markup rendering
 * Nested layouts
+* Better COMMON.rb handling
 * Find and Integrate test run / coverage reports
 * Ability to have multiple views of a section, e.g. user guide (separate
   pages) and user guide (one page) generated from same source.
+* Auto-link within section
 * Index and glossary support
 * statistics
 * (maybe?) Automatic navigation / TOC
 * (maybe?) Rant integration
+* Ability to define rules for input.ext -> output.ext
+* Support ruby source templates (.rbt, auto rename to .rb on output).

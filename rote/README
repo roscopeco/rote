@@ -106,8 +106,9 @@ packages from escaping into the wild.
 
 === Further information
 
-Rote is developed by Ross Bamford (ross <at> roscopeco.co.uk). Flame him if
-it breaks your day ;P
+Rote is developed by Ross Bamford (rosco <at> roscopeco.co.uk), with help from
+the developers listed in CONTRIBUTORS. Any bugs are probably down to Ross, 
+though, so flame him if it breaks your day ;P
 
 * Homepage - http://rote.rubyforge.org/
 * Project - http://rubyforge.org/projects/rote
@@ -116,3 +117,9 @@ it breaks your day ;P
 
 As you may have guessed, Rote's hosting and development services are provided
 by http://RubyForge.org .
+
+Thanks to Yukihiro Matsumoto for a remarkable platform, Masatoshi Seki for 
+embedding it in text, Jim Weirich for an elegant build tool, and Dean Allen 
+for making markup easy in Ruby. Thanks too to the many people who've contributed
+and improved these things over the years - as ever, we stand on the shoulders
+of giants.
