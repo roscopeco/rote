@@ -146,7 +146,7 @@ something like:
 	require 'rote'
 	
 	ws = Rote::DocTask.new(:doc) { |site| 
-	  site.site_dir = 'html'
+	  site.output_dir = 'html'
 	  site.layout_dir = 'doc/layouts'
 	
 	  site.pages.dir = 'doc/pages'
