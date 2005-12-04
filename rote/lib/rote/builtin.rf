@@ -33,3 +33,6 @@ ws = Rote::DocTask.new(:doc) { |site|
 task :default => [:doc]
 
 import 'local.rf' if File.exists?('local.rf')
+
+# DEPRECATED - publish.rf will be unsupported. 			vv0.2.3		v-0.5
+import 'publish.rf' if File.exists?('publish.rf')
