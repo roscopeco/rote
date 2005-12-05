@@ -1,3 +1,8 @@
+# Rote page class
+# (c)2005 Ross Bamford (and contributors)
+#
+# See 'rote.rb' or LICENSE for licence information.
+# $Id$
 require 'erb'
 require 'rdoc/markup/simple_markup'
 require 'rdoc/markup/simple_markup/to_html'
@@ -12,9 +17,9 @@ end
 module Rote
 
   #####
-  ## A +Page+ object represents an individual page, taking input from a
-  ## template and (optionally) some ruby code, and producing rendered
-  ## ('merged') output as a +String+.
+  ## A +Page+ object represents an individual template source file, taking
+  ## input from that file and (optionally) some ruby code, and producing 
+  ## rendered (or 'merged') output as a +String+.
   ## When a page is created, ruby source will be found alongside the 
   ## file, with same basename and an '.rb' extension. If found it will
   ## run through +instance_eval+. That source can call methods

@@ -1,3 +1,8 @@
+# Rote application class
+# (c)2005 Ross Bamford (and contributors)
+#
+# See 'rote.rb' or LICENSE for licence information.
+# $Id$
 require 'getoptlong'
 
 module Rote
@@ -98,11 +103,14 @@ Recognised options are:
   --help      -h     Synonym for --usage
   --version   -V     Display Rote's version and quit
 
-The 'rote' command is implemented as a wrapper around Rake, and 
-requires the 'rake' command be in your path. You can circumvent this
-by setting the RAKE_CMD environment variable appropriately.
-Additional options can be passed to Rake via the RAKE_OPTS variable.
-  
+In addition to the standard doc_XXX tasks and those provided by any
+local configuration, the following 'special' tasks are recognised:
+
+  create <project>   Create a blank project from the built-in template.
+   
+Note that these 'special' tasks are implemented as part of the command-
+line wrapper for Rote, and will not be available from custom Rakefiles.
+
 In non-standard environments, it may be necessary to set the ROTE_LIB 
 variable to point to the location of Rote's libraries.
   

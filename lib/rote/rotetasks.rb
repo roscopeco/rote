@@ -1,3 +1,8 @@
+# Rake tasklib for Rote
+# (c)2005 Ross Bamford (and contributors)
+#
+# See 'rote.rb' or LICENSE for licence information.
+# $Id$
 require 'rake'
 require 'rake/tasklib'
 
@@ -57,8 +62,10 @@ module Rote
   ## name you supply. The tasks defined are:
   ##
   ##   #{name}         - Transform all documentation, copy resources.
-  ##   #{name}-pages   - Transform all pages
-  ##   #{name}-res     - Copy resources
+  ##   #{name}_pages   - Transform all pages
+  ##   #{name}_res     - Copy resources
+  ##   #{name}_monitor - Start watching for changes
+  ##   #clobber_{name} - Remove output
   ##
   class DocTask < Rake::TaskLib
     # Default exclusion patterns for the page sources. These are
@@ -94,8 +101,8 @@ module Rote
     alias :show_file_tasks? :show_file_tasks
     alias :show_file_tasks= :show_file_tasks=
     
-    # *Deprecated* alias for +show_file_tasks+. It will be removed.
-    alias :show_page_tasks? :show_file_tasks      # vv0.3.0 v-0.5
+    # *Deprecated* alias for +show_file_tasks+. vv0.2.2 v-0.5
+    alias :show_page_tasks? :show_file_tasks      
     alias :show_page_tasks= :show_file_tasks=
     
     # The approximate number of seconds between update checks when running

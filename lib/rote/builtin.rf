@@ -1,38 +1,84 @@
+# Built-in Rote rakefile
 #
-# Built-in Rakefile for Rote, (c)2005 Ross Bamford
-
+# This is effectively a copy of the template rakefile, 
+# but with extra tasks for the command-line wrapper.
+#
+# (c)2005 Ross Bamford (and contributors)
+# 
+begin 
+  require 'rubygems'
+rescue LoadError
+  nil # optional
+end
 require 'rake'
 require 'rake/clean'
 require 'rote'
 
-# Create tasks to build the doc tree
-# 
-# Creates the following tasks
+# Create a set of tasks with the prefix 'doc' to  build the
+# documentation set. The directory layout is as for the
+# command-line wrapper (but can be changed of course).
 #
-#		doc                        - Everything
-#   doc-pages                  - Transform all modified pages
-#		doc-res                    - Copy all resources
-#		doc-clean                  - Remove generated documentation
-#		html/[filename]            - Transform single [filename] unconditionally
-#		doc-monitor								 - Start monitor mode on doc source
+# This creates the following tasks:
 #
+#   * doc           - transform/copy all modified pages / resources
+#   * doc_pages     - transform all modified pages
+#   * doc_res       - copy all modified resources
+#   * doc_monitor   - Start monitor mode, transform changed files automatically
+#
+#   * [html/**/*]   - Transform single page / resource unconditionally
+#
+#   * clobber_doc   - Remove output (hooks into main 'clobber' task)
+#
+# In addition to these tasks, you may also wish to define a 'doc_refresh' task
+# to be run whenever modified resources are processed in monitor mode.
 ws = Rote::DocTask.new(:doc) { |site| 
   site.output_dir = 'html'
   site.layout_dir = 'doc/layouts'
-
+  
   site.pages.dir = 'doc/pages'
   site.pages.include('**/*')  
   
   site.res.dir = 'doc/res'
-  site.res.include('**/*.png')
-  site.res.include('**/*.gif')
-  site.res.include('**/*.jpg')
-  site.res.include('**/*.css')
+  site.res.include('**/*')
 }
 
 task :default => [:doc]
 
+#################### CREATE NEW PROJECT FROM TEMPLATE ###############
+#
+# This works in a slightly odd way. The 'create' task simply sets up
+# a rule that catches anything. This rule will then be triggered by
+# the task that follows on the command-line, and taken as the 
+# target directory name.
+# 
+# So instead of 'rote create NAME=foo' we have 'rote create foo'
+#
+# Note that this does preclude having other tasks on the same 
+# invocation (after the create at least) but does also allow
+# multiple projects to be created at once. 
+#
+# Also need a way to display error message if the rule isn't 
+# invoked at least once...
+task :create do
+	rule '' do |t|
+		fail "'#{t.name}' already exists" if File.exists?(t.name)
+	
+		src = 'rote/project'
+	  src_dir = $:.detect { |it| File.exists?(File.join(it,src)) }
+  	fail "Cannot locate project template" unless src_dir
+  
+	  # For now, just copy. Later, maybe we'll do some transformation on the
+  	# sources as they're copied.
+	  cp_r File.join(src_dir, src), t.name
+	end
+end
+
+# import user-level tasks
+import "#{ENV['HOME']}/.rotetasks.rf" if File.exists?("#{ENV['HOME']}/.rotetasks.rf")
 import 'local.rf' if File.exists?('local.rf')
 
-# DEPRECATED - publish.rf will be unsupported. 			vv0.2.3		v-0.5
+# DEPRECATED - publish.rf will be unsupported. 			vv0.2.3		v-0.5   1
 import 'publish.rf' if File.exists?('publish.rf')
+
+
+
