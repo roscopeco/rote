@@ -6,12 +6,12 @@ It is assumed that you have installed Rote already. If not, please
 consult the <a href="<%= link_rel '/rdoc/files/README.html' %>">README</a> 
 for installation instructions.
 
-<a name='top'>
+<a name='top'></a>
 h3. Contents
 
   * <%= section_link 'Conventions' %>
   * <%= section_link 'Starting out with Rote' %>
-  ** <%= section_link 'Source layout' %>
+  ** <%= section_link 'Creating a project' %>
   ** <%= section_link 'From the command-line' %>
   ** <%= section_link 'From your Rakefile' %>
   * <%= section_link 'Creating templates' %>
@@ -35,36 +35,36 @@ if you have chosen to modify it.
 
 <%= section 3, 'Starting out with Rote' %>
 
-<%= section 4, 'Source Layout', false %>
+<%= section 4, 'Creating a project', false %>
 
-To get started quickly, we'll use the standard Rote directory layout, which
-can be used immediately with the command-line wrapper, and fits well with
-Rakefile usage too. Basically, Rote expects your documentation source to
-be laid out as follows:
+To get started quickly, we'll use the built-in project template, which provides
+a standard Rote directory tree with a single page, and Rakefile ready for
+customisation. The template gives a convenient way to get started on a new
+Rote project. To invoke it, just type:
+
+<p><pre><code>        rote create someproject</code></pre></p>
+
+If all goes well, you should see a single line (@cp_r ...@) indicating that
+Rote copied the template to your specified directory (@someproject@ in this
+case). This directory will have the following layout:
 
 <p><code><pre>  
-  project_root ( <- root, this can be called whatever you like)
+  someproject
   |
-  |--> [publish.rf]
+  |--> Rakefile 
   |
   |--> doc
-  |    |--> [COMMON.rb]
-  |    |
   |    |--> res
-  |    |    |--> (resources)
+  |    |    |--> images
+  |    |    |--> rote-tiny.png
   |    |
   |    |--> layouts
-  |    |    |--> one.txt
-  |    |    |--> two.html
+  |    |    |--> normal.html
   |    | 
   |    |--> pages
-  |    |    |--> [COMMON.rb]
-  |    |    |--> apage.txt
-  |    |    |--> [apage.rb]
-  |    |    |--> adir
-  |    |    |    |--> [COMMON.rb]
-  |    |    |    |--> bpage.html
-  |    |    |    |--> [bpage.rb]   
+  |         |--> COMMON.rb
+  |         |--> index.html
+  |         |--> index.rb
 			  
 </pre></code></p>
 
@@ -77,9 +77,13 @@ methods on a Page instance. COMMON.rb is applied to all pages in a given
 directory. See <%= section_link 'creating templates', 'the section on templates' %>
 for more information on the specifics.
 
-If you've downloaded Rote, then you can see the canonical example site by
-looking in the @doc/@ directory (where you'll find the source for this
-site).
+To build the sample page, simply type @rote@ or @rake@ from the top-level
+directory. This will start the default @doc@ task to transform all 
+modified pages / resources (everything, in this case).
+
+The README included with the project template has further information
+about build options and available tasks, as well as pointers to possible
+next steps.
 
 <%= section 4, 'From the command-line' %>
 
@@ -349,16 +353,16 @@ documents.
 
 Currently, there isn't enough checking involved on source resources when
 building pages - Basically, only templates are considered when Rake decides
-what to update. If you change layouts, code or resources you'll need to run:
+what to update. If you change common or page code you'll need to run:
 	
 <p><pre><code>        rote clobber</code></pre></p>
 		
-to make sure everything gets updated. It's recommended to always run upload
-as:
-	
-<p><pre><code>        rote clobber upload</code></pre></p>
-	
-Please note that this isn't Rake's limitation - it's mine. It will be fixed
-in a later version of Rote.
+to make sure everything gets updated. This will also apply if you have
+interdependencies between pages and resources, but in that situation you
+_could_ work around it if you wished by manually (!) specifying the 
+appropriate resources as dependencies to the appropriate page task.
+Such configuration is beyond the scope of this manual - see 
+"Rake's Documentation":http://rake.rubyforge.org/ for information on
+dependency configuration and resolution in Rake.
 
 [<%= section_link 'Top' %>]
