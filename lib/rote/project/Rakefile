@@ -1,0 +1,51 @@
+# Standard Rakefile for custom Rote build
+#
+# Generated from:
+# $Id$
+# 
+begin 
+  require 'rubygems'
+rescue LoadError
+  nil # optional
+end
+require 'rake'
+require 'rake/clean'
+require 'rote'
+
+# Create a set of tasks with the prefix 'doc' to  build the
+# documentation set. The directory layout is as for the
+# command-line wrapper (but can be changed of course).
+#
+# This creates the following tasks:
+#
+#   * doc           - transform/copy all modified pages / resources
+#   * doc_pages     - transform all modified pages
+#   * doc_res       - copy all modified resources
+#   * doc_monitor   - Start monitor mode, transform changed files automatically
+#
+#   * [html/**/*]   - Transform single page / resource unconditionally
+#
+#   * clobber_doc   - Remove output (hooks into main 'clobber' task)
+#
+# In addition to these tasks, you may also wish to define a 'doc_refresh' task
+# to be run whenever modified resources are processed in monitor mode.
+ws = Rote::DocTask.new(:doc) { |site| 
+  site.output_dir = 'html'
+  site.layout_dir = 'doc/layouts'
+  
+  site.pages.dir = 'doc/pages'
+  site.pages.include('**/*')  
+  
+  site.res.dir = 'doc/res'
+  site.res.include('**/*')
+}
+
+task :default => [:doc]
+
+# import user-level tasks
+import "#{ENV['HOME']}/.rotetasks.rf" if File.exists?("#{ENV['HOME']}/.rotetasks.rf")
+import 'local.rf' if File.exists?('local.rf')
+
+# TODO Define your custom tasks here
+
+
