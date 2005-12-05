@@ -1,5 +1,6 @@
 # rote.rb - main Rote module  
 # Copyright (c) 2005 Ross Bamford (and contributors)
+# $Id$
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in 
@@ -44,20 +45,26 @@ require 'rake'
 ROTEVERSION = '0.2.3'
 
 #####
-## *Rote* is a Rake (http://rake.rubyforge.org) based build tool for page-based
-## static websites that enables layout, textile formatting, and ERB to be used
-## to automatically generate your site, and can handle uploading the site 
-## to your (host's) server.
+## *Rote* is a Rake (http://rake.rubyforge.org) based build tool for static
+## page-based documentation, websites, and general textual templates.
+## It enables embedded Ruby code, layout, and optionally plain-text formatting
+## (HTML-only at present) to be used to automatically generate output in any
+## (textual) format from a directory tree containing template files.
 ##
-## Rote was created for my personal site, but is general enough to be applied
-## to many different types of website, including basic blog-plus sites,
-## slower-moving news and information sites, and software documentation.
+## Rote was created for my personal website, but has become a fairly flexible
+## tool, general enough to be applied to many different types of templating.
+## Rote can handle your software documentation, blog-plus sites,
+## and even (slower-moving) news and information sites.
 ##
-## See +README+ for general usage information. +Rote::DocTask+ documents the
-## Rake task integration, while +Rote::Page+ has information useful to template
+## Rote can be used from the command-line, or in your own +Rakefile+. It
+## supports both manual and automatic rendering of modified resources, and
+## can be configured to monitor your source tree for changes.
+##
+## See +README+ for general usage information. Rote::DocTask documents the
+## Rake task integration, while Rote::Page has information useful to template
 ## writers.
 ##
-## Rote is (c)2005 Ross Bamford. See +LICENSE+ for details.
+## Rote is (c)2005 Ross Bamford (and contributors). See +LICENSE+ for details.
 module Rote
 
   # this space intentionally left blank
