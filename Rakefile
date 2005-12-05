@@ -141,6 +141,7 @@ PKG_FILES = FileList[
   'bin/**/*', 
   'lib/**/*.rb', 
   'lib/rote/builtin.rf', 
+  'lib/rote/project/**/*',
   'test/**/*',
   'doc/**/*'
 ]
@@ -287,6 +288,57 @@ desc "List all ruby files"
 task :rubyfiles do 
   puts Dir['**/*.rb'].reject { |fn| fn =~ /^pkg/ }
   puts Dir['bin/*'].reject { |fn| fn =~ /CVS|(~$)|(\.rb$)/ }
+end
+
+desc "Show deprecation notes"
+task :deprecated do
+  Dir['lib/**/*.r?'].each do |fn|
+    File.open(fn) do |f| 
+      [*f].each_with_index do |line,i| 
+        if line =~ /#(.*)vv([0-9\.]+)(?:[\s\t]*)v-([0-9\.]+)/
+          cmnt = $~[1].strip
+          cmnt = '<No comment>' if (cmnt.nil? or cmnt.empty?)          
+          printf "%s:%d\n%-60s    %5s    %5s\n\n", fn, i+1, cmnt, $~[2].strip, $~[3].strip
+        end #if splits okay
+      end #each_w_idx
+    end #fopen
+  end #dir
+end
+
+desc "Find features deprecated at VER"
+task :deprecated_by do
+  fail "\nYou must specify the version to check (VER=x.y.z)\n\n" unless ver = ENV['VER']
+  Dir['lib/**/*.r?'].each do |fn|
+    File.open(fn) do |f| 
+      [*f].each_with_index do |line,i| 
+        if line =~ /vv#{ver}/
+          if line =~ /#(.*)vv([0-9\.]+)(?:[\s\t]*)v-([0-9\.]+)/
+            cmnt = $~[1].strip
+            cmnt = '<No comment>' if (cmnt.nil? or cmnt.empty?)          
+            printf "%s:%d\n%-60s    %5s    %5s\n\n", fn, i+1, cmnt, $~[2].strip, $~[3].strip
+          end #if splits okay
+        end #if line is dep remove
+      end #each_w_idx
+    end #fopen
+  end #dir
+end
+
+desc "Find deprecated features to be removed by VER"
+task :deprecated_due do
+  fail "\nYou must specify the version to check (VER=x.y.z)\n\n" unless ver = ENV['VER']
+  Dir['lib/**/*.r?'].each do |fn|
+    File.open(fn) do |f| 
+      [*f].each_with_index do |line,i| 
+        if line =~ /v-#{ver}/
+          if line =~ /#(.*)vv([0-9\.]+)(?:[\s\t]*)v-([0-9\.]+)/
+            cmnt = $~[1].strip
+            cmnt = '<No comment>' if (cmnt.nil? or cmnt.empty?)          
+            printf "%s:%d\n%-60s    %5s    %5s\n\n", fn, i+1, cmnt, $~[2].strip, $~[3].strip
+          end #if splits okay
+        end #if line is dep remove
+      end #each_w_idx
+    end #fopen
+  end #dir
 end
 
 # --------------------------------------------------------------------
