@@ -42,7 +42,7 @@ require 'net/ftp'
 require 'rake'
 
 # Master Rote version. Manage this from the Rake release support.
-ROTEVERSION = '0.2.4'
+ROTEVERSION = '0.2.5'
 
 #####
 ## *Rote* is a Rake (http://rake.rubyforge.org) based build tool for static
