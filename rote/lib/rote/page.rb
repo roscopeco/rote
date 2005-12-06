@@ -14,7 +14,12 @@ rescue LoadError
   nil
 end
 
+# Don't want user to have to require these in their pagecode...
+require 'rote/format/html'
+
 module Rote
+  STRIP_SLASHES = /^\/?(.*?)\/?$/
+  FILE_EXT = /\..*$/
 
   #####
   ## A +Page+ object represents an individual template source file, taking
@@ -36,25 +41,14 @@ module Rote
     # when (if) the page source calls layout(basename).
     attr_reader :layout_text
     
-    # Formatting options for this page. This is an array of the
-    # option symbols, as defined by RedCloth, with a further +:rdoc+ 
-    # symbol that selects RDoc formatting. The most common are 
-    # :textile. :markdown, and :rdoc, but additional options are
-    # supported by RedCloth - see it's documentation for full details
-    # of supported option symbols and their effect.
-    # 
-    # The default is [], which means 'No formatting'. This setting
-    # does not affect ERB rendering (which is always performed, before
-    # any formatting).
-    attr_reader :format_opts
-    def format_opts=(opts)
-      if !opts.nil? && opts.respond_to?(:to_ary)
-        @format_opts = opts
-      else
-        @format_opts = [opts]
-      end
-    end
+    # The original filenames from which this page's template and layout
+    # (if any) were read.
+    attr_reader :template_fn, :layout_fn    
     
+    # The base paths for this page's template and layout. These point
+    # to the directories configured in the Rake tasks.
+    attr_reader :base_path, :layout_path
+        
     # Reads the template, and evaluates the global and page scripts, if 
     # available, using the current binding. You may define any instance
     # variables or methods you like in that code for use in the template,
@@ -66,25 +60,34 @@ module Rote
     #
     # If a block is supplied, it is executed _after_ the global / page
     # code, so you can locally override variables and so on. 
-    def initialize(template_fn, 
-                   layout_path = File.dirname(template_fn), 
-                   default_layout_ext = File.extname(template_fn)) # :yield: self if block_given?    
+    def initialize(template_fn, pages_dir = '.', layout_dir = pages_dir) # :yield: self if block_given?    
       @template_text = nil
       @layout_text = nil
       @content_for_layout = nil
       @result = nil
-      @format_opts = []
-      @layout_defext = default_layout_ext
-      @layout_path = layout_path
-      @fixme_dir = File.dirname(template_fn)
+      @layout_defext = File.extname(template_fn)
+      @layout_path = layout_dir[STRIP_SLASHES,1]
+      @base_path = pages_dir[STRIP_SLASHES,1]
       
       # read in the template. Layout _may_ get configured later in page code
-      read_template(template_fn)
+      # We only add the pages_dir if it's not already there, because it's
+      # easier to pass the whole relative fn from rake...
+      # template_fn always needs with no prefix.
+      if template_fn =~ /^#{pages_dir}/
+        tfn = template_fn
+        @template_fn = template_fn[/^#{pages_dir}\/(.*)/,1]
+      else
+        tfn = File.join(pages_dir,template_fn)
+        @template_fn = template_fn
+      end
+      read_template(tfn)
+      
+      # Eval COMMON.rb's
+      eval_common_rubys(File.expand_path(File.dirname(tfn)))
       
       # get script filenames, and eval them if found
-      src_rb = template_fn.sub(/\..*$/,'') + '.rb'            
-      section_rb = @fixme_dir + '/COMMON.rb'
-      instance_eval(File.read(section_rb),section_rb) if File.exists?(section_rb)     
+      src_rb = File.join(@base_path,template_fn)
+      src_rb[FILE_EXT] = '.rb'
       instance_eval(File.read(src_rb),src_rb) if File.exists?(src_rb)    
       
       # Allow block to have the final say
@@ -102,7 +105,8 @@ module Rote
     # that the instance is frozen.
     def layout(basename)
       if basename
-        fn = layout_fn(basename)
+        @layout_fn = "#{basename}#{@layout_defext if File.extname(basename).empty?}"
+        fn = File.join(layout_path,@layout_fn)
         raise "Layout #{fn} not found" unless File.exists?(fn)
         @layout_text = File.read(fn)
       else
@@ -119,7 +123,7 @@ module Rote
     
     alias to_s render
     
-    private
+    private        
         
     # Sets the template from the specified file, or clears the template if
     # +nil+ is passed in. The specified basename should be the name
@@ -133,52 +137,17 @@ module Rote
       end
     end  
     
-    def render_fmt(text)
-      result = text
-    
-      # need to get opts to a known state (array), and copy it
-      # so we can modify it.
-      if @format_opts && ((@format_opts.respond_to?(:to_ary) && (!@format_opts.empty?)) || @format_opts.is_a?(Symbol)) 
-        opts = @format_opts.respond_to?(:to_ary) ? @format_opts.dup : [@format_opts] 
-          
-        # Remove :rdoc opts from array (RedCloth doesn't do 'em) 
-        # and remember for after first rendering...
-        #
-        # Cope with multiple occurences of :rdoc
-        unless (rdoc_opt = opts.grep(:rdoc)).empty?
-          opts -= rdoc_opt
-        end
-          
-        # Render out RedCloth / markdown
-        unless opts.empty?
-          if defined?(RedCloth)
-            rc = RedCloth.new(result)
-            rc.instance_eval { @lite_mode = false }   # hack around a warning
-            result = rc.to_html(*opts) 
-          else
-            puts "WARN: RedCloth options specified but no RedCloth installed"
-          end
-        end
-          
-        # Render out Rdoc
-        #
-        # TODO could support alternative output formats by having the user supply
-        #      the formatter class (ToHtml etc).         
-        unless rdoc_opt.empty?
-          p = SM::SimpleMarkup.new
-          h = SM::ToHtml.new
-          result = p.convert(result, h)                      
-        end
-      end
-      
-      result
-    end
-    
-    
+    # Default render_fmt, which does nothing. Different page format modules
+    # may provide different implementations, supporting different options.
+    def render_fmt(s)
+      s
+    end    
+        
     # render, set up @result for next time. Return result too.    
     def do_render!
       # Render the page content into the @content_for_layout
       unless @template_text.nil?
+        # default render_fmt does nothing - different page formats may redefine it.
         @content_for_layout = render_fmt( ERB.new(@template_text).result(binding) )
       end
       
@@ -194,41 +163,20 @@ module Rote
       @result 
     end
         
-    # Get a full layout filename from a basename. If the basename has no extension,
-    # the default extension is added.
-    def layout_fn(basename) 
-      ext = File.extname(basename)
-      "#{@layout_path}/#{basename}#{@layout_defext if ext.empty?}"    
+    def inherit_common    # inherit_common is implicit now    vv0.2.99  v-0.5
+      warn "Warning: inherit_common is deprecated (inheritance is now implicit)"
     end
     
-    # FIXME NASTY HACK: Allow templates to inherit COMMON.rb. This should be replaced
-    # with a proper search for inherited in Page.new. Call from your COMMON.rb to 
-    # inherit the COMMON.rb immediately above this. If none exists there, this doesn't go
-    # looking beyond that - it just returns false
-    def inherit_common
-      inh = "#{@fixme_dir}/../COMMON.rb"
-      if File.exists?(inh)
-        instance_eval(File.read(inh))
-        true              
-      else
-        false
-      end
-    end
+    # Find and evaluate all COMMON.rb files from page dir up to FS root.
+    # Recursive - goes up to root, then eval's on the return.
+    def eval_common_rubys(dir)
+      # defer to parent dir first
+      parent = File.expand_path(File.join(dir, '..'))
+      eval_common_rubys(parent) unless parent == dir # at root    
+      fn = File.join(dir,'COMMON.rb')
+      instance_eval(File.read(fn),fn) if File.exists?(fn)
     
-    # FIXME NASTY HACK II: relative links (kinda works, but simply. Handy when
-    # you do both local preview from some deep directory, and remote deployment
-    # to a root)
-    def link_rel(href) 
-      thr = href
-      if thr.is_a?(String) && href[0,1] == '/'    # only interested in absolute
-        thr = href[1..href.length]     
-        count = @fixme_dir.split('/').length - 2
-        if count > 0 then count.times {
-          thr = '../' + thr
-        } end      
-      end
-      thr
-    end
-    
+      true
+    end        
   end #class  
 end #module

@@ -1,6 +1,3 @@
-# inherit common.rb from above
-inherit_common
-
 def section_anchor(name)
   name.downcase.gsub(/\s/,'_')
 end

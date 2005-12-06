@@ -111,7 +111,7 @@ module Rote
     
     # Create a new DocTask, using the supplied block for configuration,
     # and define tasks with the specified base-name within Rake.
-    def initialize(name = :site) # :yield: self if block_given?
+    def initialize(name = :doc) # :yield: self if block_given?
       @name = name
       @output_dir = '.'      
       @pages = FilePatterns.new('.')
@@ -124,6 +124,7 @@ module Rote
       yield self if block_given?
             
       define
+      #freeze
     end    
     
     private
@@ -162,9 +163,9 @@ module Rote
         file tfn => [fn] do
           dn = File.dirname(tfn)
           mkdir_p dn unless File.exists?(dn)
+          puts "tr #{fn} => #{tfn}"
           File.open(tfn, 'w+') do |f|
-            puts "tr #{fn} => #{tfn}"
-            f << Page.new(fn,layout_dir).render
+            f << Page.new(fn,pages.dir,layout_dir).render
           end          
         end
         tfn
@@ -204,7 +205,7 @@ module Rote
   
 end #module
 
-## The -run task requires a few mods to Rake to let us fire
+## The +monitor+ task requires a few mods to Rake to let us fire
 ## and reset task invocations in a loop.
 module Rake
   class Task

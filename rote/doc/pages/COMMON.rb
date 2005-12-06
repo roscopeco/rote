@@ -9,6 +9,9 @@
 # up chains of COMMONs if you have deep nesting - Ugh!). This limitation
 # will be removed very soon.
 
+# Let's use the HTML stuff everywhere ...
+extend Format::HTML
+
 @site_title = 'Rote'
 @base_url = 'http://rote.rubyforge.org/'
 
