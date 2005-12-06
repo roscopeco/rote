@@ -1,0 +1,9 @@
+= Rote project -- Done list
+
+These were TODO items, but are now not. Other things have been done too, of
+course - these are just the ones that spent some time as a TODO before 
+being implemented.
+
+* More flexible markup rendering
+* Better COMMON.rb handling
+* Proper page/resource/ruby dependencies
