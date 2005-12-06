@@ -111,6 +111,7 @@ rd = Rake::RDocTask.new("rdoc") { |rdoc|
   rdoc.rdoc_files.include('README', 'LICENSE', 'TODO', 'CONTRIBUTORS')
   rdoc.rdoc_files.include('lib/**/*.rb', 'doc/**/*.rdoc')
   rdoc.rdoc_files.exclude(/\bcontrib\b/)
+  rdoc.rdoc_files.exclude('lib/rote/project/**/*')
 }
 
 # Create a task build the website / docs
