@@ -102,7 +102,7 @@ module Rote
         thr = href
         
         if thr.is_a?(String) && href[0,1] == '/'    # only interested in absolute        
-          dtfn = File.dirname(template_fn) + '/'
+          dtfn = File.dirname(template_name) + '/'
           
           count = dtfn == './' ? 0 : dtfn.split('/').length
           thr = ('../' * count) + href[1..href.length]

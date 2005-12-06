@@ -14,6 +14,15 @@ module Rote
       Page.new(basename + '.txt', 'test/pages', 'test/layouts')      
     end
     
+    ############## Clz methods ################
+    def test_page_ruby_filename
+      assert_equal 'test/file.rb', Page::page_ruby_filename('test/file.txt')
+      assert_equal '/home/me/test/file.rb', Page::page_ruby_filename('/home/me/test/file.txt')
+      assert_equal 'file.rb', Page::page_ruby_filename('file.txt')
+      assert_equal 'txt.rb', Page::page_ruby_filename('txt')    
+      assert_equal '', Page::page_ruby_filename('')    
+    end
+    
     ############## initialize #################
     def test_initialize_with_bad_file
       begin
@@ -37,12 +46,12 @@ module Rote
     end
        
     ############## accessors #################
-    def test_template_accessors
+    def test_template_text
       p = new_test_page('justtext')
       assert_equal 'Just some text', p.template_text.chomp
     end
             
-    def test_layout_accessors
+    def test_layout_text
       p = new_test_page('justtext')
       assert_nil p.layout_text
       
@@ -50,6 +59,51 @@ module Rote
       assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
     end
     
+    def test_base_path
+      p = new_test_page('justtext')
+      assert_equal 'test/pages', p.base_path
+    end
+    
+    def test_layout_path
+      p = new_test_page('justtext')
+      assert_equal 'test/layouts', p.layout_path
+    end
+    
+    def test_template_name
+      p = new_test_page('justtext')
+      assert_equal 'justtext.txt', p.template_name
+    end
+    
+    def test_layout_name
+      p = new_test_page('justtext')
+      assert_nil p.layout_name
+                    
+      p = new_test_page('withcode')
+      assert_equal 'simple.txt', p.layout_name            
+    end
+    
+    def test_template_filename
+      p = new_test_page('justtext')
+      assert_equal 'test/pages/justtext.txt', p.template_filename
+    end
+    
+    def test_layout_filename
+      p = new_test_page('justtext')
+      assert_nil p.layout_filename
+                    
+      p = new_test_page('withcode')
+      assert_equal 'test/layouts/simple.txt', p.layout_filename              
+    end
+    
+    def test_ruby_filename
+      p = new_test_page('justtext')
+      assert_nil p.ruby_filename
+                    
+      p = new_test_page('withcode')
+      assert_equal 'test/pages/withcode.rb', p.ruby_filename              
+    end
+    
+    ############## edges #################
     def test_default_layout_params
       p = Page.new('samedir.txt','test/pages/')
       assert_equal '<%= @global %>', p.template_text.chomp
@@ -67,29 +121,6 @@ module Rote
       assert_equal "layout \nsome other text for a change.", p.render.chomp
 
       assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
-    end
-
-    def test_base_path
-      p = new_test_page('justtext')
-      assert_equal 'test/pages', p.base_path
-    end
-    
-    def test_layout_path
-      p = new_test_page('justtext')
-      assert_equal 'test/layouts', p.layout_path
-    end
-    
-    def test_template_fn
-      p = new_test_page('justtext')
-      assert_equal 'justtext.txt', p.template_fn
-    end
-    
-    def test_layout_fn
-      p = new_test_page('justtext')
-      assert_nil p.layout_fn
-                    
-      p = new_test_page('withcode')
-      assert_equal 'simple.txt', p.layout_fn              
     end
     
     ############## render #################

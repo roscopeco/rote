@@ -158,16 +158,39 @@ module Rote
     def define_page_tasks
       pages_fl = pages.to_filelist    
       tasks = pages_fl.select { |fn| not File.directory?(fn) }.map do |fn| 
-        tfn = fn.sub(/^#{pages.dir}/, output_dir)          
+        tfn = fn.sub(/^#{pages.dir}/, output_dir) 
+                 
         desc "#{fn} => #{tfn}" if show_file_tasks?
         file tfn => [fn] do
           dn = File.dirname(tfn)
           mkdir_p dn unless File.exists?(dn)
           puts "tr #{fn} => #{tfn}"
-          File.open(tfn, 'w+') do |f|
-            f << Page.new(fn,pages.dir,layout_dir).render
-          end          
+          begin
+            File.open(tfn, 'w+') do |f|
+              f << Page.new(fn,pages.dir,layout_dir).render
+            end
+          rescue => e
+            # Oops... Unlink file and dump backtrace
+            File.unlink(tfn)
+            bt = e.backtrace
+            end_idx = bt.each_with_index do |entry, idx|
+              break idx if entry =~ /^#{File.dirname(__FILE__)}/
+            end
+            puts bt[0...end_idx]
+            raise
+          end
         end
+        
+        # Each page depends properly on source and common - thx again
+        # Jonathan :)
+        src_rb = Page::page_ruby_filename(fn)
+        if File.exists?(src_rb)
+          file tfn => [src_rb]
+        end
+        
+        common_rbs = Page::resolve_common_rubys(File.dirname(fn))
+        file tfn => common_rbs unless common_rbs.empty?
+        
         tfn
       end
       

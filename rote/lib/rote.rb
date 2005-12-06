@@ -64,7 +64,6 @@ ROTEVERSION = '0.2.999'
 ## writers.
 ##
 ## Rote is (c)2005 Ross Bamford (and contributors). See +LICENSE+ for details.
-## This documentation refers to Rote version #{ROTEVERSION}
 module Rote
 
   # this space intentionally left blank
