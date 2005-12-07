@@ -15,7 +15,8 @@ Send any suggestions or patches (preferably as/with tests) to:
 * (maybe?) Rant integration
 * CSS / XML / etc, maybe with the existing builders (integrated with 
   Format::CSS, Format::XML, so on)
-* Simple syntax highlighting (maybe with Syntax library?) in the HTML,
-  so can just pass e.g. %{def something(arg,arg) ... end } and have
-  it rendered out in a colourful code block.
-  
+* Support filters
+** Syntax
+** TOC
+* Support layout-specific code.
+* Remove implicit output filename restriction  
