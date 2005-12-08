@@ -15,8 +15,9 @@ Send any suggestions or patches (preferably as/with tests) to:
 * (maybe?) Rant integration
 * CSS / XML / etc, maybe with the existing builders (integrated with 
   Format::CSS, Format::XML, so on)
-* Support filters
-** Syntax
+* Filters remain todo:
 ** TOC
+** Tidy
+** BlueCloth
 * Support layout-specific code.
 * Remove implicit output filename restriction  

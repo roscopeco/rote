@@ -7,3 +7,7 @@ being implemented.
 * More flexible markup rendering
 * Better COMMON.rb handling
 * Proper page/resource/ruby dependencies
+* Support filters
+** Syntax
+** RedCloth
+** RDoc
