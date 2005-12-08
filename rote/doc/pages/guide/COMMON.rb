@@ -1,3 +1,7 @@
+require 'rote/filters/toc'
+
+append_filter @toc = Filters::TOC.new(/h3/)
+ 
 def section_anchor(name)
   name.downcase.gsub(/\s/,'_')
 end
