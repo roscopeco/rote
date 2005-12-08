@@ -2,12 +2,7 @@
 #
 # Instead of being executed once (as you might expect), this is evaluated
 # for each Page's binding as the instance is created.
-#
-# At the moment, COMMON.rb code isn't automatically inherited from
-# parent directories - you have to use the 'inherit_common' hack provided
-# by Page to inherit from the immediate parent directory ONLY (setting
-# up chains of COMMONs if you have deep nesting - Ugh!). This limitation
-# will be removed very soon.
+require 'rote/filters/redcloth'
 
 # Let's use the HTML stuff everywhere ...
 extend Format::HTML
@@ -17,7 +12,7 @@ extend Format::HTML
 
 # default to 'page' layout and textile formatting
 layout 'page'
-format_opts << :textile
+append_filter Filters::RedCloth.new(:textile)
 
 # this is used to construct the navbar and frontpage. Note that we use absolute
 # (root-relative) URLs here, and fix them from each page with 'link_rel'.
