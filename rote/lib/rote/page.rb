@@ -4,15 +4,6 @@
 # See 'rote.rb' or LICENSE for licence information.
 # $Id$
 require 'erb'
-require 'rdoc/markup/simple_markup'
-require 'rdoc/markup/simple_markup/to_html'
-
-begin
-  require 'redcloth'
-rescue LoadError
-  # optional dep
-  nil
-end
 
 # Don't want user to have to require these in their pagecode...
 require 'rote/format/html'
@@ -76,7 +67,13 @@ module Rote
     # The base paths for this page's template and layout. These point
     # to the directories configured in the Rake tasks.
     attr_reader :base_path, :layout_path
-        
+    
+    # The array of filters that will be applied to this page.
+    # You can use +append_filter+ to add new filters, which gives
+    # implicit block => Filters::Proc conversion and checks
+    # for nil.
+    attr_reader :filters
+    
     # Reads the template, and evaluates the global and page scripts, if 
     # available, using the current binding. You may define any instance
     # variables or methods you like in that code for use in the template,
@@ -98,6 +95,8 @@ module Rote
       @layout_defext = File.extname(template_name)
       @layout_path = layout_dir[STRIP_SLASHES,1]
       @base_path = pages_dir[STRIP_SLASHES,1]
+      
+      @filters = []
 
       # read in the template. Layout _may_ get configured later in page code
       # We only add the pages_dir if it's not already there, because it's
@@ -134,6 +133,20 @@ module Rote
     def ruby_filename
       fn = Page::page_ruby_filename(template_filename) 
       File.exists?(fn) ? fn : nil
+    end
+
+    # Append +filter+ to this page's filter chain, or create a new 
+    # Rote::Filters::Proc filter with the supplied block.
+    # This method should be preferred over direct manipulation of
+    # the +filters+ array.
+    def append_filter(filter = nil, &block)
+      if filter
+        @filters << filter
+      else
+        if block
+          @filters << Filters::Proc.new(block)
+        end
+      end
     end
     
     # Render this page's textile and ERB, and apply layout.
@@ -191,8 +204,8 @@ module Rote
     
     # Default render_fmt, which does nothing. Different page format modules
     # may provide different implementations, supporting different options.
-    def render_fmt(s)
-      s
+    def render_filters(text)
+      @filters.inject(text) { |s, f| f.filter(s, self) }      
     end    
         
     # render, set up @result for next time. Return result too.    
@@ -202,7 +215,7 @@ module Rote
         # default render_fmt does nothing - different page formats may redefine it.
         erb = ERB.new(@template_text)
         erb.filename = template_filename
-        @content_for_layout = render_fmt( erb.result(binding) )
+        @content_for_layout = render_filters( erb.result(binding) )
       end
       
       # render into the layout if supplied.
