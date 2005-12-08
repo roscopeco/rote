@@ -92,7 +92,7 @@ module Rote
       assert_nil p.layout_filename
                     
       p = new_test_page('withcode')
-      assert_equal 'test/layouts/simple.txt', p.layout_filename              
+      assert_equal 'test/layouts/simple.txt', p.layout_filename
     end
     
     def test_ruby_filename
@@ -102,6 +102,14 @@ module Rote
       p = new_test_page('withcode')
       assert_equal 'test/pages/withcode.rb', p.ruby_filename              
     end
+    
+    ############## layout code #################
+    def test_layout_filename
+      p = new_test_page('withcode')
+      assert_equal 'test/layouts/simple.txt', p.layout_filename
+      assert p.instance_eval { @layout_code_works }            
+    end
+    
     
     ############## edges #################
     def test_default_layout_params

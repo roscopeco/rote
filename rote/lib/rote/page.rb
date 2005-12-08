@@ -169,10 +169,15 @@ module Rote
     # that the instance is frozen.
     def layout(basename)
       if basename
+        # layout text
         @layout_name = "#{basename}#{@layout_defext if File.extname(basename).empty?}"
         fn = layout_filename
         raise "Layout #{fn} not found" unless File.exists?(fn)
         @layout_text = File.read(fn)
+
+        # layout code     
+        cfn = Page::page_ruby_filename(fn)
+        instance_eval(File.read(cfn), cfn) if File.exists?(cfn)        
       else
         @layout_text = nil
         @layout_name = nil
