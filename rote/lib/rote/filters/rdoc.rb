@@ -10,7 +10,7 @@ module Rote
       end
       
       def filter(text, page)      
-        markup.convert(result, output)                      
+        @markup.convert(text, @output)
       end
     end
   end
