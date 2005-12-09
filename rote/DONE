@@ -5,9 +5,13 @@ course - these are just the ones that spent some time as a TODO before
 being implemented.
 
 * More flexible markup rendering
+* Source monitoring / render on update
 * Better COMMON.rb handling
 * Proper page/resource/ruby dependencies
+* Support layout-specific code.
+* Remove implicit output filename restriction  
 * Support filters
 ** Syntax
 ** RedCloth
 ** RDoc
+** TOC

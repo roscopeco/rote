@@ -77,12 +77,12 @@ module Rote
 
     ############## filters/rdoc #################
     # FIXME Fails under Gem install, but passes when run normally (???)
-    # unless defined?(TEST_FROM_GEM)
+    unless defined?(TEST_FROM_GEM)
       def test_render_rdoc
         t = Filters::RDoc.new.filter("== RDoc\n=== Markup",nil)
         assert_equal "<h2>RDoc</h2>\n<h3>Markup</h3>\n", t
       end
-    # end
+    end
     
     ############## filters/proc #################
     # FIXME Fails under Gem install, but passes when run normally (???)

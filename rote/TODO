@@ -11,13 +11,10 @@ Send any suggestions or patches (preferably as/with tests) to:
    Anything else then stays out of Rote, which is what's needed.	
 * Ability to have multiple views of a section, e.g. user guide (separate
   pages) and user guide (one page) generated from same source.
-** Maybe in concert with the above?
+** Maybe in concert with plugins?
 * (maybe?) Rant integration
 * CSS / XML / etc, maybe with the existing builders (integrated with 
   Format::CSS, Format::XML, so on)
 * Filters remain todo:
-** TOC
 ** Tidy
 ** BlueCloth
-* Support layout-specific code.
-* Remove implicit output filename restriction  

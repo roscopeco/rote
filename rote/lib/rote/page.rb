@@ -1,11 +1,14 @@
+#--
 # Rote page class
 # (c)2005 Ross Bamford (and contributors)
 #
 # See 'rote.rb' or LICENSE for licence information.
 # $Id$
+#++
+
 require 'erb'
 
-# Don't want user to have to require these in their pagecode...
+# Don't want user to have to require these in their pagecode.
 require 'rote/format/html'
 
 module Rote
@@ -15,11 +18,18 @@ module Rote
   #####
   ## A +Page+ object represents an individual template source file, taking
   ## input from that file and (optionally) some ruby code, and producing 
-  ## rendered (or 'merged') output as a +String+.
-  ## When a page is created, ruby source will be found alongside the 
+  ## rendered (or 'merged') output as a +String+. All user-supplied code
+  ## (COMMON.rb or page code, for example) is executed in the binding
+  ## of an instance of this class. 
+  ##
+  ## When a page is created, ruby source will be sought alongside the 
   ## file, with same basename and an '.rb' extension. If found it will
   ## run through +instance_eval+. That source can call methods
   ## and set any instance variables, for use later in the template.
+  ## Such variables or methods may also be defined in a COMMON.rb file
+  ## in or above the page's directory, in code associated with the 
+  ## +layout+ applied to a page, or (less often) in a block supplied to
+  ## +new+.
   ##
   ## Rendering happens only once for a given page object, when the 
   ## +render+ method is first called. Once a page has been rendered
@@ -113,7 +123,7 @@ module Rote
       instance_eval(File.read(tfn),tfn) if tfn
       
       # Allow block to have the final say
-      yield self if block_given?  
+      yield self if block_given?        
     end
             
     # Returns the full filename of this Page's template. This is obtained by
@@ -162,8 +172,10 @@ module Rote
     # +nil+ is passed in. The specified basename should be the name
     # of the layout file relative to the +layout_dir+, with no extension.
     #
-    # The layout is read by this method. An exception is
-    # thrown if the layout doesn't exist.
+    # *The* *layout* *is* *not* *read* *by* *this* *method*. It, and 
+    # it's source, are loaded only at rendering time. This prevents
+    # multiple calls by various scoped COMMON code, for example, from
+    # making a mess in the Page binding.
     #
     # This can only be called before the first call to +render+. After 
     # that the instance is frozen.
@@ -171,15 +183,7 @@ module Rote
       if basename
         # layout text
         @layout_name = "#{basename}#{@layout_defext if File.extname(basename).empty?}"
-        fn = layout_filename
-        raise "Layout #{fn} not found" unless File.exists?(fn)
-        @layout_text = File.read(fn)
-
-        # layout code     
-        cfn = Page::page_ruby_filename(fn)
-        instance_eval(File.read(cfn), cfn) if File.exists?(cfn)        
       else
-        @layout_text = nil
         @layout_name = nil
       end
     end    
@@ -207,6 +211,18 @@ module Rote
       end
     end  
     
+    def load_layout
+      if fn = layout_filename
+        raise "Layout #{fn} not found" unless File.exists?(fn)      
+        @layout_text = File.read(fn)
+        
+        # layout code     
+        cfn = Page::page_ruby_filename(fn)
+        instance_eval(File.read(cfn), cfn) if File.exists?(cfn)        
+      end
+    end
+    
+    
     # Default render_fmt, which does nothing. Different page format modules
     # may provide different implementations, supporting different options.
     def render_filters(text)
@@ -222,6 +238,9 @@ module Rote
         erb.filename = template_filename
         @content_for_layout = render_filters( erb.result(binding) )
       end
+      
+      # Load layout _after_ page eval, allowing page to override layout.
+      load_layout
       
       # render into the layout if supplied.
       @result = if !@layout_text.nil?

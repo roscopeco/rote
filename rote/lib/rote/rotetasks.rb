@@ -53,6 +53,18 @@ module Rote
       fl    
     end
   end
+  
+  # Special type of Hash that allows Regexp and String keys. When searching for
+  # a string, the first match (of either kind) is used. Allows backreferences
+  # from the key match to be used in the value with $1..$n notation in val str.
+  class RxHash < Hash
+    def [](key)
+      md = nil
+      if v = self.detect { |k,v| md = /^#{k}$/.match(key) }
+        v[1].gsub(/\$(\d)/) { md[$1.to_i] }
+      end
+    end
+  end
 
   #####
   ## Rake task library that provides a set of tasks to transform documentation
@@ -71,6 +83,7 @@ module Rote
     # Default exclusion patterns for the page sources. These are
     # applied along with the defaults from +FileList+. 
     DEFAULT_SRC_EXCLUDES = [ /\.rb$/, /\.rf$/ ]
+    DEFAULT_EXT_MAPPINGS = { /[rx]html/ => 'html', /(.*)/ => '$1' }
     
     # The base-name for tasks created by this instance, supplied at 
     # instantiation.
@@ -95,6 +108,18 @@ module Rote
     # +FileList+.
     attr_reader :res
     
+    # Hash (an +RxHash+ by default) that supplies mappings between input
+    # and output file extensions. Alternatively, you may supply a single-arg
+    # +Proc+ that will return extension mappings.
+    attr_accessor :ext_mappings
+    
+    # Convenience method that passes the supplied block to +ext_mappings+.
+    # Just allows you to make the usual call rather than having to create
+    # a proc. *This* *will* *remove* *any* *configured* *mappings*. 
+    def ext_map_proc(&block)
+      @ext_mappings = block or RxHash.new
+    end    
+    
     # If +show_page_tasks+ is +true+, then the file tasks created for each
     # source page will be shown in the Rake task listing from the command line.
     attr_accessor :show_file_tasks         
@@ -117,6 +142,7 @@ module Rote
       @pages = FilePatterns.new('.')
       @res = FilePatterns.new('.')
       @monitor_interval = 1
+      @ext_mappings = RxHash[DEFAULT_EXT_MAPPINGS]
       DEFAULT_SRC_EXCLUDES.each { |excl| @pages.exclude(excl) }
       
       @show_page_tasks = false
@@ -124,7 +150,6 @@ module Rote
       yield self if block_given?
             
       define
-      #freeze
     end    
     
     private
@@ -136,12 +161,36 @@ module Rote
       nil
     end
     
+    # Get a target filename for a source filename. The dir_rx must
+    # match the portion of the directory that will be replaced 
+    # with the target directory. The extension is mapped through
+    # ext_mappings
+    def target_fn(dir_rx, fn)
+      tfn = fn.sub(dir_rx, output_dir)      
+      ext = File.extname(tfn)
+      ext['.'] = ''  # strip leading dot
+            
+      new_ext = case em = ext_mappings
+        when Proc
+          em.call(ext)
+        else
+          em[ext]
+      end
+      
+      new_ext ? tfn.sub(/#{ext}$/,new_ext) : nil
+    end
+    
     # define a task for each resource, and 'all resources' task
     def define_res_tasks
       res_fl = res.to_filelist
       tasks = res_fl.select { |fn| not File.directory?(fn) }.map do |fn|
-        tfn = fn.sub(/^#{res.dir}/, output_dir)
-        desc "#{fn} => #{tfn}" if show_file_tasks?
+        # skip any files we don't have a mapping for
+        unless tfn = target_fn(/^#{res.dir}/, fn)
+          announce "No extension mapping for #{fn}; skipping..."
+          next
+        end
+        
+        desc "#{fn} => #{tfn}" #if show_file_tasks?
         file tfn => [fn] do
           dn = File.dirname(tfn)
           mkdir_p dn unless File.exists?(dn)
@@ -158,9 +207,13 @@ module Rote
     def define_page_tasks
       pages_fl = pages.to_filelist    
       tasks = pages_fl.select { |fn| not File.directory?(fn) }.map do |fn| 
-        tfn = fn.sub(/^#{pages.dir}/, output_dir) 
+        # skip any files we don't have a mapping for
+        unless tfn = target_fn(/^#{pages.dir}/, fn) 
+          announce "No extension mapping for #{fn}; skipping..."
+          next
+        end        
                  
-        desc "#{fn} => #{tfn}" if show_file_tasks?
+        desc "#{fn} => #{tfn}" #if show_file_tasks?
         file tfn => [fn] do
           dn = File.dirname(tfn)
           mkdir_p dn unless File.exists?(dn)
@@ -230,7 +283,7 @@ end #module
 
 ## The +monitor+ task requires a few mods to Rake to let us fire
 ## and reset task invocations in a loop.
-module Rake
+module Rake # :nodoc: all
   class Task
     def reset
       @already_invoked = false

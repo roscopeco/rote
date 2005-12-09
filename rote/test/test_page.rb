@@ -52,10 +52,10 @@ module Rote
     end
             
     def test_layout_text
-      p = new_test_page('justtext')
+      (p = new_test_page('justtext')).render
       assert_nil p.layout_text
       
-      p = new_test_page('withcode')
+      (p = new_test_page('withcode')).render
       assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
     end
     
@@ -105,7 +105,7 @@ module Rote
     
     ############## layout code #################
     def test_layout_filename
-      p = new_test_page('withcode')
+      (p = new_test_page('withcode')).render
       assert_equal 'test/layouts/simple.txt', p.layout_filename
       assert p.instance_eval { @layout_code_works }            
     end
@@ -113,7 +113,7 @@ module Rote
     
     ############## edges #################
     def test_default_layout_params
-      p = Page.new('samedir.txt','test/pages/')
+      (p = Page.new('samedir.txt','test/pages/')).render        
       assert_equal '<%= @global %>', p.template_text.chomp
       assert_equal 'Lay <%= @content_for_layout %> out.', p.layout_text.chomp
     end      
@@ -145,7 +145,9 @@ module Rote
     ############## broken render #################
     def test_render_switch_layout_freeze
       p = new_test_page('withcode')
-      assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
+      
+      # It has a layout, but since it's not rendered it's not loaded yet
+      assert_nil p.layout_text
 
       p.layout(nil)
       assert_nil p.layout_text      
@@ -160,7 +162,7 @@ module Rote
     end    
     
     def test_render_switch_to_bad_layout
-      p = new_test_page('withcode')
+      (p = new_test_page('withcode')).render
       assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
 
       begin      
