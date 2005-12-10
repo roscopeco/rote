@@ -120,24 +120,23 @@ commandline setup, then you'll want to get started on integrating Rote with
 your own (existing) @Rakefile@. Fortunately, this is very easy to do. Try 
 something like:
 
-<pre><code>
-	# Rakefile
-	require 'rote'
-	
-	ws = Rote::DocTask.new(:doc) { |site| 
-	  site.output_dir = 'html'
-	  site.layout_dir = 'doc/layouts'
-	
-	  site.pages.dir = 'doc/pages'
-	  site.pages.include('**/*')  
-		  
-	  site.res.dir = 'doc/res/'
-	  site.res.include('**/*.png')
-	  site.res.include('**/*.gif')
-	  site.res.include('**/*.jpg')
-	  site.res.include('**/*.css')
-	}	
-</code></pre>
+#:code#ruby#  
+  # Rakefile
+  require 'rote'
+
+  ws = Rote::DocTask.new(:doc) { |site| 
+    site.output_dir = 'html'
+    site.layout_dir = 'doc/layouts'
+    site.pages.dir = 'doc/pages'
+    site.pages.include('**/*')  
+	  
+    site.res.dir = 'doc/res/'
+    site.res.include('**/*.png')
+    site.res.include('**/*.gif')
+    site.res.include('**/*.jpg')
+    site.res.include('**/*.css')
+  }	
+#:code# 
 	
 Save this as @Rakefile@, and fire up:
 

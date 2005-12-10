@@ -7,10 +7,10 @@
 #++
 
 require 'redcloth'
+require 'rote/filters/base'
 
 module Rote
   module Filters
-    
     #####
     ## Page filter that converts plain-text formatting to HTML using 
     ## RedCloth. This allows both Textile and Markdown formatting
@@ -28,11 +28,20 @@ module Rote
       end
       
       def filter(text, page)
-        rc = ::RedCloth.new(text)        
+        # we need to remove any macros to stop them being touched
+        macros = []
+        n = -1
+        
+        tmp = text.gsub(MACRO_RE) do
+          macros << $&
+          "xmxmxmacro#{n += 1}orcamxmxmx"
+        end
+        
+        rc = ::RedCloth.new(tmp)        
         # hack around a RedCloth warning
         rc.instance_eval { @lite_mode = false }  
-         
-        rc.to_html(*@redcloth_opts) 
+        tmp = rc.to_html(*@redcloth_opts) 
+        tmp.gsub(/xmxmxmacro[0-9]+orcamxmxmx/) { macros[$1.to_i] }
       end
     end
     

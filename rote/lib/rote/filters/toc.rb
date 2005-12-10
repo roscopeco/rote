@@ -41,15 +41,12 @@ module Rote
       end
    
       def filter(text, page)
-        # find headings
-        text.scan(%r[<(#{@tags_re})>(.*?)</\1>]) do
+        # find headings *and insert named anchors*
+        text.gsub(%r[<(#{@tags_re})>(.*?)</\1>]) do
           anchor = title_to_anchor($2)
           @index << [$1,anchor,$2]
           %Q[<a name='#{anchor}'></a>#{$&}]
-        end
-        
-        # return original
-        text
+        end        
       end
    
       private

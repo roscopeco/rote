@@ -78,11 +78,13 @@ module Rote
     # to the directories configured in the Rake tasks.
     attr_reader :base_path, :layout_path
     
-    # The array of filters that will be applied to this page.
-    # You can use +append_filter+ to add new filters, which gives
-    # implicit block => Filters::Proc conversion and checks
-    # for nil.
-    attr_reader :filters
+    # The array of page filters (applied to this page output *before* 
+    # layout is applied) and post filters (three gueses). 
+    # You can use +append_page_filter+ and +append_post_filter+ to add 
+    # new filters, which gives implicit block => Filters::Proc conversion 
+    # and checks for nil.
+    attr_reader :page_filters, :post_filters   
+    alias :filters :page_filters      # Short terms compat alias v-0.2.99 vv0.3
     
     # Reads the template, and evaluates the global and page scripts, if 
     # available, using the current binding. You may define any instance
@@ -106,7 +108,7 @@ module Rote
       @layout_path = layout_dir[STRIP_SLASHES,1]
       @base_path = pages_dir[STRIP_SLASHES,1]
       
-      @filters = []
+      @page_filters, @post_filters = [], []
 
       # read in the template. Layout _may_ get configured later in page code
       # We only add the pages_dir if it's not already there, because it's
@@ -145,19 +147,32 @@ module Rote
       File.exists?(fn) ? fn : nil
     end
 
-    # Append +filter+ to this page's filter chain, or create a new 
-    # Rote::Filters::Proc filter with the supplied block.
+    # Append +filter+ to this page's page-filter chain, or create 
+    # a new Rote::Filters::Proc filter with the supplied block.
     # This method should be preferred over direct manipulation of
-    # the +filters+ array.
-    def append_filter(filter = nil, &block)
+    # the +filters+ array if you are simply building a chain.
+    def append_page_filter(filter = nil, &block)
       if filter
-        @filters << filter
+        page_filters << filter
       else
         if block
-          @filters << Filters::Proc.new(block)
+          page_filters << Filters::Proc.new(block)
         end
       end
-    end
+    end    
+    
+    # Append +filter+ to this page's post-filter chain.
+    # Behaviour is much the same as +append_page_filter+.
+    def append_post_filter(filter = nil, &block)
+      if filter
+        post_filters << filter
+      else
+        if block
+          post_filters << Filters::Proc.new(block)
+        end
+      end
+    end    
+    alias :append_filter :append_page_filter   # Short term compat alias v-0.2.99 vv0.3
     
     # Render this page's textile and ERB, and apply layout.
     # This is only done once - after that, it's cached for next time. You can
@@ -223,10 +238,12 @@ module Rote
     end
     
     
-    # Default render_fmt, which does nothing. Different page format modules
-    # may provide different implementations, supporting different options.
-    def render_filters(text)
-      @filters.inject(text) { |s, f| f.filter(s, self) }      
+    def render_page_filters(text)
+      page_filters.inject(text) { |s, f| f.filter(s, self) }      
+    end    
+        
+    def render_post_filters(text)
+      post_filters.inject(text) { |s, f| f.filter(s, self) }      
     end    
         
     # render, set up @result for next time. Return result too.    
@@ -236,7 +253,7 @@ module Rote
         # default render_fmt does nothing - different page formats may redefine it.
         erb = ERB.new(@template_text)
         erb.filename = template_filename
-        @content_for_layout = render_filters( erb.result(binding) )
+        @content_for_layout = render_page_filters( erb.result(binding) )
       end
       
       # Load layout _after_ page eval, allowing page to override layout.
@@ -251,6 +268,7 @@ module Rote
         @content_for_layout
       end 
       
+      @result = render_post_filters(@result)      
       freeze
       
       @result 

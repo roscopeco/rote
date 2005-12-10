@@ -9,6 +9,8 @@
 require 'syntax'
 require 'syntax/convertors/html'
 
+require 'rote/filters/base'
+
 module Rote
   module Filters
     
@@ -17,31 +19,22 @@ module Rote
     ## via the +Syntax+ library. Code is expected to be in the 
     ## following format:
     ##
-    ##   {code:ruby}
+    ##   #:code#ruby#
     ##     def amethod(arg)
     ##       puts arg
     ##     end
-    ##   {code}
+    ##   #:code#
     ##  
-    class Syntax
-      DEFAULT_CODE_RE = /\{code(?:\:?(\w+))?\}(.*?)\{\/?code\}/m
-      
+    class Syntax < Filter
       # Create a new syntax highlight filter that uses the specified regular
-      # expression to recognise and process code blocks.
-      # The expression supplied must have two capturing groups, the
-      # first returning the code language (i.e. 'ruby') and the second
-      # returning the actual code.
-      def initialize(code_re = DEFAULT_CODE_RE)
-        @code_re = code_re
-      end
-      
-      def filter(text, page)        
-        text.gsub(@code_re) do
-          converter = ::Syntax::Convertors::HTML.for_syntax($1)
-          "<pre><code>#{converter.convert($2,false)}</code></pre>"
+      # expression to recognise and process code blocks. See +Base+ for 
+      # the regex requirements.
+      def initialize(code_re = MACRO_RE)
+        super([:code],code_re) do |name,lang,body|
+          converter = ::Syntax::Convertors::HTML.for_syntax(lang)
+          "<pre><code>#{converter.convert(body,false)}</code></pre>"
         end
-      end    
-    end
-    
+      end
+    end      
   end 
 end
