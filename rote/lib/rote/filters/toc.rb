@@ -11,50 +11,64 @@ module Rote
   
     #####
     ## Page filter that supports easy construction of a Table Of Contents
-    ## from your *layout*. This filter does not modify the text - instead
-    ## it searches for tags matching the specified regular expression(s)
-    ## (H tags by default), and stores them to be used for TOC generation
-    ## in the layout.
+    ## from your *layout*. This filter searches for tags matching the 
+    ## specified regular expression(s) (H tags by default), and stores them
+    ## to be used for TOC generation in the layout. HTML Named-anchors are
+    ## created based on the headings found.
     ##
     ## Additional attributes for the A tags can be passed via the +attrs+
     ## parameter.
     class TOC
+    
+      # An individual Heading in the +links+ array.
+      class Heading
+        class << self
+          alias :[] :new
+        end
+        
+        def initialize(tag, title, attrs = {})
+          @tag = tag
+          @title = title   
+          @attrs = attrs               
+        end        
+        
+        # The information held by this link
+        attr_accessor :tag, :title, :attrs
+        
+        def anchor
+          title.downcase.gsub(/[^a-z]+/,'_')
+        end
+        
+        def to_s
+          %Q[<a #{"#{(attrs.collect { |k,v| "#{k}='#{v}'" }).join(' ')} " unless attrs.empty?}href='##{anchor}'>#{title}</a>]        
+        end
+      end
+
       def initialize(tags_re = /h\d+/, attrs = {})
         @tags_re = tags_re
         @attrs = attrs
-        @index = []
+        @headings = []
       end
-   
-      # Array of headings matching the tags regular expression.
-      # Each entry is [tag,anchor,content].
-      attr_reader :index
-   
-      # Returns an array of hyper link tags with the
+      
+      # Array of heading links with the
       # heading title as the link text. Suitable
       # for joining and outputting:
       #
       #   <%= links.join(" - ") %>
-      def links
-        index.map do |tag,anchor,title|
-          %Q[<a #{"#{(@attrs.collect { |k,v| "#{k}='#{v}'" }).join(' ')} " unless @attrs.empty?}href='##{anchor}'>#{title}</a>]
-        end
-      end
+      #
+      # *Note* that this isn't populated until after
+      # the filter is run.
+      attr_reader :headings
+      alias :links :headings
+      alias :index :headings      # Compat alias  vv0.2.999 v-0.3
    
       def filter(text, page)
         # find headings *and insert named anchors*
         text.gsub(%r[<(#{@tags_re})>(.*?)</\1>]) do
-          anchor = title_to_anchor($2)
-          @index << [$1,anchor,$2]
-          %Q[<a name='#{anchor}'></a>#{$&}]
+          headings << (h = Heading[$1,$2])
+          %Q[<a name='#{h.anchor}'></a>#{$&}]
         end        
-      end
-   
-      private
-      # Create an anchor by converting the content to a simple
-      # text string.
-      def title_to_anchor(title)
-        title.downcase.gsub(/[^a-z]+/,'_')
-      end
+      end   
     end
     
   end

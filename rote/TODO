@@ -7,11 +7,7 @@ Send any suggestions or patches (preferably as/with tests) to:
 
 == For 0.3.0
 * Filters remain todo:
-** Tidy
 ** BlueCloth
-* Support per-extension-mapping blocks
-* Support optional filtering post-layout
-* Merge pages and res source dirs
 
 == For 1.0
 * CSS / XML / etc, maybe with the existing builders (integrated with 

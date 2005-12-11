@@ -95,9 +95,9 @@ module Rote
     # If specified, the layout path will be used to find layouts referenced
     # from templates. 
     #
-    # If a block is supplied, it is executed _after_ the global / page
-    # code, so you can locally override variables and so on. 
-    def initialize(template_name, pages_dir = '.', layout_dir = pages_dir) # :yield: self if block_given?    
+    # If a block is supplied, it is executed _before_ the global / page
+    # code. This will be the block supplied by the file-extension mapping.
+    def initialize(template_name, pages_dir = '.', layout_dir = pages_dir, &blk) 
       @template_text = nil
       @template_name = nil
       @layout_text = nil
@@ -117,15 +117,14 @@ module Rote
       tfn = template_name
       read_template(tfn)
       
+      blk[self] if blk
+      
       # Eval COMMON.rb's
       eval_common_rubys
       
       # get script filenames, and eval them if found
       tfn = ruby_filename # nil if no file      
-      instance_eval(File.read(tfn),tfn) if tfn
-      
-      # Allow block to have the final say
-      yield self if block_given?        
+      instance_eval(File.read(tfn),tfn) if tfn      
     end
             
     # Returns the full filename of this Page's template. This is obtained by
@@ -148,10 +147,10 @@ module Rote
     end
 
     # Append +filter+ to this page's page-filter chain, or create 
-    # a new Rote::Filters::Proc filter with the supplied block.
+    # a new Rote::Filters::TextFilter with the supplied block.
     # This method should be preferred over direct manipulation of
     # the +filters+ array if you are simply building a chain.
-    def append_page_filter(filter = nil, &block)
+    def page_filter(filter = nil, &block)
       if filter
         page_filters << filter
       else
@@ -163,7 +162,7 @@ module Rote
     
     # Append +filter+ to this page's post-filter chain.
     # Behaviour is much the same as +append_page_filter+.
-    def append_post_filter(filter = nil, &block)
+    def post_filter(filter = nil, &block)
       if filter
         post_filters << filter
       else
@@ -172,7 +171,6 @@ module Rote
         end
       end
     end    
-    alias :append_filter :append_page_filter   # Short term compat alias v-0.2.99 vv0.3
     
     # Render this page's textile and ERB, and apply layout.
     # This is only done once - after that, it's cached for next time. You can

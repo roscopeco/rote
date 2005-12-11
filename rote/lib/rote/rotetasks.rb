@@ -1,8 +1,10 @@
+#--
 # Rake tasklib for Rote
 # (c)2005 Ross Bamford (and contributors)
 #
 # See 'rote.rb' or LICENSE for licence information.
 # $Id$
+#++
 require 'rake'
 require 'rake/tasklib'
 
@@ -54,15 +56,51 @@ module Rote
     end
   end
   
-  # Special type of Hash that allows Regexp and String keys. When searching for
-  # a string, the first match (of either kind) is used. Allows backreferences
-  # from the key match to be used in the value with $1..$n notation in val str.
-  class RxHash < Hash
+  # Special type of Hash that uses Regexp keys and maintains insertion order.
+  # When searching for a string, the first match (of either kind) is used. 
+  # Allows backreferences from the key match to be used in the value with $1..$n 
+  # notation in val str.
+  #
+  # Entries are kept in insertion order. Searches/insertion are slow, iteration
+  # is constant time. It's basically an unbucketed hash.
+  class ExtHash
+    class << self
+      alias :[] :new
+    end
+        
+    # Create a new RxHash, copying the supplied
+    # map (in random order).
+    def initialize(map = nil)
+      @data = []
+      map.each { |k,v| self[k] = v } if map
+    end
+  
+    # Insert the given regex key unless it already exists.
+    # You may use string representations for the keys, but
+    # they are converted as-is to regexps.    
+    #
+    # Returns the value that was inserted, or nil.
+    def []=(key,value)
+      @data << [key,value] unless member?(key)      
+    end
+    
+    # Fetch the first matching data.
     def [](key)
       md = nil
-      if v = self.detect { |k,v| md = /^#{k}$/.match(key) }
-        v[1].gsub(/\$(\d)/) { md[$1.to_i] }
+      if v = @data.detect { |it| md = /^#{it[0]}$/.match(key.to_s) }
+        v[1][0].gsub!(/\$(\d)/) { md[$1.to_i] }
+        v[1]
       end
+    end
+    
+    # Fetch a single entry based on key equality.
+    def fetch_entry(key)
+      @data.detect { |it| it[0] == key }
+    end
+    
+    # Determine membership based on key equality.
+    def member?(key)
+      true if fetch_entry(key)
     end
   end
 
@@ -83,7 +121,6 @@ module Rote
     # Default exclusion patterns for the page sources. These are
     # applied along with the defaults from +FileList+. 
     DEFAULT_SRC_EXCLUDES = [ /\.rb$/, /\.rf$/ ]
-    DEFAULT_EXT_MAPPINGS = { /[rx]html/ => 'html', /(.*)/ => '$1' }
     
     # The base-name for tasks created by this instance, supplied at 
     # instantiation.
@@ -108,20 +145,25 @@ module Rote
     # +FileList+.
     attr_reader :res
     
-    # Hash (an +RxHash+ by default) that supplies mappings between input
-    # and output file extensions. Alternatively, you may supply a single-arg
-    # +Proc+ that will return extension mappings.
-    attr_accessor :ext_mappings
+    # Ordered +ExtHash+ that supplies mappings between input and output 
+    # file extensions. Keys are regexps that are matched in order 
+    # against the search key.
+    #
+    # The values are [extension, ({ |page| ...})] . If a mapping has a 
+    # block, it is executed when pages with a matching extension are,
+    # instantiated (before common and page code). It can be used to apply
+    # filters, for example, on a per-extension basis. 
+    attr_reader :ext_mappings
     
-    # Convenience method that passes the supplied block to +ext_mappings+.
-    # Just allows you to make the usual call rather than having to create
-    # a proc. *This* *will* *remove* *any* *configured* *mappings*. 
-    def ext_map_proc(&block)
-      @ext_mappings = block or RxHash.new
-    end    
+    # Define an extension mapping for the specified regex, which will 
+    # be replaced with the specified extension. If a block is supplied
+    # it will be called with each matching +Page+ as it's created.
+    def ext_mapping(match, extension, &block)
+      @ext_mappings[match] = [extension,block]      
+    end
     
     # If +show_page_tasks+ is +true+, then the file tasks created for each
-    # source page will be shown in the Rake task listing from the command line.
+    # output file will be shown in the Rake task listing from the command line.
     attr_accessor :show_file_tasks         
     alias :show_file_tasks? :show_file_tasks
     alias :show_file_tasks= :show_file_tasks=
@@ -142,10 +184,10 @@ module Rote
       @pages = FilePatterns.new('.')
       @res = FilePatterns.new('.')
       @monitor_interval = 1
-      @ext_mappings = RxHash[DEFAULT_EXT_MAPPINGS]
-      DEFAULT_SRC_EXCLUDES.each { |excl| @pages.exclude(excl) }
-      
+      @ext_mappings = ExtHash.new
       @show_page_tasks = false
+      
+      DEFAULT_SRC_EXCLUDES.each { |excl| @pages.exclude(excl) }
       
       yield self if block_given?
             
@@ -164,31 +206,23 @@ module Rote
     # Get a target filename for a source filename. The dir_rx must
     # match the portion of the directory that will be replaced 
     # with the target directory. The extension is mapped through
-    # ext_mappings
+    # ext_mappings. If a block is configured for this extension,
+    # it is returned too.
+    #
+    # Returns [target_fn, ({ |page| ...})]
     def target_fn(dir_rx, fn)
       tfn = fn.sub(dir_rx, output_dir)      
       ext = File.extname(tfn)
-      ext['.'] = ''  # strip leading dot
-            
-      new_ext = case em = ext_mappings
-        when Proc
-          em.call(ext)
-        else
-          em[ext]
-      end
-      
-      new_ext ? tfn.sub(/#{ext}$/,new_ext) : nil
+      ext['.'] = ''  # strip leading dot                  
+      new_ext, blk = ext_mappings[ext] || [ext,nil]               
+      [tfn.sub(/#{ext}$/,new_ext),blk]
     end
     
     # define a task for each resource, and 'all resources' task
     def define_res_tasks
       res_fl = res.to_filelist
       tasks = res_fl.select { |fn| not File.directory?(fn) }.map do |fn|
-        # skip any files we don't have a mapping for
-        unless tfn = target_fn(/^#{res.dir}/, fn)
-          announce "No extension mapping for #{fn}; skipping..."
-          next
-        end
+        tfn, = target_fn(/^#{res.dir}/, fn)
         
         desc "#{fn} => #{tfn}" #if show_file_tasks?
         file tfn => [fn] do
@@ -207,11 +241,7 @@ module Rote
     def define_page_tasks
       pages_fl = pages.to_filelist    
       tasks = pages_fl.select { |fn| not File.directory?(fn) }.map do |fn| 
-        # skip any files we don't have a mapping for
-        unless tfn = target_fn(/^#{pages.dir}/, fn) 
-          announce "No extension mapping for #{fn}; skipping..."
-          next
-        end        
+        tfn, blk = target_fn(/^#{pages.dir}/, fn) 
                  
         desc "#{fn} => #{tfn}" #if show_file_tasks?
         file tfn => [fn] do
@@ -220,7 +250,8 @@ module Rote
           puts "tr #{fn} => #{tfn}"
           begin
             File.open(tfn, 'w+') do |f|
-              f << Page.new(fn,pages.dir,layout_dir).render
+              # new page, run extension block, render out, throw away
+              f << Page.new(fn,pages.dir,layout_dir,&blk).render
             end
           rescue => e
             # Oops... Unlink file and dump backtrace

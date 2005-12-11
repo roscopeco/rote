@@ -10,8 +10,13 @@ being implemented.
 * Proper page/resource/ruby dependencies
 * Support layout-specific code.
 * Remove implicit output filename restriction  
+* Support optional filtering post-layout
+* Support macros, separate macro and text processing
+* Support ordered regexp extension mapping
+** Support per-extension-mapping blocks
 * Support filters
 ** Syntax
 ** RedCloth
 ** RDoc
 ** TOC
+** Tidy

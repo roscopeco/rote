@@ -22,9 +22,15 @@ require 'rake/rdoctask'
 
 # This needs to go at the front of the libpath
 # Otherwise, any pre-installed rote gets found,
-# and used from there.
+# and used from there. This is only necessary
+# for Rote's build, to make sure we always unit-
+# test and build doc with the working copy.
 $:[0,1] = 'lib'
 require 'rote'
+require 'rote/filters/redcloth'
+require 'rote/filters/syntax'
+require 'rote/filters/tidy'
+require 'rote/format/html'
 
 # CLEAN.include('testdata')
 CLOBBER.include('TAGS')
@@ -120,6 +126,18 @@ ws = Rote::DocTask.new(:doc) { |site|
   site.layout_dir = 'doc/layouts'
   site.pages.dir = 'doc/pages'
   site.pages.include('**/*')  
+  
+  site.ext_mapping(/(html)/, '$1') do |page|
+    # Let's use the HTML stuff everywhere ...
+    page.extend Rote::Format::HTML
+    
+    # use 'page' layout, textile formatting, ruby syntax, Tidy to xhtml
+    page.layout 'page'
+
+    page.page_filter Rote::Filters::RedCloth.new(:textile)
+    page.page_filter Rote::Filters::Syntax.new
+    page.post_filter Rote::Filters::Tidy.new
+  end
   
   site.res.dir = 'doc/res'
   site.res.include('**/*.png')

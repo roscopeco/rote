@@ -29,16 +29,36 @@ require 'rote'
 #
 # In addition to these tasks, you may also wish to define a 'doc_refresh' task
 # to be run whenever modified resources are processed in monitor mode.
-ws = Rote::DocTask.new(:doc) { |site| 
+ws = Rote::DocTask.new(:doc) do |site| 
   site.output_dir = 'html'
   site.layout_dir = 'doc/layouts'
   
   site.pages.dir = 'doc/pages'
-  site.pages.include('**/*')  
-  
+  site.pages.include('**/*')   
+   
   site.res.dir = 'doc/res'
   site.res.include('**/*')
-}
+  
+  # TODO need to figure out what default mappings should be
+  site.ext_mapping(/thtml/, 'html') do |page|
+    page.extend Rote::Format::HTML
+    page.page_filter Rote::Filters::RedCloth.new(:textile)
+  end    
+  
+  site.ext_mapping(/mhtml/, 'html') do |page|
+    page.extend Rote::Format::HTML
+    page.page_filter Rote::Filters::RedCloth.new(:markdown)
+  end      
+  
+  site.ext_mapping(/rhtml/, 'html') do |page|
+    page.extend Rote::Format::HTML
+    page.page_filter Rote::Filters::RDoc.new
+  end      
+  
+  site.ext_mapping(/html/, 'html') do |page|
+    page.extend Rote::Format::HTML
+  end    
+end
 
 task :default => [:doc]
 

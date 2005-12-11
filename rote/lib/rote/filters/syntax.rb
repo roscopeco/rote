@@ -32,6 +32,8 @@ module Rote
         super([:code],code_re, &method(:handler).to_proc)
       end      
       
+      protected
+      
       def handler(tag,lang,body)
         converter = ::Syntax::Convertors::HTML.for_syntax(lang)
         "<div class='#{lang}'><pre><code>#{converter.convert(body,false)}</code></pre></div>"        
