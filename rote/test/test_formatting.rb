@@ -30,13 +30,13 @@ EOM
 
 SYNEXPECT = <<-EOM
   <p>Non-code</p>
-<div class='ruby'><pre><code>  <span class=\"keyword\">def </span><span class=\"method\">amethod</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
+<pre class='ruby'><code>  <span class=\"keyword\">def </span><span class=\"method\">amethod</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
     <span class=\"ident\">puts</span> <span class=\"ident\">arg</span>
-  <span class=\"keyword\">end</span></code></pre></div>
+  <span class=\"keyword\">end</span></code></pre>
   <p>More non-code</p>
-<div class='ruby'><pre><code>  <span class=\"keyword\">def </span><span class=\"method\">amethod_too</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
+<pre class='ruby'><code>  <span class=\"keyword\">def </span><span class=\"method\">amethod_too</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
     <span class=\"ident\">puts</span> <span class=\"ident\">arg</span>
-  <span class=\"keyword\">end</span></code></pre></div>
+  <span class=\"keyword\">end</span></code></pre>
 EOM
 
 TOCTEST = <<-EOM

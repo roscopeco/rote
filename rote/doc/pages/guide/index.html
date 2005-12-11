@@ -121,21 +121,22 @@ your own (existing) @Rakefile@. Fortunately, this is very easy to do. Try
 something like:
 
 #:code#ruby#  
-  # Rakefile
-  require 'rote'
+# Rakefile
+require 'rote'
 
-  ws = Rote::DocTask.new(:doc) { |site| 
-    site.output_dir = 'html'
-    site.layout_dir = 'doc/layouts'
-    site.pages.dir = 'doc/pages'
-    site.pages.include('**/*')  
+ws = Rote::DocTask.new(:doc) { |site| 
+  site.output_dir = 'html'
+  site.layout_dir = 'doc/layouts'
+  
+  site.pages.dir = 'doc/pages'
+  site.pages.include('**/*')  
 	  
-    site.res.dir = 'doc/res/'
-    site.res.include('**/*.png')
-    site.res.include('**/*.gif')
-    site.res.include('**/*.jpg')
-    site.res.include('**/*.css')
-  }	  
+  site.res.dir = 'doc/res/'
+  site.res.include('**/*.png')
+  site.res.include('**/*.gif')
+  site.res.include('**/*.jpg')
+  site.res.include('**/*.css')
+}	  
 #:code#ruby# 
 	
 Save this as @Rakefile@, and fire up:

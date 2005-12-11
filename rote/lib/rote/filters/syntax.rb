@@ -25,18 +25,13 @@ module Rote
     ##   #:code#
     ##  
     class Syntax < MacroFilter
-      # Create a new syntax highlight filter that uses the specified regular
-      # expression to recognise and process code blocks. See +Base+ for 
-      # the regex requirements.
-      def initialize(code_re = MACRO_RE)
-        super([:code],code_re, &method(:handler).to_proc)
+      def initialize(macro_re = MACRO_RE)
+        super([:code],macro_re)
       end      
       
-      protected
-      
-      def handler(tag,lang,body)
+      def macro_code(lang,body)
         converter = ::Syntax::Convertors::HTML.for_syntax(lang)
-        "<div class='#{lang}'><pre><code>#{converter.convert(body,false)}</code></pre></div>"        
+        "<pre class='#{lang}'><code>#{converter.convert(body,false)}</code></pre>"
       end      
     end      
   end 

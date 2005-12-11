@@ -36,7 +36,7 @@ module Rote
       
       def filter(text, page)
         result = IO.popen("#{@tidycmd} #{self.tidyopts} -f tidy.log -as#{self.format}","r+") do |fp|
-           Thread.new { fp.write(text); fp.close_write }.join
+           Thread.new { fp.write(text); fp.close_write }
            fp.read
         end
         

@@ -149,58 +149,60 @@ h4 {
 }
 
 /* syntax */
-div.ruby {
+pre.ruby {
 	background: #f5f5f5;
 	border: thin dashed #3e5972;
+	padding: 10px;
+	margin-left: 2em;
 }
 
-.comment {
+pre.ruby span.comment {
 	color: #789a86;
 	text-decoration: oblique;
 }
 
-.ident {
+pre.ruby span.ident {
 	color: #0b0202;
 }
 
-.punct {
+pre.ruby span.punct {
 	color: #8a7070;
 }
 
-.symbol {
+pre.ruby span.symbol {
 	color: #aa1010;
 	font-weight: bold;
 }
 
-.keyword {
+pre.ruby span.keyword {
 	color: #903030;
 	font-weight: bold;
 }
 
-.constant {
+pre.ruby span.constant {
 	color: #3e5972;
 	font-weight: bold;
 }
 
-.string {
+pre.ruby span.string {
 	color: #2020f0;	
 }
 
-.expr {
+pre.ruby span.expr {
 	color: #101080;
 	font-weight: bold;
 }
 
-.global {
+pre.ruby span.global {
 	color: #557462;
 }
 
-.class {
+pre.ruby span.class {
 	color: #3e5972;
 	font-weight: bold;
 }
 
-.method {
+pre.ruby span.method {
 	color: #aa1010;
 }
 

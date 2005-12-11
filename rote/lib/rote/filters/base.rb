@@ -34,7 +34,6 @@ module Rote
       #
       #   { |text, page| "replacement" }
       def initialize(&handler)
-        raise ArgumentError, "No block given" unless handler
         @handler_blk = handler
         @macro_data = []
       end
@@ -48,12 +47,20 @@ module Rote
           "\nxmxmxmacro#{n += 1}orcamxmxmx\n"
         end
         
-        tmp = handler_blk[tmp,page]
+        tmp = handler(tmp,page)
       
         # Match the placeholder, including any (and greedily all) markup that's
         # been placed before or after it, and put the macro text back.
         tmp.gsub(/(?:<.*>)?xmxmxmacro(\d+)orcamxmxmx(?:<.*>)?/) { @macro_data[$1.to_i] }      
-      end    
+      end  
+      
+      protected
+            
+      # Calls the handler block. Subclasses may override this rather
+      # than use a block.
+      def handler(tmp,page)
+        handler_blk[tmp,page] if handler_blk
+      end  
     end
     
     #####
@@ -70,13 +77,15 @@ module Rote
       #   { |macro, args, body| "replacement" }      
       attr_accessor :handler_blk
       
-      # Create a new macro filter. The supplied three-arg block
-      # will be called for each macro with a name that exists
-      # in the +macros+ array.
-      def initialize(macros = [], code_re = MACRO_RE, &handler_blk)
-        raise ArgumentError, "No block given" unless handler_blk
+      # Create a new macro filter. If a three-arg block is passed,
+      # it will be called for each macro with a name that exists
+      # in the +macros+ array. Otherwise, macros will be sought
+      # as methods (e.g. +macro_code+). If an array of names isn't
+      # passed, a search such methods will be used to populate
+      # the names array.
+      def initialize(macros = nil, code_re = MACRO_RE, &handler_blk)
         @handler_blk = handler_blk
-        @macros = macros  
+        @macros = macros || reflect_macro_names
         @code_re = code_re
       end      
            
@@ -84,11 +93,40 @@ module Rote
         # Just go through, subbing with block if this is
         # our macro, or with the original match if not.
         text.gsub(@code_re) do
-          if handler_blk && macros.detect { |it| it.to_s == $1 }
-            handler_blk[$1,$2,$3]
+          if macros.detect { |it| it.to_s == $1 }
+            handler($1,$2,$3)
           else
             $&
           end        
+        end
+      end
+      
+      protected
+      
+      # Calls the handler block, or attempts to call a method named
+      # 'macro_XXXX' where 'XXXX' is the name of the macro.
+      # Macro methods take two arguments -args and body. 
+      # Name is implied by method that is invoked.
+      def handler(macro,args,body)
+        if handler_blk
+          handler_blk[macro,args,body] 
+        else          
+          begin
+            m = method("macro_#{macro}")
+          rescue LoadError
+            # ignore
+          else
+            m[args,body]
+          end
+        end          
+      end
+      
+      private
+      
+      # inits the macro array from defined 'macro_' methods if no array is passed.
+      def reflect_macro_names
+        [methods, private_methods, singleton_methods, protected_methods].inject([]) do |arr,m|
+          arr += m.grep(/macro_([a-z0-9]+)/) { $1 } 
         end
       end
     end

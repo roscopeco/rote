@@ -213,7 +213,7 @@ module Rote
     def target_fn(dir_rx, fn)
       tfn = fn.sub(dir_rx, output_dir)      
       ext = File.extname(tfn)
-      ext['.'] = ''  # strip leading dot                  
+      ext.sub!(/^\./,'') # strip leading dot                  
       new_ext, blk = ext_mappings[ext] || [ext,nil]               
       [tfn.sub(/#{ext}$/,new_ext),blk]
     end
@@ -228,7 +228,7 @@ module Rote
         file tfn => [fn] do
           dn = File.dirname(tfn)
           mkdir_p dn unless File.exists?(dn)
-          cp fn, tfn
+          cp fn, tfn, :preserve => true        
         end
         tfn
       end
@@ -240,7 +240,8 @@ module Rote
     # define a task for each page, and 'all pages' task
     def define_page_tasks
       pages_fl = pages.to_filelist    
-      tasks = pages_fl.select { |fn| not File.directory?(fn) }.map do |fn| 
+
+      gen_files = pages_fl.select { |fn| not File.directory?(fn) }.map do |fn|
         tfn, blk = target_fn(/^#{pages.dir}/, fn) 
                  
         desc "#{fn} => #{tfn}" #if show_file_tasks?
@@ -279,7 +280,12 @@ module Rote
       end
       
       desc "Render new/changed documentation pages"
-      task "#{name}_pages" => tasks
+      task "#{name}_pages" => gen_files
+      task "clobber_#{name}_pages" do
+        gen_files.each do |f|
+          rm_f f
+        end
+      end    
     end
     
     def define_main_tasks

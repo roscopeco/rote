@@ -40,7 +40,7 @@ ws = Rote::DocTask.new(:doc) do |site|
   site.res.include('**/*')
   
   # TODO need to figure out what default mappings should be
-  site.ext_mapping(/thtml/, 'html') do |page|
+  site.ext_mapping(/(thtml)/, 'html') do |page|
     page.extend Rote::Format::HTML
     page.page_filter Rote::Filters::RedCloth.new(:textile)
   end    
@@ -50,7 +50,7 @@ ws = Rote::DocTask.new(:doc) do |site|
     page.page_filter Rote::Filters::RedCloth.new(:markdown)
   end      
   
-  site.ext_mapping(/rhtml/, 'html') do |page|
+  site.ext_mapping(/rdoc/, 'html') do |page|
     page.extend Rote::Format::HTML
     page.page_filter Rote::Filters::RDoc.new
   end      
