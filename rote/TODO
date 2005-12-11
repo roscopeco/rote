@@ -5,10 +5,6 @@ Send any suggestions or patches (preferably as/with tests) to:
 
   rosco <at> roscopeco <dot> co <dot> uk
 
-== For 0.3.0
-* Filters remain todo:
-** BlueCloth
-
 == For 1.0
 * CSS / XML / etc, maybe with the existing builders (integrated with 
   Format::CSS, Format::XML, so on)  
