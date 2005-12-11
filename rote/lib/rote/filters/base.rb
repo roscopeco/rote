@@ -69,12 +69,17 @@ module Rote
     class MacroFilter
     
       # An array of macro names supported by this filter.
+      # This can be used to selectively disable individual
+      # macro support.
       attr_accessor :macros
       
       # Block that will be called for each supported macro
       # in the filtered text. Like:
       #
-      #   { |macro, args, body| "replacement" }      
+      #   { |macro, args, body| "replacement" }
+      #
+      # The presence of a block precludes the use of any
+      # +macro_xxxx+ methods on the subclass.      
       attr_accessor :handler_blk
       
       # Create a new macro filter. If a three-arg block is passed,
@@ -94,7 +99,8 @@ module Rote
         # our macro, or with the original match if not.
         text.gsub(@code_re) do
           if macros.detect { |it| it.to_s == $1 }
-            handler($1,$2,$3)
+            # Handler might refuse the macro (bad args, etc)
+            handler($1,$2,$3) || $&
           else
             $&
           end        
@@ -110,14 +116,8 @@ module Rote
       def handler(macro,args,body)
         if handler_blk
           handler_blk[macro,args,body] 
-        else          
-          begin
-            m = method("macro_#{macro}")
-          rescue LoadError
-            # ignore
-          else
-            m[args,body]
-          end
+        elsif respond_to?(meth = "macro_#{macro}")
+          send(meth, args, body)            # name implied by method
         end          
       end
       
