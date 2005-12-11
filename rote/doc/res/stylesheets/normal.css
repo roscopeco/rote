@@ -147,3 +147,60 @@ h3 {
 h4 {
 	border-bottom: thin #b8c8c8 solid;
 }
+
+/* syntax */
+div.ruby {
+	background: #f5f5f5;
+	border: thin dashed #3e5972;
+}
+
+.comment {
+	color: #789a86;
+	text-decoration: oblique;
+}
+
+.ident {
+	color: #0b0202;
+}
+
+.punct {
+	color: #8a7070;
+}
+
+.symbol {
+	color: #aa1010;
+	font-weight: bold;
+}
+
+.keyword {
+	color: #903030;
+	font-weight: bold;
+}
+
+.constant {
+	color: #3e5972;
+	font-weight: bold;
+}
+
+.string {
+	color: #2020f0;	
+}
+
+.expr {
+	color: #101080;
+	font-weight: bold;
+}
+
+.global {
+	color: #557462;
+}
+
+.class {
+	color: #3e5972;
+	font-weight: bold;
+}
+
+.method {
+	color: #aa1010;
+}
+

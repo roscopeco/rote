@@ -135,8 +135,8 @@ something like:
     site.res.include('**/*.gif')
     site.res.include('**/*.jpg')
     site.res.include('**/*.css')
-  }	
-#:code# 
+  }	  
+#:code#ruby# 
 	
 Save this as @Rakefile@, and fire up:
 
@@ -301,13 +301,14 @@ in your source set (_after_ rendering, of course).
 
 The following (Mac) example uses OSA script to refresh the Safari browser when
 your rendered documentation changes:
-<pre><code>
-	require 'osx/aeosa'
+
+#:code#ruby#
+  require 'osx/aeosa'
 	
-	task :doc_refresh do 
-		OSX.do_osascript('tell application "Safari" to do javascript "window.location.reload();" in document 1')	
-	end
-</code></pre>
+  task :doc_refresh do 
+    OSX.do_osascript('tell application "Safari" to do javascript "window.location.reload();" in document 1')	
+  end  
+#:code#ruby#
 
 As with all rake tasks, multiple actions can be associated, and you can of course
 add prerequisites to the @refresh@ task as with any other Rake task.

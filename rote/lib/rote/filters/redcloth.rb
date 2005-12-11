@@ -34,14 +34,19 @@ module Rote
         
         tmp = text.gsub(MACRO_RE) do
           macros << $&
-          "xmxmxmacro#{n += 1}orcamxmxmx"
+          # we need make the marker a 'paragraph'
+          "\nxmxmxmacro#{n += 1}orcamxmxmx\n"
         end
         
         rc = ::RedCloth.new(tmp)        
         # hack around a RedCloth warning
         rc.instance_eval { @lite_mode = false }  
         tmp = rc.to_html(*@redcloth_opts) 
-        tmp.gsub(/xmxmxmacro[0-9]+orcamxmxmx/) { macros[$1.to_i] }
+        File.open('dump.txt','w+') { |f| f << tmp }
+        
+        # Match the placeholder, including any (and greedily all) markup that's
+        # been placed before or after it.
+        tmp.gsub(/(?:<.*>)?xmxmxmacro(\d+)orcamxmxmx(?:<.*>)?/) { macros[$1.to_i] }
       end
     end
     

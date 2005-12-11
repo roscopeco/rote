@@ -9,7 +9,7 @@ module Rote
   module Filters
   
     # Match/extract #:code#args# on it's own line => :code, args
-    MACRO_RE = /^\s*\#\:([a-z]+)(?:\#([a-z]*))?\#\s*^(.*)$\s*\#\:\1\#(?:\2\#)?\s*$/m
+    MACRO_RE = /^\s*\#\:([a-z]+)(?:\#([a-z]*))?\#\s*^(.*?)$\s*\#\:\1\#(?:\2\#)?\s*$/m
     
     #####
     ## Baseclass from which Rote filters can be derived if

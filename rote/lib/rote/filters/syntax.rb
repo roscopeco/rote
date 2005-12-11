@@ -32,7 +32,7 @@ module Rote
       def initialize(code_re = MACRO_RE)
         super([:code],code_re) do |name,lang,body|
           converter = ::Syntax::Convertors::HTML.for_syntax(lang)
-          "<pre><code>#{converter.convert(body,false)}</code></pre>"
+          "<div class='#{lang}'><pre><code>#{converter.convert(body,false)}</code></pre></div>"
         end
       end
     end      
