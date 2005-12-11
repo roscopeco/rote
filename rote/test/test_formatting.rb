@@ -14,46 +14,49 @@ require 'rote/filters/syntax'
 
 SYNTEST = <<-EOM  
   <p>Non-code</p>
-  {code:ruby}
+  #:code#ruby#
   def amethod(arg)
     puts arg
   end
-  {code}
+  #:code#
   <p>More non-code</p>
-  {code}
-    Just gets preformatted
-  {code}
-  <p>Yet more non-code</p>
-  {code:ruby}
+  #:code#ruby#
   def amethod_too(arg)
     puts arg
   end
-  {code}
+  #:code#
+
 EOM
 
 SYNEXPECT = <<-EOM
   <p>Non-code</p>
-  <pre><code>
-  <span class=\"keyword\">def </span><span class=\"method\">amethod</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
+<div class='ruby'><pre><code>  <span class=\"keyword\">def </span><span class=\"method\">amethod</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
     <span class=\"ident\">puts</span> <span class=\"ident\">arg</span>
-  <span class=\"keyword\">end</span>
-  </code></pre>
+  <span class=\"keyword\">end</span></code></pre></div>
   <p>More non-code</p>
-  <pre><code>
-    Just gets preformatted
-  </code></pre>
-  <p>Yet more non-code</p>
-  <pre><code>
-  <span class=\"keyword\">def </span><span class=\"method\">amethod_too</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
+<div class='ruby'><pre><code>  <span class=\"keyword\">def </span><span class=\"method\">amethod_too</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
     <span class=\"ident\">puts</span> <span class=\"ident\">arg</span>
-  <span class=\"keyword\">end</span>
-  </code></pre>
+  <span class=\"keyword\">end</span></code></pre></div>
 EOM
 
 TOCTEST = <<-EOM
   <h2>Section One</h2>
   <p>This is section one</p>  
   <h3>Section Two</h3>
+  <p>This is section two</p>  
+EOM
+
+TOCEXPECTH2 = <<-EOM
+  <a name='section_one'></a><h2>Section One</h2>
+  <p>This is section one</p>  
+  <h3>Section Two</h3>
+  <p>This is section two</p>  
+EOM
+
+TOCEXPECTALL = <<-EOM
+  <a name='section_one'></a><h2>Section One</h2>
+  <p>This is section one</p>  
+  <a name='section_two'></a><h3>Section Two</h3>
   <p>This is section two</p>  
 EOM
 
@@ -114,12 +117,12 @@ module Rote
       assert_equal '<p>Has no sections</p>', toc.filter('<p>Has no sections</p>', nil)
       assert toc.links.empty?
 
-      assert_equal TOCTEST, toc.filter(TOCTEST, nil)
+      assert_equal TOCEXPECTALL, toc.filter(TOCTEST, nil)
       assert_equal "<a href='#section_one'>Section One</a> - <a href='#section_two'>Section Two</a>", toc.links.join(' - ')
 
       # custom RE
       toc = Filters::TOC::new(/h2/)
-      assert_equal TOCTEST, toc.filter(TOCTEST, nil)
+      assert_equal TOCEXPECTH2, toc.filter(TOCTEST, nil)
       assert_equal "<a href='#section_one'>Section One</a>", toc.links.join(' - ')
     end
     
@@ -129,8 +132,9 @@ module Rote
       assert_equal 'Has no source', Filters::Syntax.new.filter('Has no source', nil)    
       
       # good
-      assert_equal SYNEXPECT, Filters::Syntax.new.filter(SYNTEST, nil)    
+      assert_equal SYNEXPECT.chomp, Filters::Syntax.new.filter(SYNTEST, nil)    
     end
   end
+  
 end    
   

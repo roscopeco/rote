@@ -104,7 +104,7 @@ module Rote
     end
     
     ############## layout code #################
-    def test_layout_filename
+    def test_layout_code
       (p = new_test_page('withcode')).render
       assert_equal 'test/layouts/simple.txt', p.layout_filename
       assert p.instance_eval { @layout_code_works }            

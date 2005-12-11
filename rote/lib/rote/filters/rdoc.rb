@@ -14,15 +14,12 @@ module Rote
   
     #####
     ## Page filter supporting RDoc markup.     
-    class RDoc
+    class RDoc < TextFilter
       def initialize(markup = SM::SimpleMarkup.new, output = SM::ToHtml.new)
         @markup = markup
         @output = output
-      end
-      
-      def filter(text, page)      
-        @markup.convert(text, @output)
-      end
+        self.handler_blk = proc { |text,page| @markup.convert(text, @output) }
+      end      
     end
   end
 end 

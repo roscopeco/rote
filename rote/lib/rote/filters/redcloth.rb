@@ -15,7 +15,7 @@ module Rote
     ## Page filter that converts plain-text formatting to HTML using 
     ## RedCloth. This allows both Textile and Markdown formatting
     ## to be used with any page.
-    class RedCloth
+    class RedCloth < TextFilter
     
       # Create a new filter instance. The supplied options are passed
       # directly to RedCloth. The most common are :textile and
@@ -24,32 +24,17 @@ module Rote
       # If no options are supplied, :textile is assumed.
       def initialize(*redcloth_opts)
         @redcloth_opts = redcloth_opts
-        raise "RedCloth is not available" unless defined?(RedCloth)
-      end
+        raise "RedCloth is not available" unless defined?(RedCloth)        
+        super(&method(:handler).to_proc)       
+      end      
       
-      def filter(text, page)
-        # we need to remove any macros to stop them being touched
-        macros = []
-        n = -1
-        
-        tmp = text.gsub(MACRO_RE) do
-          macros << $&
-          # we need make the marker a 'paragraph'
-          "\nxmxmxmacro#{n += 1}orcamxmxmx\n"
-        end
-        
-        rc = ::RedCloth.new(tmp)        
+      def handler(text,page)
+        rc = ::RedCloth.new(text)        
         # hack around a RedCloth warning
         rc.instance_eval { @lite_mode = false }  
-        tmp = rc.to_html(*@redcloth_opts) 
-        File.open('dump.txt','w+') { |f| f << tmp }
-        
-        # Match the placeholder, including any (and greedily all) markup that's
-        # been placed before or after it.
-        tmp.gsub(/(?:<.*>)?xmxmxmacro(\d+)orcamxmxmx(?:<.*>)?/) { macros[$1.to_i] }
-      end
-    end
-    
+        rc.to_html(*@redcloth_opts) 
+      end      
+    end    
   end
 end
     
