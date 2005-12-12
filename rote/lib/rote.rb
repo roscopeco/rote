@@ -38,11 +38,10 @@ rescue LoadError
   nil   # just try without then...
 end  
 
-require 'net/ftp'
 require 'rake'
 
 # Master Rote version. Manage this from the Rake release support.
-ROTEVERSION = '0.2.3'
+ROTEVERSION = '0.3.1'
 
 #####
 ## *Rote* is a Rake (http://rake.rubyforge.org) based build tool for static

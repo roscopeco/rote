@@ -1,6 +1,9 @@
-# inherit common.rb from above
-inherit_common
+require 'rote/filters/toc'
 
+page_filter @toc = Filters::TOC.new
+
+# Some helpers for writing out links and sections within
+# the text
 def section_anchor(name)
   name.downcase.gsub(/\s/,'_')
 end
@@ -12,7 +15,6 @@ end
 def section(level, name, toplink = true)
 %Q{
 #{"[#{section_link('Top')}]" if toplink}
-<a name='#{section_anchor(name)}'></a>
 h#{level}. #{name}
 }
 end

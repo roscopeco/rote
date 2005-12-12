@@ -11,7 +11,16 @@ module Rote
   class TestPage < Test::Unit::TestCase
     ############## helpers #################
     def new_test_page(basename)  
-      Page.new('test/pages/' + basename + '.txt', 'test/layouts')      
+      Page.new(basename + '.txt', 'test/pages', 'test/layouts')      
+    end
+    
+    ############## Clz methods ################
+    def test_page_ruby_filename
+      assert_equal 'test/file.rb', Page::page_ruby_filename('test/file.txt')
+      assert_equal '/home/me/test/file.rb', Page::page_ruby_filename('/home/me/test/file.txt')
+      assert_equal 'file.rb', Page::page_ruby_filename('file.txt')
+      assert_equal 'txt.rb', Page::page_ruby_filename('txt')    
+      assert_equal '', Page::page_ruby_filename('')    
     end
     
     ############## initialize #################
@@ -37,21 +46,74 @@ module Rote
     end
        
     ############## accessors #################
-    def test_template_accessors
+    def test_template_text
       p = new_test_page('justtext')
       assert_equal 'Just some text', p.template_text.chomp
     end
             
-    def test_layout_accessors
-      p = new_test_page('justtext')
+    def test_layout_text
+      (p = new_test_page('justtext')).render
       assert_nil p.layout_text
       
-      p = new_test_page('withcode')
+      (p = new_test_page('withcode')).render
       assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
     end
     
+    def test_base_path
+      p = new_test_page('justtext')
+      assert_equal 'test/pages', p.base_path
+    end
+    
+    def test_layout_path
+      p = new_test_page('justtext')
+      assert_equal 'test/layouts', p.layout_path
+    end
+    
+    def test_template_name
+      p = new_test_page('justtext')
+      assert_equal 'justtext.txt', p.template_name
+    end
+    
+    def test_layout_name
+      p = new_test_page('justtext')
+      assert_nil p.layout_name
+                    
+      p = new_test_page('withcode')
+      assert_equal 'simple.txt', p.layout_name            
+    end
+    
+    def test_template_filename
+      p = new_test_page('justtext')
+      assert_equal 'test/pages/justtext.txt', p.template_filename
+    end
+    
+    def test_layout_filename
+      p = new_test_page('justtext')
+      assert_nil p.layout_filename
+                    
+      p = new_test_page('withcode')
+      assert_equal 'test/layouts/simple.txt', p.layout_filename
+    end
+    
+    def test_ruby_filename
+      p = new_test_page('justtext')
+      assert_nil p.ruby_filename
+                    
+      p = new_test_page('withcode')
+      assert_equal 'test/pages/withcode.rb', p.ruby_filename              
+    end
+    
+    ############## layout code #################
+    def test_layout_code
+      (p = new_test_page('withcode')).render
+      assert_equal 'test/layouts/simple.txt', p.layout_filename
+      assert p.instance_eval { @layout_code_works }            
+    end
+    
+    
+    ############## edges #################
     def test_default_layout_params
-      p = Page.new('test/pages/samedir.txt')
+      (p = Page.new('samedir.txt','test/pages/')).render        
       assert_equal '<%= @global %>', p.template_text.chomp
       assert_equal 'Lay <%= @content_for_layout %> out.', p.layout_text.chomp
     end      
@@ -68,54 +130,12 @@ module Rote
 
       assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
     end
-
-    def test_format_opts
-      p = new_test_page('justtext')
-      assert p.format_opts.empty?
-      
-      # alter array
-      p = new_test_page('textile')
-      assert_equal [:textile], p.format_opts
-      p.format_opts -= [:textile]
-      assert p.format_opts.empty?
-      
-      # replace array with single sym
-      p = new_test_page('textile')
-      assert_equal [:textile], p.format_opts
-      p.format_opts = [:markdown]
-      assert_equal [:markdown], p.format_opts
-      p.format_opts = :textile
-      # should create array for one sim
-      assert_equal [:textile], p.format_opts
-    end
     
     ############## render #################
     def test_render_text    
       t = new_test_page('justtext').render.chomp
       assert_equal 'Just some text', t
     end    
-    
-    def test_render_textile
-      t = new_test_page('textile').render.chomp
-      assert_equal '<p><strong>This</strong> is a <em>simple</em> test of <a href="http://www.textism.org/tools/textile">Textile</a> formatting.</p>', t
-    end
-
-    # FIXME Fails under Gem install, but passes when run normally (???)
-    unless defined?(TEST_FROM_GEM)
-      def test_render_rdoc
-        begin
-          t = new_test_page('rdoc').render.chomp
-          assert_equal "<h2>RDoc</h2>\n<h3>Markup</h3>", t
-        rescue Object => ex
-          p ex
-        end
-      end
-    end
-    
-    def test_render_markdown
-      t = new_test_page('markdown').render.chomp
-      assert_equal '<h1>*this* is a _test_</h1>', t
-    end
     
     def test_render_layout_code  
       t = new_test_page('withcode').render.chomp
@@ -125,7 +145,9 @@ module Rote
     ############## broken render #################
     def test_render_switch_layout_freeze
       p = new_test_page('withcode')
-      assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
+      
+      # It has a layout, but since it's not rendered it's not loaded yet
+      assert_nil p.layout_text
 
       p.layout(nil)
       assert_nil p.layout_text      
@@ -140,7 +162,7 @@ module Rote
     end    
     
     def test_render_switch_to_bad_layout
-      p = new_test_page('withcode')
+      (p = new_test_page('withcode')).render
       assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
 
       begin      
