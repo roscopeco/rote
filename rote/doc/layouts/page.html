@@ -25,6 +25,9 @@
 					<a class='nav' href='<%= link_rel nav[:url] %>'><%= nav[:title] %></a>										
 					<% unless i == (@navigation.length - 1) %>|<% end %>
 				<% end %>
+				<% unless @toc.nil? or @toc.links.empty? %>
+					<div id="subnav"><%= @toc.links.select { |l| l.tag == 'h3' }.join(' - ') %></div>
+				<% end %>		
 			</td>									
 		</tr>
 		

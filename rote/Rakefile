@@ -22,11 +22,18 @@ require 'rake/rdoctask'
 
 # This needs to go at the front of the libpath
 # Otherwise, any pre-installed rote gets found,
-# and used from there.
-$:[0,1] = 'lib'
+# and used from there. This is only necessary
+# for Rote's build, to make sure we always unit-
+# test and build doc with the working copy.
+$LOAD_PATH.unshift 'lib'
 require 'rote'
+require 'rote/filters/redcloth'
+require 'rote/filters/syntax'
+require 'rote/filters/tidy'
+require 'rote/format/html'
+include Rote
 
-# CLEAN.include('testdata')
+CLEAN.include('tidy.log')
 CLOBBER.include('TAGS')
 CLOBBER.include('html')
 
@@ -111,6 +118,7 @@ rd = Rake::RDocTask.new("rdoc") { |rdoc|
   rdoc.rdoc_files.include('README', 'LICENSE', 'TODO', 'CONTRIBUTORS')
   rdoc.rdoc_files.include('lib/**/*.rb', 'doc/**/*.rdoc')
   rdoc.rdoc_files.exclude(/\bcontrib\b/)
+  rdoc.rdoc_files.exclude('lib/rote/project/**/*')
 }
 
 # Create a task build the website / docs
@@ -119,6 +127,19 @@ ws = Rote::DocTask.new(:doc) { |site|
   site.layout_dir = 'doc/layouts'
   site.pages.dir = 'doc/pages'
   site.pages.include('**/*')  
+  
+  site.ext_mapping(/(html)/, '$1') do |page|
+    # Let's use the HTML stuff everywhere ...
+    page.extend Rote::Format::HTML
+    
+    # use 'page' layout, textile formatting, ruby syntax, Tidy to xhtml
+    page.layout 'page'
+
+    page.page_filter Filters::RedCloth.new(:textile)
+    page.page_filter Filters::Syntax.new
+    
+    page.post_filter Filters::Tidy.new
+  end
   
   site.res.dir = 'doc/res'
   site.res.include('**/*.png')

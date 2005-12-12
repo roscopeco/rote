@@ -1,2 +1,4 @@
 TEST_FROM_GEM = true
-require File.join(File.dirname(__FILE__), 'test_page.rb')
+$: << File.join(File.dirname(__FILE__),'../lib')
+Dir[File.join(File.dirname(__FILE__), '**/test_*.rb')].each { |test| require test }
+
