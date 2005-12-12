@@ -1,0 +1,22 @@
+= Rote project -- Done list
+
+These were TODO items, but are now not. Other things have been done too, of
+course - these are just the ones that spent some time as a TODO before 
+being implemented.
+
+* More flexible markup rendering
+* Source monitoring / render on update
+* Better COMMON.rb handling
+* Proper page/resource/ruby dependencies
+* Support layout-specific code.
+* Remove implicit output filename restriction  
+* Support optional filtering post-layout
+* Support macros, separate macro and text processing
+* Support ordered regexp extension mapping
+** Support per-extension-mapping blocks
+* Support filters
+** Syntax
+** RedCloth
+** RDoc
+** TOC
+** Tidy

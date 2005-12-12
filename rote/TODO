@@ -5,16 +5,14 @@ Send any suggestions or patches (preferably as/with tests) to:
 
   rosco <at> roscopeco <dot> co <dot> uk
 
-* More flexible markup rendering
+== For 1.0
+* CSS / XML / etc, maybe with the existing builders (integrated with 
+  Format::CSS, Format::XML, so on)  
 * Nested layouts
-* Better COMMON.rb handling
-* Find and Integrate test run / coverage reports
+* Could work as 'plugins', maybe allow pseudo-sections to be created 
+   in COMMON.rb, that get their pages from some supplied code.	
+   Anything else then stays out of Rote, which is what's needed.	
 * Ability to have multiple views of a section, e.g. user guide (separate
   pages) and user guide (one page) generated from same source.
-* Auto-link within section
-* Index and glossary support
-* statistics
-* (maybe?) Automatic navigation / TOC
+** Maybe in concert with plugins?
 * (maybe?) Rant integration
-* Ability to define rules for input.ext -> output.ext
-* Support ruby source templates (.rbt, auto rename to .rb on output).
