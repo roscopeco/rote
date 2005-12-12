@@ -1,10 +1,15 @@
 <% @page_title = 'User guide' %>
 
+p{color:red}. *The guide is still under construction*
+
+p. It has not yet been fully updated to cover all new features in 0.3.x. 
+Although most features are mentioned, in many cases the documentation consists 
+soley of a link to the relevant "RDoc":<%= link_rel '/rdoc/index.html' %>
+
 <a name='top'></a>
-*This guide is still very much under construction!*
 
 It is assumed that you have installed Rote already. If not, please
-consult the <a href="<%= link_rel '/rdoc/files/README.html' %>">README</a> 
+consult the "README":<%= link_rel '/rdoc/files/README.html' %>
 for installation instructions.
 
 <%= section 3, 'Conventions', false %>
@@ -33,7 +38,7 @@ case). This directory will have the following layout:
 <p><code><pre>  
   someproject
   |
-  |--> Rakefile 
+  |--> Rakefile
   |
   |--> doc
   |    |--> res
@@ -117,82 +122,44 @@ manpage available for the @rote@ command.
 
 If you are wanting to build documentation as part of a larger build process, or
 commandline setup, then you'll want to get started on integrating Rote with 
-your own (existing) @Rakefile@. Fortunately, this is very easy to do. Try 
-something like:
-
-#:code#ruby#  
-# Rakefile
-require 'rote'
-
-ws = Rote::DocTask.new(:doc) { |site| 
-  site.output_dir = 'html'
-  site.layout_dir = 'doc/layouts'
-  
-  site.pages.dir = 'doc/pages'
-  site.pages.include('**/*')  
-	  
-  site.res.dir = 'doc/res/'
-  site.res.include('**/*.png')
-  site.res.include('**/*.gif')
-  site.res.include('**/*.jpg')
-  site.res.include('**/*.css')
-}	  
-#:code#ruby# 
+your own (existing) @Rakefile@. If you bootstrap a project with the 
+@rote create@ command, you'll get a Rakefile which you can modify to suit
+your requirements.
 	
-Save this as @Rakefile@, and fire up:
+There is nothing special about this Rakefile, and it can use any of the other
+Rake tasks, or indeed any other Ruby code. It is run with a command like:
 
 <pre><code>        rake doc</code></pre>
 
 If all goes well, you should see each command and transformation output to your
 console as Rote runs. 
 
-*Note* that it's safe to include all files in the @pages@ list, since @rb@ 
-files are implicitly excluded (as page code).
+See the main Rote @Rakefile@ for an example of integrating Rote with your 
+software project, including linking to Rdoc generation and so on. The
+<%= section_link 'Rake task configuration' %> section has more information
+on the options supported by Rote's task library.
 
 <%= section 3, 'Creating templates' %>
 
+p=. *Wherever directories and files are mentioned, they refer to the appropriate*
+*path/name/etc supplied during <%= section_link 'rake task configuration' %>*.
+*In all cases the default settings can be seen in the layout created by the*
+*@rote create foo@ command.*
+
 <%= section 4, 'The Basics', false %>
 
-As mentioned, templates are simply text files in the @doc/pages@ directory. The
-layout below that directory is retained when transforming pages, and is
-also used to provide simple hierarchical structure to the common page code.
+As mentioned, templates are simply files in the specifed pages directory 
+(@doc/pages@ by default) that match the supplied glob (default: all files,
+though ruby source is implicitly excluded). The directory layout beneath the
+page root is retained when transforming pages, and is also used to provide
+hierarchical structure to the common page code.
 
-By default, any file with an extension other than @rb@ will be processed
-as a page template (with it's associated ruby source). The output will have
-the same filename and path, relative to the output directory.
-
-<%= section 4, 'Applying formatting' %>
-
-If you're generating HTML, you'll probably want to use some plaintext 
-formatting, rather than writing HTML by hand. Rote directly supports
-the Textile, Markdown and Rdoc textual formatting styles.
-The formatting applied to a given page is controlled by that page's @format_opts@
-array. All three are disabled by default - to enable formatting you must add
-appropriate symbols to the array, for example in page code or COMMON.rb:
-
-<p><pre><code>        format_opts << :textile << :markdown << :rdoc</code></pre></p>
-
-This can be done in page code, COMMON.rb, or even inside the template itself.
-See <%= section_link 'template code and erb', 'the section on template code' %> 
-for more information on adding code to your templates. Obviously you don't have 
-to use all three, and order isn't significant - formatting is applied as Textile, 
-then Markdown, then Rdoc.
-	
-*Some additional notes on formatting*
-
-  * You cannot directly assign to @format_opts@, from page code since Ruby 
-    interprets assignments with no receiver as local variable sets rather than
-    method calls, resulting in much head scratching as to why your options are 
-    being ignored. Always use the << :opt syntax.
-    
-  * Note that *Formatting is applied _after_ any ERB has been evaluated.*
-    This allows you to output formatting from your code and have it rendered
-   	properly.
-
-  * that the options you supply are passed directly to RedCloth, so you can
-    exercise much more control over the formatting by using the feature-specific
-    symbols defined by RedCloth, rather than the blanket :textile and :markdown
-    symbols.
+The default behaviour is to transform all matched pages with ERB, and 
+optionally apply a second render pass with a <%= section_link 'layout' %>,
+before writing to the same base filename beneath the output directory.
+You can customise this behaviour by specifying _extension mappings_ for 
+specific file extensions - see the <%= section_link 'Rake task configuration' %>
+section for details.
 
 <%= section 4, 'Template code and ERB' %>
 
@@ -200,19 +167,24 @@ All templates may contain embedded Ruby code (ERB), delimited by the standard
 &lt;&#37; ... &#37;&gt; (for executed code) and &lt;&#37;= ... &#37;&gt; (for 
 output) tags. Any (valid) Ruby code may be placed in the templates, and 
 variables may be defined to allow information to be passed into templates.
-There are four places where you might define such variables. The following 
+There are five places where you might define such variables. The following 
 is in order of evaluation:
 
-* This directory's COMMON.rb, or the parent directory's COMMON.rb if
-  @inherit_common@ is used.
+* A block supplied to <%= section_link 'extension mappings' %> that matched
+  this page.
+* Any COMMON.rb files from the filesystem root down to this directory.
 * This page's ruby code, _basename_.rb
-* In a block passed to Page.new
 * In the template itself
 
-When a @Rote::Page@ instance is created, Rote looks for these, and if found
-evaluates them, in order, in the same binding as the template is later rendered
-in (i.e. the @Page@ instance binding). Therefore, you can define
-instance variables to pass data around, or even helper methods if you wish.
+When a @Page@ instance is created, Rote looks for these, and if found evaluates
+them, in order, in the same binding as the template is later rendered in (i.e. 
+the @Page@ instance binding). Therefore, you can define instance variables to 
+pass data around, or even helper methods if you wish.
+
+Template code is used to support a great deal of flexibility in Rote, from 
+selecting layouts to mixing in format helpers to controlling the filter chain.
+You can find details of the methods available in the 
+"@Rote::Page@ RDoc":<%= link_rel '/rdoc/classes/Rote/Page.html' %>
 
 <%= section 4, 'Layout' %>
 
@@ -244,6 +216,92 @@ This pattern shouldn't be unfamiliar. Again, note that Rote doesn't mandate
 HTML, despite the appearance from the ERB tags - any (textual) format can
 be templated and laid out.
 
+<%= section 4, 'Filters' %>
+
+As well as rendering ERB and applying layout (both universal features of @Page@),
+Rote provides the ability to apply custom _filters_ to a page or set of pages.
+Along with this ability, a number of filters are provided as standard:
+
+For example If you're generating HTML, you'll probably want to use some plaintext 
+formatting, rather than writing HTML by hand. Rote directly supports this
+(thanks for "RedCloth":http://whytheluckystiff.net/ruby/redcloth) via the
+_RedCloth_ filter, which allows Textile or Markdown (or both if you really want)
+to be applied to pages. 
+
+h5. Filter chaining
+
+In order to filter a given page, filter instances are added to that page's 
+filter chain. There are actually two separate chains, for _page filtering_
+and _post filtering_.
+
+	* *Page filtering* takes place on the page content itself, after any
+		ERB is executed, but before the layout pass is applied. Most of the
+		standard filters are pre-filters.
+		
+	* *Post filtering* takes place on the final output of the render pass,
+		after layout is applied. The @Filters::Tidy@ filter is a post filter. 
+		
+h5. Standard filters
+
+Rote supplies the following filters 'out of the box':
+
+	* *"Filters::RDoc":<%= link_rel '/rdoc/classes/Rote/Filters/RDoc.html' %>* -
+	  Supports RDoc formatting with optional custom markup, to any supported output format
+	  (defaults to HTML).
+		
+	* *"Filters::RedCloth":<%= link_rel '/rdoc/classes/Rote/Filters/RedCloth.html' %>* -
+	  Supports both Textile and Markdown to HTML.
+
+	* *"Filters::Syntax":<%= link_rel '/rdoc/classes/Rote/Filters/Syntax.html' %>* -
+	  Supports @code@ <%= section_link 'macros' %> with pluggable syntax highlighting
+	  (via the "Syntax library":http://syntax.rubyforge.org/) and Ruby-code support
+	  out of the box.
+
+	* *"Filters::Tidy":<%= link_rel '/rdoc/classes/Rote/Filters/Tidy.html' %>* -
+	  Post filter that corrects markup and semantic errors in HTML markup to produce
+	  valid HTML or XHTML using the "HTML Tidy":http://tidy.sourceforge.net/ command-line
+	  tool.
+
+	* *"Filters::TOC":<%= link_rel '/rdoc/classes/Rote/Filters/TOC.html' %>* -
+	  Supports automatic generation of navigation from headings in documents.	  
+
+The first three are page filters, while the The latter two are not. Tidy is a simple 
+post filter (since HTML Tidy operates on full HTML documents), and should be used 
+with the @post_filter@ chain. TOC operates somewhat differently, requiring two
+render passes - first to enumerate the sections and second to output the TOC. In practice
+this means that the TOC is currently generated from layout at present.
+
+Adding filters to a page's chain can be done anywhere you can call that page's filter-chain
+methods. This could be page code, COMMON.rb, or even inside the template itself. Filters
+can also be applied to all files with a matching extension by adding filters inside an
+<%= section_link 'extension mapping' %> block. Bear in mind that the order in which filters
+are added *is* important, since each filters output becomes input for the next. You
+must ensure that filters are applied in a compatible order - should you need to prepend
+filters or otherwise modify the chain prior to rendering you may do so by directly
+accessing the @page_filters@ and @post_filters@ array attributes.
+
+See <%= section_link 'template code and erb', 'the section on template code' %> 
+for more information on adding code to your pages.
+
+Filters are of course very simple to write. See the 'Writing filters' subsection
+(in <%= section_link 'Extending Rote' %>) for details.
+
+<%= section 4, 'Macros' %>
+
+There is one more aspect to filters - support for macros. Macro filters (derived from
+the standard @Filters::MacroFilter@ class) support the insertion of delimited 
+sections of text that should be ignored by all filters except that which handles the
+macro. The standard @Syntax@ filter is a macro filter. 
+
+See the <%= section_link 'extending rote' %> section for information on implementing
+your own macros.
+
+<%= section 4, 'Format helpers' %>
+
+p{color:red}. *TODO* This section is under construction.
+Please see "@Rote::Format::HTML@":<%= link_rel '/rdoc/classes/Rote/Format/HTML.html' %> 
+for currently available information.
+
 <%= section 3, 'Resources' %>
 
 Of course, you're likely to have resources for your site (images, sounds, etc)
@@ -255,6 +313,100 @@ As you'd expect, the directory layout beneath @res@ should mirror that of the
 output, and will be preserved during the copy. Resources are copied only if
 necessary (determined by existence and last-modified timestamp), in a similar
 way to pages.
+
+<%= section 3, 'Rake task configuration' %>
+
+<%= section 4, 'Reference Rakefile' %>
+
+The following Rakefile demonstrates most of the methods you can use to customise
+Rote's rake task configuration.
+
+#:code#ruby#  
+# Rakefile
+require 'rote'
+include Rote
+
+# This defines all our Rake tasks. The symbol we supply here (:doc is 
+# default) gives the base-prefix for the tasks that are generated.
+ws = Rote::DocTask.new(:doc) { |doc| 
+	# Output directory and layout sources
+  doc.output_dir = 'html'
+  doc.layout_dir = 'doc/layouts'
+  
+	# Page directory and include globs.
+  doc.pages.dir = 'doc/pages'
+  doc.pages.include('**/*')  
+	
+	# Resource directory and include globs. This directory
+	# could be the same as the pages directory.
+  doc.res.dir = 'doc/res/'
+  doc.res.include('**/*.png')
+  doc.res.include('**/*.gif')
+  doc.res.include('**/*.jpg')
+  doc.res.include('**/*.css')  
+  
+  # Define an extension mapping
+  doc.ext_mapping(/(html)/, '$1') do |page|
+    # Let's use the HTML helpers everywhere ...
+    page.extend Format::HTML
+    
+    # use 'page' layout on all html files
+    # This can also be set from COMMON.rb
+    page.layout 'page'
+
+		# textile formatting, ruby syntax
+    page.page_filter Filters::RedCloth.new(:textile)
+    page.page_filter Filters::Syntax.new
+    
+    # To valid xhtml with Tidy postfilter
+    page.post_filter Filters::Tidy
+  end
+}  
+#:code#
+
+Please refer to the "RDoc":<%= link_rel '/rdoc/classes/Rote/DocTask.html' %> for specific
+information on each method.
+
+<%= section 4, 'Extension mappings' %>
+
+The default behaviour when transforming pages is to make each filename 
+matched by the @pages.include@s relative to the output directory, using
+the same extension as the input file. 
+
+If you want to change this behaviour, you may supply an _extension mapping_
+as demonstrated above. The general form is:
+
+#:code#ruby#
+# Define an extension mapping
+doc.ext_mapping(/regexp/, 'replacement') do |page|
+
+	# call page methods 
+
+end
+#:code#
+
+The regexp is matched against processed page extensions (not resources) and 
+the replacement supplies the output extension. The optional block is executed
+for each page when it's first instantiated, before any COMMON or page code.
+Note that you must not include the '.' in either the regexp or replacement.
+
+For more advanced mappings, you can supply a capturing regexp, and use the
+@$n@ notation in the replacement to extract the catures. As shown in the
+(contrived) example above:
+
+#:code#ruby#
+doc.ext_mapping(/(html)/, '$1') do |page|
+#:code#
+
+<%= section 4, 'Defining additional tasks' %>
+
+The command-line build will automatically look for a file in the top-level
+directory (above @doc@) named @local.rf@. If found, this file will be 
+evaluated by Rake, making any tasks defined within it available to your
+build. This can be used to define an <%= section_link 'auto refresh task' %>
+for the <%= section_link 'source monitoring', 'monitor' %> feature, for example,
+or to define tasks to publish your site (most likely using one of Rake's 
+directory publishers).
 
 <%= section 3, 'Source monitoring' %>
 
@@ -292,7 +444,7 @@ because it just might make me reconsider.
 When you're done with Rote simply hit CTRL-C (or use @kill@) to stop monitoring
 and exit.
 
-<%= section 4, 'Auto-refresh task' %>
+<%= section 4, 'Auto refresh task' %>
 
 When using Source monitoring, it's often handy to be able to inform some other
 program that something has changed. For example, you may want to automatically
@@ -314,16 +466,6 @@ your rendered documentation changes:
 As with all rake tasks, multiple actions can be associated, and you can of course
 add prerequisites to the @refresh@ task as with any other Rake task.
 
-<%= section 3, 'Defining additional tasks' %>
-
-The command-line build will automatically look for a file in the top-level
-directory (above @doc@) named @local.rf@. If found, this file will be 
-evaluated by Rake, making any tasks defined within it available to your
-build. This can be used to define an <%= section_link 'auto-refresh task' %>
-for the <%= section_link 'source monitoring', 'monitor' %> feature, for example,
-or to define tasks to publish your site (most likely using one of Rake's 
-directory publishers).
-
 <%= section 3, 'Publishing' %>
 
 Rote does not provide any direct support for publishing your site at present,
@@ -332,20 +474,148 @@ the publishers supplied with Rake (in @rake/contrib@), or your own. This
 allows maximum flexibility, and allows Rote to concentrate on creating your 
 documents.
 
+See the <%= section_link 'rake task configuration' %> section for more details.
+
+<%= section 3, 'Extending Rote' %>
+
+Although Rote is designed to be as quick and easy to use as possible,
+with sensible default configuration and reasonable convention throughout,
+it also has ample flexibility when it comes to generating more complex
+documentation sets. Thanks to it's 'option for every default' and simple
+extension points, Rote should scale to even complex documentation sets
+quite easily.
+
+<%= section 4, 'Writing filters' %>
+
+*Filters* do exactly what they say on the tin - they filter the output of
+a page, perhaps rendering markup or inserting additional text. Filters
+can be divided into two general categories: *Text filters* and *Macro filters*.
+Either type can be a page or post filter - it depends only on the design
+of the filter and the job it will perform as to which chain it should
+be used with.
+
+h5. Text filters
+
+Text filters process the text in a page, with all macros replaced by a 
+standard plain-text marker. The purpose of this is to allow macros
+to coexist with plain-text formatting without causing markup clashes.
+
+Most of the standard filters are text filters. The RedCloth filter
+is representative:
+
+#:code#ruby#
+class RedCloth < TextFilter
+  def initialize(*redcloth_opts)
+    super()
+    @redcloth_opts = redcloth_opts
+  end      
+  
+  def handler(text,page)
+    rc = ::RedCloth.new(text)        
+    # hack around a RedCloth warning
+    rc.instance_eval { @lite_mode = false }  
+    rc.to_html(*@redcloth_opts) 
+  end      
+end    
+#:code#
+
+(again, this example is slightly simplified with respect to auxiliary
+functionality for the sake of clarity).
+
+As mentioned above, @TextFilter@ also provides help with writing non-macro
+filters that removes much of the headache of working around macros (which 
+must not be modified by any filter except that which handles the macro). 
+
+Text filters can optionally access the macro data using the @macros@ array.
+
+If you want to implement a one-off filter quickly, there's no need to 
+create a new subclass - you can supply a block directly to TextFilter,
+which is executed to render the textual content:
+
+#:code#ruby#
+page.page_filter Rote::Filters::TextFilter.new { |page, text|
+  text.gsub(/foo/,'bar')
+}
+#:code#
+
+For text filters, a convenience in the implementation of @page_filter@ 
+allows the above to be shortened to:
+
+#:code#ruby#
+page.page_filter do |page, text|
+  text.gsub(/foo/,'bar')
+end
+#:code#
+
+Note the curly braces in the first example, which cause the block to bind
+to the filter rather than the method. If @do..end@ were used, the second
+form would actually be called and a new filter created. The filter you
+supplied would be discarded.
+
+The @post_filter@ method supports the same convenience.
+
+h5. Macro filters
+
+The standard Syntax filter is a typical macro filter. The following is
+slightly simplified for brevity (the actual one allows custom macro tags
+to be supplied):
+
+#:code#ruby#
+class Syntax < MacroFilter
+  def macro_code(lang, body)
+    converter = ::Syntax::Convertors::HTML.for_syntax(lang)
+    "<pre class='#{lang}'><code>#{converter.convert(body,false)}</code></pre>"
+  end      
+end      
+#:code#
+
+As you can see, a macro filter simply inherits @Rote::Filters::MacroFilter@
+and implements one or more @macro_XXXX@ methods, which is passed the arguments
+supplied to the macro (used here to indicate the code language) and the
+raw macro body.
+
+If you want to implement a macro quickly, perhaps across a section or set of
+pages, you can use @MacroFilter@ itself, supplying a block:
+
+#:code#ruby#
+page.page_filter Rote::Filters::MacroFilter.new([:foomacro]) { |tag, args, body
+  "FooMacro Replacement!"
+}
+#:code#
+
+This can be done from any page code, a COMMON.rb (see 
+<%= section_link 'Template code and ERB' %>), or on a per-extension basis
+with <%= section_link 'extension mappings' %>.
+
+*Note* that macro data is passed raw, and excluded from rendering by 
+<%= section_link 'text filters' %>. The output, however, *will* be processed
+by any filters that follow the macro filter in the chain.
+
+h5. Duck filters
+
+This being Ruby, you don't _have_ to inherit one of the above filters to create
+your own - a filter is just an object with a @filter(text,page)@ method.
+
+The standard TOC filter takes this route. 
+
 <%= section 3, 'Final notes' %>
 
-Currently, there isn't enough checking involved on source resources when
-building pages - Basically, only templates are considered when Rake decides
-what to update. If you change common or page code you'll need to run:
+<%= section 4, 'Layout dependencies' %>
+
+Because of the way Rote is implemented, it is currently not possible for a
+page's file task to depend upon the page's layout, or resources embedded in
+it in a format-specific way (as opposed to merely referenced from it as with
+HTML/images). When changing these resources it's highly recommended to first
+run:
 	
 <p><pre><code>        rote clobber</code></pre></p>
 		
-to make sure everything gets updated. This will also apply if you have
-interdependencies between pages and resources, but in that situation you
-_could_ work around it if you wished by manually (!) specifying the 
-appropriate resources as dependencies to the appropriate page task.
-Such configuration is beyond the scope of this manual - see 
-"Rake's Documentation":http://rake.rubyforge.org/ for information on
-dependency configuration and resolution in Rake.
+<%= section 4, 'Rake magic' %>
+
+Rake is a *very* flexible tool, and supports a wide variety of configuration
+options and advanced features you can use to fit Rote to your needs. Such 
+configuration is beyond the scope of this manual - see 
+"Rake's Documentation":http://rake.rubyforge.org/ for information on the 
+features supported by Rake.
 
 [<%= section_link 'Top' %>]

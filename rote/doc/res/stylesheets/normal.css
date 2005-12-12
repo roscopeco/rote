@@ -188,6 +188,10 @@ pre.ruby span.string {
 	color: #2020f0;	
 }
 
+pre.ruby span.regex {
+	color: #552090;	
+}
+
 pre.ruby span.expr {
 	color: #101080;
 	font-weight: bold;

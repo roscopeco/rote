@@ -26,7 +26,7 @@
 					<% unless i == (@navigation.length - 1) %>|<% end %>
 				<% end %>
 				<% unless @toc.nil? or @toc.index.empty? %>
-					<div id="subnav"><%= @toc.links.join(" - ") %></div>
+					<div id="subnav"><%= @toc.links.select { |l| l.tag == 'h3' }.join(' - ') %></div>
 				<% end %>		
 			</td>									
 		</tr>
