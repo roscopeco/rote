@@ -31,8 +31,9 @@ require 'rote/filters/redcloth'
 require 'rote/filters/syntax'
 require 'rote/filters/tidy'
 require 'rote/format/html'
+include Rote
 
-# CLEAN.include('testdata')
+CLEAN.include('tidy.log')
 CLOBBER.include('TAGS')
 CLOBBER.include('html')
 
@@ -134,9 +135,10 @@ ws = Rote::DocTask.new(:doc) { |site|
     # use 'page' layout, textile formatting, ruby syntax, Tidy to xhtml
     page.layout 'page'
 
-    page.page_filter Rote::Filters::RedCloth.new(:textile)
-    page.page_filter Rote::Filters::Syntax.new
-    page.post_filter Rote::Filters::Tidy.new
+    page.page_filter Filters::RedCloth.new(:textile)
+    page.page_filter Filters::Syntax.new
+    
+    page.post_filter Filters::Tidy.new
   end
   
   site.res.dir = 'doc/res'

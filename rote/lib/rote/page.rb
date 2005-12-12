@@ -84,7 +84,7 @@ module Rote
     # new filters, which gives implicit block => Filters::Proc conversion 
     # and checks for nil.
     attr_reader :page_filters, :post_filters   
-    alias :filters :page_filters      # Short terms compat alias v-0.2.99 vv0.3
+    alias :filters :page_filters     
     
     # Reads the template, and evaluates the global and page scripts, if 
     # available, using the current binding. You may define any instance

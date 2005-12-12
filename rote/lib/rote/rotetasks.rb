@@ -314,8 +314,7 @@ module Rote
       
     end
     
-  end #class  
-  
+  end #class    
 end #module
 
 ## The +monitor+ task requires a few mods to Rake to let us fire

@@ -36,7 +36,7 @@ module Rote
         attr_accessor :tag, :title, :attrs
         
         def anchor
-          title.downcase.gsub(/[^a-z]+/,'_')
+          title.downcase.gsub(/<[^>]+>/,'').gsub(/[^a-z]+/,'_')
         end
         
         def to_s

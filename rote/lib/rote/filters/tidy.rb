@@ -35,6 +35,7 @@ module Rote
       attr_accessor :format, :tidyopts, :tidycmd
       
       def filter(text, page)
+        # TODO need to properly capture and log warnings here
         result = IO.popen("#{@tidycmd} #{self.tidyopts} -f tidy.log -as#{self.format}","r+") do |fp|
            Thread.new { fp.write(text); fp.close_write }
            fp.read

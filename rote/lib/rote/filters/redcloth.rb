@@ -23,9 +23,9 @@ module Rote
       #
       # If no options are supplied, :textile is assumed.
       def initialize(*redcloth_opts)
+        super()  
         @redcloth_opts = redcloth_opts
         raise "RedCloth is not available" unless defined?(RedCloth)        
-        super(&method(:handler).to_proc)       
       end      
       
       def handler(text,page)
