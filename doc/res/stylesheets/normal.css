@@ -147,3 +147,66 @@ h3 {
 h4 {
 	border-bottom: thin #b8c8c8 solid;
 }
+
+/* syntax */
+pre.ruby {
+	background: #f5f5f5;
+	border: thin dashed #3e5972;
+	padding: 10px;
+	margin-left: 2em;
+}
+
+pre.ruby span.comment {
+	color: #789a86;
+	text-decoration: oblique;
+}
+
+pre.ruby span.ident {
+	color: #0b0202;
+}
+
+pre.ruby span.punct {
+	color: #8a7070;
+}
+
+pre.ruby span.symbol {
+	color: #aa1010;
+	font-weight: bold;
+}
+
+pre.ruby span.keyword {
+	color: #903030;
+	font-weight: bold;
+}
+
+pre.ruby span.constant {
+	color: #3e5972;
+	font-weight: bold;
+}
+
+pre.ruby span.string {
+	color: #2020f0;	
+}
+
+pre.ruby span.regex {
+	color: #552090;	
+}
+
+pre.ruby span.expr {
+	color: #101080;
+	font-weight: bold;
+}
+
+pre.ruby span.global {
+	color: #557462;
+}
+
+pre.ruby span.class {
+	color: #3e5972;
+	font-weight: bold;
+}
+
+pre.ruby span.method {
+	color: #aa1010;
+}
+
