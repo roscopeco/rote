@@ -2,9 +2,6 @@
 # set layout and formatting, and then create a custom variable
 # for use in the layout.
 
-# This page uses Textile
-format_opts << :textile
-
 # Apply the 'normal' layout
 layout 'normal'
 
