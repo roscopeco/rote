@@ -60,8 +60,7 @@ module Rote
       # the filter is run.
       attr_reader :headings
       alias :links :headings
-      alias :index :headings      # Compat alias  vv0.2.999 v-0.3
-   
+      
       def filter(text, page)
         # find headings *and insert named anchors*
         text.gsub(%r[<(#{@tags_re})>(.*?)</\1>]) do
