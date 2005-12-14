@@ -8,7 +8,6 @@ require 'test/unit'
 require 'rote/page'
 require 'rote/filters/redcloth'
 require 'rote/filters/rdoc'
-require 'rote/filters/proc'
 require 'rote/filters/toc'
 require 'rote/filters/syntax'
 
@@ -87,30 +86,8 @@ module Rote
       end
     end
     
-    ############## filters/proc #################
-    # FIXME Fails under Gem install, but passes when run normally (???)
-    def test_proc_no_block
-      begin
-        Filters::Proc.new
-      rescue ArgumentError => ex
-        assert_equal 'No block given', ex.message
-      end      
-    end
+    ############## filters #################
     
-    def test_render_with_proc
-      f = Filters::Proc.new { |text, page| text + page }
-      assert_equal f.filter('some text ', 'fake page'), 'some text fake page'      
-
-      # equivalent
-      f = Filters::Proc.with do |text, page| 
-        text + page 
-      end      
-      assert_equal f.filter('some text ', 'fake page'), 'some text fake page'      
-    end
-    
-    # Toc filter is a non-output filter - it's used to get a list of links in 
-    # the page, from layout code. It should output it's input directly, so
-    # that it doesn't matter where in the chain it is.
     def test_toc_filter
       # default RE
       toc = Filters::TOC::new
@@ -128,13 +105,16 @@ module Rote
     
     def test_syntax_filter
       # bad
-      assert_equal '', Filters::Syntax.new.filter('', nil)    
-      assert_equal 'Has no source', Filters::Syntax.new.filter('Has no source', nil)    
+      assert_equal '', Filters::Syntax.new.filter('',nil)    
+      assert_equal 'Has no source', Filters::Syntax.new.filter('Has no source',nil)    
       
       # good
-      assert_equal SYNEXPECT.chomp, Filters::Syntax.new.filter(SYNTEST, nil)    
+      assert_equal SYNEXPECT.chomp, Filters::Syntax.new.filter(SYNTEST,nil)    
     end
+    # TODO test macro stuff etc.
+    
   end
+  
   
 end    
   
