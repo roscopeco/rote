@@ -60,6 +60,7 @@ module Rote
         resolve_common_rubys(parent,arr) unless parent == dir # at root    
         fn = File.join(dir,'COMMON.rb')    
         arr << fn if (File.exists?(fn) && File.readable?(fn))
+        arr
       end  
     end
     
