@@ -15,7 +15,8 @@ module Rote
     #   #code# 
     #
     # to :code, args, body
-    MACRO_RE = /^\s*\#\:([a-z]+)(?:\#([a-z]*))?\#\s*^(.*?)$\s*\#\:\1\#(?:\2\#)?\s*$/m
+    MACRO_RE = /^\s*\#\:([a-z]+)(?:\#([a-z]*))?\#\s*?\n?(.*?)\s*\#\:\1\#(?:\2\#)?\s*$/m
+    PLACEHOLDER_RE = /(?:<[^>]*>)?xmxmxmacro(\d+)orcamxmxmx(?:<[^>]*>)?/
     
     #####
     ## Baseclass from which Rote filters can be derived if
@@ -26,7 +27,7 @@ module Rote
     ## are replaced with the corresponding (numbered) original
     ## macro body. 
     class TextFilter
-      attr_accessor :handler_blk, :macro_data
+      attr_accessor :handler_blk, :macros
       
       # Create a new TextFilter. The supplied block will be called
       # with the text to be rendered, with all macros replaced
@@ -35,14 +36,14 @@ module Rote
       #   { |text, page| "replacement" }
       def initialize(&handler)
         @handler_blk = handler
-        @macro_data = []
+        @macros = []
       end
     
       def filter(text, page)
         # we need to remove any macros to stop them being touched
         n = -1        
         tmp = text.gsub(MACRO_RE) do
-          macro_data << $&
+          macros << $&
           # we need make the marker a 'paragraph'
           "\nxmxmxmacro#{n += 1}orcamxmxmx\n"
         end
@@ -51,7 +52,7 @@ module Rote
       
         # Match the placeholder, including any (and greedily all) markup that's
         # been placed before or after it, and put the macro text back.
-        tmp.gsub(/(?:<.*>)?xmxmxmacro(\d+)orcamxmxmx(?:<.*>)?/) { @macro_data[$1.to_i] }      
+        tmp.gsub(PLACEHOLDER_RE) { macros[$1.to_i] }      
       end  
       
       protected
@@ -66,17 +67,31 @@ module Rote
     #####
     ## Baseclass from which Rote filters can be derived if
     ## you want some help with macro replacement.
+    ##
+    ## There are three ways to make a macro filter:
+    ##
+    ## * Subclass this class, and provide +macro_name+ 
+    ##   methods where +name+ is the macro name. These
+    ##   methods receive args (args, body, raw_macro)    
+    ##
+    ## * Create an instance of this class with a block
+    ##   taking up to four arguments
+    ##   (name,args,body,raw_macro)
+    ##
+    ## * Subclass this class and override the +handler+
+    ##   method to process all macros.
+    ##
     class MacroFilter
     
       # An array of macro names supported by this filter.
       # This can be used to selectively disable individual
       # macro support.
-      attr_accessor :macros
+      attr_accessor :names
       
       # Block that will be called for each supported macro
       # in the filtered text. Like:
       #
-      #   { |macro, args, body| "replacement" }
+      #   { |macro, args, body, raw_macro| "replacement" }
       #
       # The presence of a block precludes the use of any
       # +macro_xxxx+ methods on the subclass.      
@@ -88,45 +103,25 @@ module Rote
       # as methods (e.g. +macro_code+). If an array of names isn't
       # passed, a search such methods will be used to populate
       # the names array.
-      def initialize(macros = nil, code_re = MACRO_RE, &handler_blk)
-        @handler_blk = handler_blk
-        @macros = macros || reflect_macro_names
+      def initialize(names = [], code_re = MACRO_RE, &block)
+        @names = (names || []).map { |n| n.to_s }
+        @block = block
         @code_re = code_re
-      end      
-           
+      end
+     
       def filter(text,page)
-        # Just go through, subbing with block if this is
-        # our macro, or with the original match if not.
-        text.gsub(@code_re) do
-          if macros.detect { |it| it.to_s == $1 }
-            # Handler might refuse the macro (bad args, etc)
-            handler($1,$2,$3) || $&
-          else
-            $&
-          end        
-        end
+        text.gsub(@code_re) { handler($1,$2,$3,$&) || $& }
       end
       
-      protected
-      
-      # Calls the handler block, or attempts to call a method named
-      # 'macro_XXXX' where 'XXXX' is the name of the macro.
-      # Macro methods take two arguments -args and body. 
-      # Name is implied by method that is invoked.
-      def handler(macro,args,body)
-        if handler_blk
-          handler_blk[macro,args,body] 
-        elsif respond_to?(meth = "macro_#{macro}")
-          send(meth, args, body)            # name implied by method
-        end          
-      end
-      
-      private
-      
-      # inits the macro array from defined 'macro_' methods if no array is passed.
-      def reflect_macro_names
-        [methods, private_methods, singleton_methods, protected_methods].inject([]) do |arr,m|
-          arr += m.grep(/macro_([a-z0-9]+)/) { $1 } 
+      # You may override this method if you want to completely
+      # override the standard macro dispatch.      
+      def handler(macro,args,body,all)
+        if @names.include?(macro) then
+          @block[macro,args,body,all]
+        elsif respond_to?(meth = "macro_#{macro}") then
+          self.send(meth,args,body,all)
+        else
+          nil
         end
       end
     end

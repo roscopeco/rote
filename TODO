@@ -16,3 +16,6 @@ Send any suggestions or patches (preferably as/with tests) to:
   pages) and user guide (one page) generated from same source.
 ** Maybe in concert with plugins?
 * (maybe?) Rant integration
+* Macro that evaluates it's body
+* Macro/method to run external commands and capture the output.
+* Deprecate 'rote' command supporting Rake tasks.

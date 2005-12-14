@@ -26,10 +26,10 @@ module Rote
     ##  
     class Syntax < MacroFilter
       def initialize(macro_re = MACRO_RE)
-        super([:code],macro_re)
+        super([],macro_re)
       end      
       
-      def macro_code(lang,body)
+      def macro_code(lang,body,raw)
         converter = ::Syntax::Convertors::HTML.for_syntax(lang)
         "<pre class='#{lang}'><code>#{converter.convert(body,false)}</code></pre>"
       end      
