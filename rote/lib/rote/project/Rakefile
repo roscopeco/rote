@@ -11,6 +11,10 @@ end
 require 'rake'
 require 'rake/clean'
 require 'rote'
+require 'rote/filters/redcloth'
+require 'rote/filters/rdoc'
+require 'rote/format/html'
+
 include Rote
 
 # Create a set of tasks with the prefix 'doc' to  build the
