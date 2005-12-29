@@ -5,17 +5,27 @@ Send any suggestions or patches (preferably as/with tests) to:
 
   rosco <at> roscopeco <dot> co <dot> uk
 
+== For 0.3.x
+* Macro that evaluates it's body
+* Macro/method to run external commands and capture the output.
+* Nested layouts
+* Rake dependency caching for incremental builds, cache
+  layout and transient deps (contrib).
+* Plugins, maybe allow pseudo-sections to be created 
+  in COMMON.rb, that get their pages from some supplied code.	
+  Anything else then stays out of Rote, which is what's needed.	
+
+== For 0.3.x or 0.4
+* Ability to have multiple views of a section, e.g. user guide (separate
+  pages) and user guide (one page) generated from same source.
+* Ability to have standard sets of files (chosen by glob) treated
+  as sections and handled in some common way, e.g. apply a
+  template and highlighting to a set of Ruby files to make
+  a 'source xref' section with appropriate navigation and
+  stuff.
+
 == For 1.0
 * CSS / XML / etc, maybe with the existing builders (integrated with 
   Format::CSS, Format::XML, so on)  
-* Nested layouts
-* Could work as 'plugins', maybe allow pseudo-sections to be created 
-   in COMMON.rb, that get their pages from some supplied code.	
-   Anything else then stays out of Rote, which is what's needed.	
-* Ability to have multiple views of a section, e.g. user guide (separate
-  pages) and user guide (one page) generated from same source.
-** Maybe in concert with plugins?
-* (maybe?) Rant integration
-* Macro that evaluates it's body
-* Macro/method to run external commands and capture the output.
-* Deprecate 'rote' command supporting Rake tasks.
+* As much compatibility between Page and ActionController as poss,
+  allowing ActionView helpers to be optionally mixed in.
