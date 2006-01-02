@@ -1,8 +1,4 @@
-begin
-  require 'rubygems'
-rescue LoadError
-  nil
-end
+$LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__),'../lib'))
 
 require 'test/unit'
 require 'rote/page'

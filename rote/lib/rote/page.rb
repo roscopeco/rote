@@ -7,9 +7,7 @@
 #++
 
 require 'erb'
-
-# Don't want user to have to require these in their pagecode.
-require 'rote/format/html'
+require 'rote/cache'
 
 module Rote
   STRIP_SLASHES = /^\/?(.*?)\/?$/
@@ -226,7 +224,9 @@ module Rote
     
     def load_layout
       if fn = layout_filename
-        raise "Layout #{fn} not found" unless File.exists?(fn)      
+        raise "Layout #{fn} not found" unless File.exists?(fn)
+        
+        Rake.register_dependency(fn)  
         @layout_text = File.read(fn)
         
         # layout code     

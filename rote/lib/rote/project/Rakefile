@@ -12,8 +12,7 @@ end
 require 'rake'
 require 'rake/clean'
 require 'rote'
-require 'rote/filters/redcloth'
-require 'rote/filters/rdoc'
+require 'rote/filters'
 require 'rote/format/html'
 
 include Rote
@@ -47,12 +46,12 @@ ws = Rote::DocTask.new(:doc) do |site|
   
   site.ext_mapping(/thtml|textile/, 'html') do |page|
     page.extend Format::HTML
-    page.page_filter Filters::RedCloth.new(:textile)
+    page.page_filter Filters::RedCloth.new
   end    
   
   site.ext_mapping(/mhtml|markdown/, 'html') do |page|
     page.extend Format::HTML
-    page.page_filter Filters::RedCloth.new(:markdown)
+    page.page_filter Filters::BlueCloth.new
   end      
   
   site.ext_mapping(/rdhtml|rdoc/, 'html') do |page|

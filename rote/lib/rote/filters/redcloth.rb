@@ -12,20 +12,22 @@ require 'rote/filters/base'
 module Rote
   module Filters
     #####
-    ## Page filter that converts plain-text formatting to HTML using 
-    ## RedCloth. This allows both Textile and Markdown formatting
-    ## to be used with any page.
+    ## Page filter that converts Textile formatting to HTML using 
+    ## RedCloth. 
+    ##
+    ## *Note* that, although RedCloth provides partial Markdown
+    ## support, it is *highly recommended* that the BlueCloth
+    ## filter be applied to markdown pages instead of this one.
     class RedCloth < TextFilter
     
       # Create a new filter instance. The supplied options are passed
-      # directly to RedCloth. The most common are :textile and
-      # :markdown - See RedCloth docs for a full list.
+      # directly to RedCloth. See RedCloth docs for a full list.
       #
-      # If no options are supplied, :textile is assumed.
+      # If no options are supplied, full textile support is 
+      # provided.
       def initialize(*redcloth_opts)
         super()  
         @redcloth_opts = redcloth_opts
-        raise "RedCloth is not available" unless defined?(RedCloth)        
       end      
       
       def handler(text,page)

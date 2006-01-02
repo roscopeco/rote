@@ -4,9 +4,12 @@ rescue LoadError
   nil
 end
 
+$LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__),'../lib'))
+
 require 'test/unit'
 require 'rote/page'
 require 'rote/filters/redcloth'
+require 'rote/filters/bluecloth'
 require 'rote/filters/rdoc'
 require 'rote/filters/toc'
 require 'rote/filters/syntax'
@@ -68,13 +71,28 @@ module Rote
     end
 
     def test_render_textile
+      t = Filters::RedCloth.new.filter('*Textile* _Test_', nil)
+      assert_equal '<p><strong>Textile</strong> <em>Test</em></p>', t
+
       t = Filters::RedCloth.new(:textile).filter('*Textile* _Test_', nil)
       assert_equal '<p><strong>Textile</strong> <em>Test</em></p>', t
     end
 
     def test_render_markdown
-      t = Filters::RedCloth.new(:markdown).filter("*this* is a _test_\n==================", nil)
-      assert_equal '<h1>*this* is a _test_</h1>', t
+      t = Filters::BlueCloth.new.filter("__this__ is a _test_\n==================", nil)
+      assert_equal '<h1><strong>this</strong> is a <em>test</em></h1>', t
+    end
+
+    def test_render_markdown_custom
+      f = Filters::BlueCloth.new do |bluecloth, page| 
+        assert_not_nil bluecloth
+        assert_nil page           # we pass in nil below
+
+        bluecloth.to_html
+      end
+      
+      t = f.filter("__this__ is a _test_\n==================", nil)
+      assert_equal '<h1><strong>this</strong> is a <em>test</em></h1>', t
     end
 
     ############## filters/rdoc #################
