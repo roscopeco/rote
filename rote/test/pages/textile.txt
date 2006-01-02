@@ -1,1 +1,0 @@
-*This* is a _simple_ test of "Textile":http://www.textism.org/tools/textile formatting.
