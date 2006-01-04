@@ -13,6 +13,7 @@ require 'rote/filters/bluecloth'
 require 'rote/filters/rdoc'
 require 'rote/filters/toc'
 require 'rote/filters/syntax'
+require 'rote/filters/eval'
 
 SYNTEST = <<-EOM  
   <p>Non-code</p>
@@ -30,6 +31,22 @@ SYNTEST = <<-EOM
 
 EOM
 
+EVALTEST = <<-EOM  
+  <p>Non-eval</p>
+  #:eval#ruby#
+  def amethod(arg)
+    puts arg
+  end
+  
+  amethod('Hello, World')  
+  #:eval#
+  <p>More non-code</p>
+  #:eval#ruby#
+  puts "Hello again!"  
+  #:eval#
+
+EOM
+
 SYNEXPECT = <<-EOM
   <p>Non-code</p>
 <pre class='ruby'><code>  <span class=\"keyword\">def </span><span class=\"method\">amethod</span><span class=\"punct\">(</span><span class=\"ident\">arg</span><span class=\"punct\">)</span>
@@ -40,6 +57,9 @@ SYNEXPECT = <<-EOM
     <span class=\"ident\">puts</span> <span class=\"ident\">arg</span>
   <span class=\"keyword\">end</span></code></pre>
 EOM
+
+EVALEXPECT = "  <p>Non-eval</p>\nHello, World\n\n  <p>More non-code</p>\nHello again!\n"
+ 
 
 TOCTEST = <<-EOM
   <h2>Section One</h2>
@@ -129,8 +149,15 @@ module Rote
       # good
       assert_equal SYNEXPECT.chomp, Filters::Syntax.new.filter(SYNTEST,nil)    
     end
-    # TODO test macro stuff etc.
     
+    def test_eval_filter
+      # bad
+      assert_equal '', Filters::Eval.new.filter('',nil)    
+      assert_equal 'Has no source', Filters::Syntax.new.filter('Has no source',nil)    
+      
+      # good
+      assert_equal EVALEXPECT, Filters::Eval.new.filter(EVALTEST,nil)    
+    end
   end
   
   

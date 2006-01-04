@@ -6,8 +6,6 @@ Send any suggestions or patches (preferably as/with tests) to:
   rosco <at> roscopeco <dot> co <dot> uk
 
 == For 0.3.x
-* Macro that evaluates it's body
-* Macro/method to run external commands and capture the output.
 * Plugins, maybe allow pseudo-sections to be created 
   in COMMON.rb, that get their pages from some supplied code.	
   Anything else then stays out of Rote, which is what's needed.	

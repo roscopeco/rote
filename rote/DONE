@@ -23,3 +23,6 @@ being implemented.
 * Nested layouts
 * Rake dependency caching for incremental builds, cache
   layout and transient deps (contrib).
+* Macro/method to run external commands and capture the output.
+** (Covers Ruby eval via ruby command)
+  
