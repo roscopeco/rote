@@ -67,11 +67,18 @@ module Rote
 
     # The text of the layout to use for this page. This is read in
     # when (if) the page source calls layout(basename).
-    attr_reader :layout_text
+    #
+    # *Deprecated* This has no knowledge of nested layout,
+    # and operates only on the innermost layout.
+    attr_reader :layout_text    # Deprecated vv0.3.2 v-0.4    
     
     # The names from which this page's template and layout (if any) 
-    # were read, relative to the +base_path+.
-    attr_reader :template_name, :layout_name    
+    # are read, relative to the +base_path+.
+    attr_reader :template_name, :layout_names
+    
+    # Convenience accessor for the first queued layout. This is the
+    # innermost layout, usually specified by the page itself.
+    def layout_name; layout_names.first; end   
     
     # The base paths for this page's template and layout. These point
     # to the directories configured in the Rake tasks.
@@ -98,12 +105,12 @@ module Rote
     def initialize(template_name, pages_dir = '.', layout_dir = pages_dir, &blk) 
       @template_text = nil
       @template_name = nil
-      @layout_text = nil
-      @layout_name = nil
+      @layout_names = []
       @content_for_layout = nil
       @result = nil
       @layout_defext = File.extname(template_name)
       @layout_path = layout_dir[STRIP_SLASHES,1]
+      @layout_text = nil
       @base_path = pages_dir[STRIP_SLASHES,1]
       
       @page_filters, @post_filters = [], []
@@ -128,13 +135,13 @@ module Rote
     # Returns the full filename of this Page's template. This is obtained by
     # joining the base path with template name.
     def template_filename
-      template_name ? File.join(base_path,template_name) : nil
+      File.join(base_path,template_name) if template_name
     end
     
-    # Returns the full filename of this Page's template. This is obtained by
-    # joining the base path with template name.
+    # Returns the full filename of the first queued layout. This is
+    # the innermost layout, usually specified by the page itself.
     def layout_filename
-      layout_name ? File.join(layout_path,layout_name) : nil
+      layout_fn(layout_name)
     end
     
     # Returns the full filename of this Page's ruby source. If no source is
@@ -179,9 +186,9 @@ module Rote
     
     alias to_s render
     
-    # Sets the layout from the specified file, or disables layout if
-    # +nil+ is passed in. The specified basename should be the name
-    # of the layout file relative to the +layout_dir+, with no extension.
+    # Adds the specified layout to those that will be rendered. The specified
+    # basename should be the name of the layout file relative to the 
+    # +layout_dir+, with no extension.
     #
     # *The* *layout* *is* *not* *read* *by* *this* *method*. It, and 
     # it's source, are loaded only at rendering time. This prevents
@@ -192,10 +199,7 @@ module Rote
     # that the instance is frozen.
     def layout(basename)
       if basename
-        # layout text
-        @layout_name = "#{basename}#{@layout_defext if File.extname(basename).empty?}"
-      else
-        @layout_name = nil
+        self.layout_names << "#{basename}#{@layout_defext if File.extname(basename).empty?}"
       end
     end    
     
@@ -222,19 +226,28 @@ module Rote
       end
     end  
     
-    def load_layout
-      if fn = layout_filename
+    def layout_fn(fn)
+      File.join(layout_path,fn) if fn
+    end
+    
+    # Loads the layout. This method evaluates the layout code 
+    # and returns it's text. The layout (and code if found)
+    # are also registered as cached deps.
+    def load_layout(fn)
+      if fn = layout_fn(fn)
         raise "Layout #{fn} not found" unless File.exists?(fn)
-        
-        Rake.register_dependency(fn)  
-        @layout_text = File.read(fn)
         
         # layout code     
         cfn = Page::page_ruby_filename(fn)
-        instance_eval(File.read(cfn), cfn) if File.exists?(cfn)        
+        if File.exists?(cfn)
+          instance_eval(File.read(cfn), cfn) 
+          Rake.register_dependency(cfn)  
+        end
+
+        Rake.register_dependency(fn)
+        File.read(fn)                    
       end
-    end
-    
+    end    
     
     def render_page_filters(text)
       page_filters.inject(text) { |s, f| f.filter(s, self) }      
@@ -254,19 +267,33 @@ module Rote
         @content_for_layout = render_page_filters( erb.result(binding) )
       end
       
-      # Load layout _after_ page eval, allowing page to override layout.
-      load_layout
+      # Do layout _after_ page eval. As we go through this, the layouts
+      # we load may add to the end of the layout names array, so nested
+      # layout is supported by just chasing the end of the array until
+      # it's empty. The process is basically
+      #
+      #    Page is loaded, calls 'layout' with it's layout.
+      #    During render, that fn is taken, and loaded. Layout code
+      #      again calls 'layout'.
+      #    On next loop iteration, that new filename is loaded, and it's
+      #    code is executed ... and so on.
+      #
+      #    Each loop puts the result into @content_for_layout, so that
+      #    nested layouts can work just the same as regular.
+      @layout_names.each do |fn|
+        txt = load_layout(fn)
+        
+        @layout_text ||= txt    # legacy support    vv0.3.2 v-0.4
+        
+        # render into the layout if supplied.
+        if txt
+          erb = ERB.new(txt)
+          erb.filename = fn
+          @content_for_layout = erb.result(binding)   
+        end
+      end
       
-      # render into the layout if supplied.
-      @result = if !@layout_text.nil?
-        erb = ERB.new(@layout_text)
-        erb.filename = layout_filename
-        erb.result(binding)   
-      else 
-        @content_for_layout
-      end 
-      
-      @result = render_post_filters(@result)      
+      @result = render_post_filters(@content_for_layout)      
       freeze
       
       @result 

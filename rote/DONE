@@ -20,3 +20,6 @@ being implemented.
 ** RDoc
 ** TOC
 ** Tidy
+* Nested layouts
+* Rake dependency caching for incremental builds, cache
+  layout and transient deps (contrib).

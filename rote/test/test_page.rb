@@ -78,6 +78,22 @@ module Rote
       assert_equal 'simple.txt', p.layout_name            
     end
     
+    def test_layout_names
+      p = new_test_page('justtext')
+      assert p.layout_names.empty?
+                    
+      p = new_test_page('withcode')
+      assert_equal ['simple.txt'], p.layout_names            
+
+      p = new_test_page('nestedlayout')
+      assert_equal ['nestme.txt'], p.layout_names
+      
+      # Rendering loads the layout code, which adds the
+      # rest of the layouts
+      p.render      
+      assert_equal ['nestme.txt', 'simple.txt'], p.layout_names
+    end      
+    
     def test_template_filename
       p = new_test_page('justtext')
       assert_equal 'test/pages/justtext.txt', p.template_filename
@@ -138,6 +154,11 @@ module Rote
       assert_equal 'layout some text and some other text for a change.', t
     end    
     
+    def test_render_layout_code  
+      t = new_test_page('nestedlayout').render.chomp
+      assert_equal "layout this: 'some text and some other text' for a change.", t
+    end    
+    
     ############## broken render #################
     def test_render_switch_layout_freeze
       p = new_test_page('withcode')
@@ -146,9 +167,10 @@ module Rote
       assert_nil p.layout_text
 
       p.layout(nil)
-      assert_nil p.layout_text      
-            
-      assert_equal 'some text and some other text', p.render.chomp
+      assert_nil p.layout_text     
+      
+      assert_equal 'layout some text and some other text for a change.', p.render.chomp      
+      assert p.instance_eval { @layout_code_works }      
       
       begin
         p.layout('simple')        
