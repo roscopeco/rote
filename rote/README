@@ -12,12 +12,19 @@ layout, and general documentation / website build tasks.
 
 == Prerequisites
 
-Rote uses the following (versions are as per my development environment,
+Rote requires the following (versions are as per my development environment,
 you may find you can use older versions, you may not).
 	
-* Ruby 1.8.x 
+* Ruby 1.8.x (http://ruby-lang.org/)
 * Rake 0.6.2 ('gem install rake')
-* RedCloth 3.0.4 ('gem install RedCloth') (_Only required if :textile or :markdown formatting is used_)
+
+The following optional dependencies will be used if present:
+
+* RubyGems 0.8.11 (http://rubygems.rubyforge.org/) 
+* RedCloth 3.0.4 ('gem install RedCloth') (_Only required if Textile formatting is used_)
+* BlueCloth 1.0.0 ('gem install BlueCloth') (_Only required if Markdown or formatting is used_)
+* Syntax 1.0.0 ('gem install syntax') (_Only required if syntax highlighting formatting is used_)
+* HTMLTidy (http://tidy.sourceforge.net/) (_Only required if Tidy filter is used_)
 
 RubyGems [http://rubyforge.org/frs/?group_id=126] is *highly recommended*,
 and makes for not only an easier install but a cleaner library path.
