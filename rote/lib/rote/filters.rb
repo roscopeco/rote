@@ -6,15 +6,22 @@
 # $Id$
 #++
 
+# Everyone requires this, we need to get it loaded first.
+require 'rote/filters/base'
+
 # This now requires conservatively, ignoring any filters that
-# throw a LoadError. This allows a simple 'require filters' to
+# throw a LoadError. This allows a simple 'require rote/filters' to
 # be used to load all filters _for which dependencies are
 # available_.
 
 # will require 'base' but it'd get required anyway...
+puts File.dirname(__FILE__)
+puts File.join(File.dirname(__FILE__), 'filters/*.rb')
+
 Dir[File.join(File.dirname(__FILE__), 'filters/*.rb')].each do |fn|
   begin
-    require fn
+    puts fn
+    require fn unless fn =~ /[\\\/]base.rb$/
   rescue LoadError
 
     # ignore, different filters require different library
@@ -22,3 +29,4 @@ Dir[File.join(File.dirname(__FILE__), 'filters/*.rb')].each do |fn|
 
   end
 end
+
