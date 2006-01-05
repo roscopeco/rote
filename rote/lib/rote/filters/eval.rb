@@ -1,36 +1,23 @@
 #--
-# Rote filter with syntax highlighting
-# (c)2005 Ross Bamford (and contributors)
+# Rote filter that runs macro body as code.
+# (c)2005, 2006 Ross Bamford (and contributors)
 #
 # See 'rote.rb' or LICENSE for licence information.
 # $Id: syntax.rb 135 2005-12-12 15:01:07 +0000 (Mon, 12 Dec 2005) roscopeco $
 #++
-  
-require 'syntax'
-require 'syntax/convertors/html'
+
+require 'stringio'
 require 'rote/filters/base'
 
 module Rote
   module Filters
     
     #####
-    ## Page filter that runs it's body through the specified
-    ## command, and captures the output. This was originally
-    ## intended to support delayed excution of Ruby code
-    ## as follows:
-    ##
-    ##   #:eval#ruby#
-    ##     puts "Hello, World!"
-    ##   #:eval#
+    ## Page filter that evaluates Ruby code in it's body in the
+    ## current interpreter. The code is directly evaluated, and
+    ## anything it writes to standard out becomes the macro
+    ## replacement.
     ## 
-    ## But it can also be used with any external command:
-    ##
-    ##   #:eval#python#
-    ##     print "Hello, World!"
-    ##   #:eval#
-    ## 
-    ## ===== Why use 'eval' with Ruby code?
-    ##
     ## Obviously you can place Ruby code directly in your pages,
     ## using ERB, and for many cases that is the route you should
     ## take. There is a (somewhat) subtle difference between the
@@ -46,9 +33,24 @@ module Rote
       end      
       
       def macro_eval(cmd,body,raw)
-        res = IO.popen(cmd, 'w+') do |io|
-          Thread.new { io.write body; io.close_write }
-          io.read
+        # no need to fiddle with $SAFE here is there?
+        
+        # FIXME this is a hack.
+        
+        # Utility is still limited I guess, since current Page isn't
+        # readily available to the macro code. We can probably fix
+        # that though.
+        
+        # If thread safety becomes an issue, this'll probably need 
+        # to be critical sectioned.
+        
+        begin
+          oldsio, $stdout = $stdout, StringIO.new
+          eval body        
+          $stdout.rewind
+          $stdout.read
+        ensure
+          $stdout = oldsio
         end
       end      
     end      

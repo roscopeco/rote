@@ -4,6 +4,7 @@ rescue LoadError
   nil
 end
 
+# make sure we're testing this version, not an installed Gem!
 $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__),'../lib'))
 
 require 'test/unit'
@@ -13,6 +14,7 @@ require 'rote/filters/bluecloth'
 require 'rote/filters/rdoc'
 require 'rote/filters/toc'
 require 'rote/filters/syntax'
+require 'rote/filters/exec'
 require 'rote/filters/eval'
 
 SYNTEST = <<-EOM  
@@ -31,9 +33,25 @@ SYNTEST = <<-EOM
 
 EOM
 
+EXECTEST = <<-EOM  
+  <p>Non-eval</p>
+  #:exec#ruby#
+  def amethod(arg)
+    puts arg
+  end
+  
+  amethod('Hello, World')  
+  #:exec#
+  <p>More non-code</p>
+  #:exec#ruby#
+  puts "Hello again!"  
+  #:exec#
+
+EOM
+
 EVALTEST = <<-EOM  
   <p>Non-eval</p>
-  #:eval#ruby#
+  #:eval#one#
   def amethod(arg)
     puts arg
   end
@@ -41,7 +59,7 @@ EVALTEST = <<-EOM
   amethod('Hello, World')  
   #:eval#
   <p>More non-code</p>
-  #:eval#ruby#
+  #:eval#one#
   puts "Hello again!"  
   #:eval#
 
@@ -57,6 +75,8 @@ SYNEXPECT = <<-EOM
     <span class=\"ident\">puts</span> <span class=\"ident\">arg</span>
   <span class=\"keyword\">end</span></code></pre>
 EOM
+
+EXECEXPECT = "  <p>Non-eval</p>\nHello, World\n\n  <p>More non-code</p>\nHello again!\n"
 
 EVALEXPECT = "  <p>Non-eval</p>\nHello, World\n\n  <p>More non-code</p>\nHello again!\n"
  
@@ -83,7 +103,8 @@ TOCEXPECTALL = <<-EOM
 EOM
 
 module Rote  
-  class TestFormatting < Test::Unit::TestCase
+  class TestFilters < Test::Unit::TestCase
+    
     ############## filters/redcloth #################    
     def test_render_default     # textile
       t = Filters::RedCloth.new.filter('*Textile* _Test_', nil)
@@ -150,13 +171,25 @@ module Rote
       assert_equal SYNEXPECT.chomp, Filters::Syntax.new.filter(SYNTEST,nil)    
     end
     
+    def test_exec_filter
+      # bad
+      assert_equal '', Filters::Exec.new.filter('',nil)    
+      assert_equal 'Has no source', Filters::Exec.new.filter('Has no source',nil)    
+      
+      # good
+      assert_equal EXECEXPECT, Filters::Exec.new.filter(EXECTEST,nil)    
+    end
+    
     def test_eval_filter
       # bad
       assert_equal '', Filters::Eval.new.filter('',nil)    
-      assert_equal 'Has no source', Filters::Syntax.new.filter('Has no source',nil)    
+      assert_equal 'Has no source', Filters::Eval.new.filter('Has no source',nil)    
       
       # good
-      assert_equal EVALEXPECT, Filters::Eval.new.filter(EVALTEST,nil)    
+      assert_equal EVALEXPECT, Filters::Eval.new.filter(EVALTEST,nil)  
+      
+      # Make sure Stdout was returned to normal
+      assert $stdout.class != StringIO
     end
   end
   
