@@ -184,7 +184,7 @@ module Rote
       @result or do_render!   # sets up result for next time...
     end
     
-    alias to_s render
+    alias :to_s :render
     
     # Adds the specified layout to those that will be rendered. The specified
     # basename should be the name of the layout file relative to the 

@@ -15,7 +15,6 @@ require 'rote/filters/base'
 # available_.
 Dir[File.join(File.dirname(__FILE__), 'filters/*.rb')].each do |fn|
   begin
-    puts fn
     require fn unless fn =~ /[\\\/]base.rb$/
   rescue LoadError
 

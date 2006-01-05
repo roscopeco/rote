@@ -18,6 +18,8 @@ Send any suggestions or patches (preferably as/with tests) to:
   template and highlighting to a set of Ruby files to make
   a 'source xref' section with appropriate navigation and
   stuff.
+* If layout isn't found with source ext, try with target ext too
+  before failing.
 
 == For 1.0
 * CSS / XML / etc, maybe with the existing builders (integrated with 
