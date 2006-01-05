@@ -1,8 +1,0 @@
-<% 
-		extend Format::HTML
-		format_opts << :markdown 
-%>
-
-*this* is a _test_
-==================
-
