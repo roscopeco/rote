@@ -1,6 +1,0 @@
-<% 
-		extend Format::HTML
-		format_opts << :rdoc 
-%>
-== RDoc
-=== Markup

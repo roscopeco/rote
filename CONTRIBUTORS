@@ -11,5 +11,6 @@ suck like a hoover.
 * Rake magic
 * better resource management
 * Page filters
+* The whole dependency caching / file-based block memoize thing!
 * _Many_ other suggestions for improvements
 

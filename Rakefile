@@ -204,8 +204,6 @@ else
     s.executables = ["rote"]
     s.default_executable = "rote"
     
-    s.autorequire = 'rote'
-
     #### Documentation and testing.
 
     s.has_rdoc = true
