@@ -13,11 +13,6 @@ require 'rote/filters/base'
 # throw a LoadError. This allows a simple 'require rote/filters' to
 # be used to load all filters _for which dependencies are
 # available_.
-
-# will require 'base' but it'd get required anyway...
-puts File.dirname(__FILE__)
-puts File.join(File.dirname(__FILE__), 'filters/*.rb')
-
 Dir[File.join(File.dirname(__FILE__), 'filters/*.rb')].each do |fn|
   begin
     puts fn

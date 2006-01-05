@@ -1,6 +1,6 @@
 #--
 # Rote filter for RedCloth
-# (c)2005 Ross Bamford (and contributors)
+# (c)2005, 2006 Ross Bamford (and contributors)
 #
 # See 'rote.rb' or LICENSE for licence information.
 # $Id$
