@@ -24,6 +24,9 @@ require 'rake'
 
 module Rake
   class << self
+    def cache_enabled?; @cache_enabled ? true : false; end
+    attr_writer :cache_enabled
+  
     # Directory for storing Rake dependency cache
     def cache_dir=(val); @cache_dir = val; end
     def cache_dir; @cache_dir ||= ".rake_cache"; end
@@ -53,16 +56,15 @@ module Rake
     # loaded, and handling the task stack. The argument controls
     # whether or not cached dependencies are loaded and should not
     # be set false except in testing.
-    def invoke(do_cache = true)
+    def invoke
       # Invoke patched to record task stack and
-      # load cached dependencies on first go.
-      Rake.load_cached_dependencies if do_cache && !$CACHEDEPS_LOADED
+      # load cached deps
+      Rake.load_cached_dependencies if Rake.cache_enabled?
       
       begin
         Rake.task_stack << self
         
-        # TODO what's going on here?
-        # Rake.cached_dependencies[name] = [] if Rake.cached_dependencies[name] 
+        Rake.cached_dependencies[name] = [] if Rake.cached_dependencies[name] 
         
         pre_autodep_invoke
       ensure
@@ -110,6 +112,7 @@ module Rake
   # An at_exit handler is installed to save the dependencies
   # when rake exits.
   def self.load_cached_dependencies
+    return if $CACHEDEPS_LOADED
     at_exit { self.save_cached_dependencies }
 
     return unless File.exists?(dependencies_file)
@@ -132,6 +135,9 @@ module Rake
     File.open(dependencies_file,"w") { |fp| fp.write YAML.dump(deps) }
   end
 end
+
+# Default true unless NO_RAKE_CACHE env is defined  
+Rake.cache_enabled = ENV['NO_RAKE_CACHE'] ? false : true
   
 task :clean => :clean_cached_dependencies
 task :clean_cached_dependencies do

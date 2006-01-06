@@ -31,7 +31,7 @@ module Rote
       
       def macro_code(lang,body,raw)
         converter = ::Syntax::Convertors::HTML.for_syntax(lang)
-        "<pre class='#{lang}'><code>#{converter.convert(body,false)}</code></pre>"
+        "<pre class='#{lang}'><code class='#{lang}'>#{converter.convert(body,false)}</code></pre>"
       end      
     end      
   end 

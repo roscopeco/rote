@@ -201,9 +201,9 @@ You can find details of the methods available in the
 
 <%= section 4, 'Layout' %>
 
-_Layouts_ do exactly what you'd expect - they allow common template to be
-applied across several pages. This is handled via multiple render passes,
-
+_Layouts_ allow common template to be applied across several pages. This is 
+handled via multiple render passes, with each layout responsible for 
+including the previously rendered content (via ERB).
 
 Layouts are stored under the @doc/layouts@ directory (by default). They may
 be organised into subdirectories, but this hierarchy is not connected to
@@ -396,14 +396,8 @@ Code to be highlighted is inserted into pages like so:
     def amethod
       "some code"		
     end	
-  # :code#
+  #:code#
 #:code#
-
-<div class='note'>
-*Note* that in the above example, the end tag has an extra whitespace to work around
-a limitation of the Syntax plugin (and macros in general) - a macro cannot contain
-it's own end tag!
-</div>
 
 Since macros are rendered separately from the page text, you don't have to worry much
 about spacing and so forth - your code will not be touched by any of the formatting
@@ -436,9 +430,9 @@ many support different arguments (the second part of the #macro#args# tags) to
 those shown above - see the RDoc for the individual macros (linked from the headings
 above) for more details.	  
 
-Filters are of course very simple to write. See the 'Writing filters' subsection
-(in <%= section_link 'Extending Rote' %>) for details, including how to implement
-your own macro filters.
+Filters are intended to be very simple to write. See 
+<%= section_link 'Writing filters' %> for details, including how to 
+implement your own macro filters .
 
 <%= section 4, 'Format helpers' %>
 
@@ -778,7 +772,7 @@ from any Ruby code, by calling methods on the @Rake@ module.
 *Note* that this extension is intended, and tested, for Rote - it is not designed
 to be a general extension (though one could easily be extracted from it). In 
 particular it takes advantage of other extended functionality provided by Rote,
-and takes no account, for example, or parallel task execution. 
+and takes no account, for example, of parallel task execution. 
 
 By default, the cache is maintained in the project root, in a directory named
 @.rake_cache@. This is managed by Rote, so for the most part can be ignored, 
