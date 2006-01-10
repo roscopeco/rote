@@ -70,21 +70,24 @@ module Rote
       assert_equal 'justtext.txt', p.template_name
     end
     
-    def test_layout_name
+    def test_base_layout_name
       p = new_test_page('justtext')
-      assert_nil p.layout_name
+      assert_nil p.base_layout_name
                     
       p = new_test_page('withcode')
-      assert_equal 'simple.txt', p.layout_name            
+      assert_equal 'simple.txt', p.base_layout_name            
     end
     
     def test_layout_names
-      p = new_test_page('justtext')
-      assert p.layout_names.empty?
-                    
+      # no layout
+      p = new_test_page('justtext')      
+      assert p.layout_names.empty?      
+                 
+      # with page code   
       p = new_test_page('withcode')
       assert_equal ['simple.txt'], p.layout_names            
 
+      # nested
       p = new_test_page('nestedlayout')
       assert_equal ['nestme.txt'], p.layout_names
       
@@ -99,12 +102,20 @@ module Rote
       assert_equal 'test/pages/justtext.txt', p.template_filename
     end
     
-    def test_layout_filename
+    def test_base_layout_filename
       p = new_test_page('justtext')
-      assert_nil p.layout_filename
+      assert_nil p.base_layout_filename
                     
       p = new_test_page('withcode')
-      assert_equal 'test/layouts/simple.txt', p.layout_filename
+      assert_equal 'test/layouts/simple.txt', p.base_layout_filename
+
+      # nested layout is ignored
+      p = new_test_page('nestedlayout')
+      assert_equal 'test/layouts/nestme.txt', p.base_layout_filename
+      
+      # even after rendering
+      p.render
+      assert_equal 'test/layouts/nestme.txt', p.base_layout_filename
     end
     
     def test_ruby_filename
@@ -157,6 +168,14 @@ module Rote
     def test_render_layout_code  
       t = new_test_page('nestedlayout').render.chomp
       assert_equal "layout this: 'some text and some other text' for a change.", t
+    end    
+    
+    # Make sure that layout nesting applies only in layout code,
+    # not common or page code. See comments in nested/COMMON.rb(s) and
+    # nested/inner/nested-override.txt
+    def test_layout_overrides_in_common_rb  
+      t = new_test_page('nested/inner/nested-override').render.chomp
+      assert_equal "layout this: 'layout \n\n for a change.\n' for a change.", t
     end    
     
     ############## broken render #################

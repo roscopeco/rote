@@ -1,0 +1,2 @@
+<%# override the COMMON.rb layout with a nested layout #%>
+<% layout 'nestme' %>

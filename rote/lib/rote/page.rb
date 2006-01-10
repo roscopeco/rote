@@ -78,7 +78,10 @@ module Rote
     
     # Convenience accessor for the first queued layout. This is the
     # innermost layout, usually specified by the page itself.
-    def layout_name; layout_names.first; end   
+    # This method shouldn't be used from COMMON.rb since it's 
+    # behaviour is undefined until all page code is evaluated.
+    def base_layout_name; layout_names.first; end       
+    alias :layout_name :base_layout_name    # Compat alias, please migrate  vv0.3.3 v-0.4
     
     # The base paths for this page's template and layout. These point
     # to the directories configured in the Rake tasks.
@@ -129,7 +132,17 @@ module Rote
       
       # get script filenames, and eval them if found
       tfn = ruby_filename # nil if no file      
-      instance_eval(File.read(tfn),tfn) if tfn      
+      instance_eval(File.read(tfn),tfn) if tfn   
+      
+      # FIXME: Quick fix for incorrect COMMON.rb layout nesting.
+      # All we do here is reset the layout to be the last layout
+      # added. 
+      #
+      # If it turns out that the ability to nest from COMMON
+      # really is useless, we should remove the layout queue entirely,
+      # and then just have the render layout loop run until
+      # layout at end == layout at start.
+      @layout_names = [@layout_names.last] unless layout_names.empty?
     end
             
     # Returns the full filename of this Page's template. This is obtained by
@@ -140,9 +153,10 @@ module Rote
     
     # Returns the full filename of the first queued layout. This is
     # the innermost layout, usually specified by the page itself.
-    def layout_filename
+    def base_layout_filename
       layout_fn(layout_name)
     end
+    alias :layout_filename :base_layout_filename    # Compat alias, please migrate  vv0.3.3 v-0.4
     
     # Returns the full filename of this Page's ruby source. If no source is
     # found for this page (not including common source) this returns +nil+.
