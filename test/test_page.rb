@@ -154,6 +154,41 @@ module Rote
       assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
     end
     
+    ############## filters ################
+    def test_page_filter
+      p = new_test_page('justtext')      
+      assert p.page_filters.empty?
+      
+      # test with nil
+      p.page_filter(nil)
+      assert p.page_filters.empty?
+      
+      # test with filter
+      p.page_filter("filter")
+      assert_equal ["filter"], p.page_filters
+      
+      # test with block
+      p.page_filter { "filter" }
+      assert_instance_of Rote::Filters::TextFilter, p.page_filters[1]      
+    end
+
+    def test_post_filter
+      p = new_test_page('justtext')      
+      assert p.post_filters.empty?
+      
+      # test with nil
+      p.post_filter(nil)
+      assert p.post_filters.empty?
+      
+      # test with filter
+      p.post_filter("filter")
+      assert_equal ["filter"], p.post_filters
+      
+      # test with block
+      p.post_filter { "filter" }
+      assert_instance_of Rote::Filters::TextFilter, p.post_filters[1]      
+    end
+    
     ############## render #################
     def test_render_text    
       t = new_test_page('justtext').render.chomp
@@ -167,7 +202,8 @@ module Rote
     
     def test_render_layout_code  
       t = new_test_page('nestedlayout').render.chomp
-      assert_equal "layout this: 'some text and some other text' for a change.", t
+      assert_equal "layout with nested: 'some text and some other text' for a change.", t
+
     end    
     
     # Make sure that layout nesting applies only in layout code,
@@ -175,7 +211,7 @@ module Rote
     # nested/inner/nested-override.txt
     def test_layout_overrides_in_common_rb  
       t = new_test_page('nested/inner/nested-override').render.chomp
-      assert_equal "layout this: 'layout \n\n for a change.\n' for a change.", t
+      assert_equal "layout with nested: '\n\nSome text\n' for a change.", t
     end    
     
     ############## broken render #################

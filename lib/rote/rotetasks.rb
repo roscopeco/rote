@@ -317,18 +317,30 @@ module Rote
   end #class    
 end #module
 
-## The +monitor+ task requires a few mods to Rake to let us fire
-## and reset task invocations in a loop.
-module Rake # :nodoc: all
+#####
+## Rote adds the following methods to the Rake module.
+## All this cool stuff was contributed by Jonathan Paisley (<jp-www at dcs gla ac uk>)
+module Rake
+
+  #####
+  ## Rote adds the following methods to the Rake::Task class.
   class Task
+    # Reset the _executed_ and _invoked_ flags on this task. 
+    # Used by the +monitor+ task.
     def reset
       @already_invoked = false
       @executed = false
     end
+    
+    # Determine whether this task has been executed in this cycle.
+    # Used by the +monitor+ task.
     def executed?
       @executed
     end
+    
     alias :pre_rote_execute :execute
+    # Execute the task, setting the _executed_ flag.
+    # Used by the +monitor+ task.
     def execute
       @executed = true
       pre_rote_execute

@@ -8,30 +8,110 @@
 
 require 'erb'
 require 'rote/cache'
+require 'rote/filters'
 
 module Rote
   STRIP_SLASHES = /^\/?(.*?)\/?$/
   FILE_EXT = /\..*$/
   
   #####
-  ## A +Page+ object represents an individual template source file, taking
-  ## input from that file and (optionally) some ruby code, and producing 
-  ## rendered (or 'merged') output as a +String+. All user-supplied code
-  ## (COMMON.rb or page code, for example) is executed in the binding
-  ## of an instance of this class. 
+  ## A +Page+ object represents an individual page in the final 
+  ## documentation set, bringing together a source template, 
+  ## optional _page_ _code_ (in Ruby) obtained from 
+  ## various sources (see below), and an optional layout template
+  ## (with it's own code) to produce rendered output as a +String+. 
+  ## Specifically, Page provides the following capabilities:
   ##
-  ## When a page is created, ruby source will be sought alongside the 
-  ## file, with same basename and an '.rb' extension. If found it will
-  ## run through +instance_eval+. That source can call methods
-  ## and set any instance variables, for use later in the template.
-  ## Such variables or methods may also be defined in a COMMON.rb file
-  ## in or above the page's directory, in code associated with the 
-  ## +layout+ applied to a page, or (less often) in a block supplied to
-  ## +new+.
+  ## * Read _template_ _files_ containing ERB code and render them
+  ##   to create output.
+  ## * Locate and evaluate all _common_ _and_ _page_ _code_ in the binding
+  ##   of the Page instance itself.
+  ## * Apply _layout_ to rendered content using multiple render
+  ##   passes.
+  ## * Apply user-supplied _filters_ to the output to allow 
+  ##   transformations and additional processing. 
   ##
-  ## Rendering happens only once for a given page object, when the 
-  ## +render+ method is first called. Once a page has been rendered
-  ## it is frozen.
+  ## In normal use the instantiation and initialization of Pages
+  ## will be handled internally by Rote. From the user point of 
+  ## view most interaction with Rote from user code takes place
+  ## via the instance methods of this class.
+  ##
+  ## == Template lookup and evaluation
+  ##
+  ## Each +Page+ instance is provided at instantiation with base paths
+  ## from which it should resolve both template and layout files when
+  ## required. Usually these paths are supplied by the Rake task 
+  ## configuration. The attributes that provide information on template
+  ## and layout paths (e.g. +template_name+, +base_layout_name+, and
+  ## so on) give those paths relative to the +base_path+ and +layout_path+
+  ## as appropriate.
+  ##
+  ## === Common, page and layout code evaluation
+  ## 
+  ## Code applied to a given page is found and evaluated in the following
+  ## order:
+  ##
+  ## * A block supplied to the <%= section_link 'extension mappings', 'extension mapping' %>
+  ##   that matched this page (if any).
+  ## * Any COMMON.rb files from the filesystem root down to this directory.
+  ## * This page's ruby code, _basename_.rb.
+  ## * In the template itself (via ERB).
+  ## 
+  ## When a +Page+ instance is created, Rote looks for these, and if found evaluates
+  ## them, in order, in the +Page+ instance binding.
+  ## 
+  ## Additionally, when layout is used the following evaluation takes place 
+  ## *after rendering the template text* and can be used to make variables 
+  ## available for the layout pass(es), and apply nested layout:
+  ## 
+  ## * This layout's ruby code, _layout_basename_.rb.
+  ## * In the layout itself (again, with ERB).
+  ##
+  ## As mentioned, +Page+ instances serve as the context for page code 
+  ## execution - All user-supplied code (COMMON.rb, page and layout code, and
+  ## ERB in the templates themselves) is executed in the binding of an instance
+  ## of this class.
+  ##
+  ## == Layout
+  ##
+  ## All pages support layout, which allow common template to be applied across
+  ## several pages. This is handled via multiple render passes, with each layout
+  ## responsible for including the previously rendered content (via ERB).
+  ##
+  ## Layout templates include the content rendered by the page (or previous layout,
+  ## see below) render pass using the instance variable @content_for_layout. 
+  ## This should be a familar pattern for those familiar with the Rails framework.
+  ##
+  ## To apply layout to a page, the +layout+ method should be called, passing
+  ## in the base-name (with extension if different from the page template).
+  ## When issued from common or page code, multiple calls to this method will
+  ## override any previous setting. It may be called again from layout code,
+  ## however, in which case the output of the currently-rendering layout will
+  ## be passed (via the @content_to_layout instance variable) to the specified
+  ## layout. In this way, Rote allows layouts to be nested to any level.
+  ##
+  ## == Filtering
+  ##
+  ## The +page_filter+ and +post_filter+ methods allow _filters_ to be applied
+  ## to a page. Filters can be used to support any kind of textual transformation,
+  ## macro expansion (page filters), or post-render processing (post filters).
+  ## Rote includes a number of filters as standard, supporting plain-text markup,
+  ## syntax highlighting, HTMLTidy postprocessing, and more.
+  ##
+  ## See +Rote::Filters+ for details of standard filters and their individual use.
+  ##
+  ## Filters are written in Ruby, and Rote provides base-classes from which filters
+  ## can be derived with just a few lines of code (See Rote::Filters::TextFilter
+  ## and Rote::Filters::MacroFilter). Additionally, the page and post filter
+  ## methods allow text filters to be created from a supplied block.
+  ##
+  ## == Rendering
+  ##
+  ## Rendering occurs only once for a given page object, when the +render+ method 
+  ## is first called. Once a page has been rendered, the instance it is frozen
+  ## to prevent further modification, and the rendered output is cached. Future
+  ## calls to +render+ will return the cached output.
+  ##
   class Page  
   
     class << self
@@ -39,7 +119,7 @@ module Rote
       # This does not check that the source exists - use the +ruby_filename+
       # instance method to get the actual filename (if any) of source
       # associated with a given page instance.
-      def page_ruby_filename(template_fn)
+      def page_ruby_filename(template_fn) # :nodoc:
         fn = nil
         if (template_fn) 
           if (fn = template_fn.dup) =~ FILE_EXT
@@ -52,7 +132,7 @@ module Rote
       end
       
       # Find all COMMON.rb files from given dir up to FS root.
-      def resolve_common_rubys(dir, arr = [])
+      def resolve_common_rubys(dir, arr = []) # :nodoc:
         # defer to parent dir first
         parent = File.expand_path(File.join(dir, '..'))
         resolve_common_rubys(parent,arr) unless parent == dir # at root    
@@ -72,27 +152,36 @@ module Rote
     # and operates only on the innermost layout.
     attr_reader :layout_text    # Deprecated vv0.3.2 v-0.4    
     
-    # The names from which this page's template and layout (if any) 
-    # are read, relative to the +base_path+.
-    attr_reader :template_name, :layout_names
+    # The basename from which this page's template was read, 
+    # relative to the +base_path+.
+    attr_reader :template_name
     
-    # Convenience accessor for the first queued layout. This is the
-    # innermost layout, usually specified by the page itself.
-    # This method shouldn't be used from COMMON.rb since it's 
-    # behaviour is undefined until all page code is evaluated.
+    attr_reader :layout_names   # :nodoc:    
+    
+    # The filename of the innermost layout, usually specified by the page
+    # itself, relative to the +layout_path+. This method should not be used 
+    # from COMMON.rb since its behaviour is undefined until all page code is
+    # evaluated and the final base_layout is known.
     def base_layout_name; layout_names.first; end       
     alias :layout_name :base_layout_name    # Compat alias, please migrate  vv0.3.3 v-0.4
     
-    # The base paths for this page's template and layout. These point
-    # to the directories configured in the Rake tasks.
-    attr_reader :base_path, :layout_path
+    # The base path for template resolution.
+    attr_reader :base_path
     
-    # The array of page filters (applied to this page output *before* 
-    # layout is applied) and post filters (three gueses). 
-    # You can use +append_page_filter+ and +append_post_filter+ to add 
-    # new filters, which gives implicit block => Filters::Proc conversion 
+    # The base path for layout resolution
+    attr_reader :layout_path
+    
+    # The array of page filters (applied to this page during the first render 
+    # pass, *before* layout is applied). You can use +page_filter+ to 
+    # add new page filters, which gives implicit block => Filters::TextFilter conversion 
     # and checks for nil.
-    attr_reader :page_filters, :post_filters   
+    attr_reader :page_filters
+
+    # The array of post filters (applied to this page output *after* 
+    # layout is applied). You can use +post_filter+ to add 
+    # new post filters, which gives implicit block => Filters::TextFilter conversion 
+    # and checks for nil.
+    attr_reader :post_filters   
     
     # Reads the template, and evaluates the global and page scripts, if 
     # available, using the current binding. You may define any instance
@@ -105,7 +194,7 @@ module Rote
     #
     # If a block is supplied, it is executed _before_ the global / page
     # code. This will be the block supplied by the file-extension mapping.
-    def initialize(template_name, pages_dir = '.', layout_dir = pages_dir, &blk) 
+    def initialize(template_name, pages_dir = '.', layout_dir = pages_dir) 
       @template_text = nil
       @template_name = nil
       @layout_names = []
@@ -125,24 +214,15 @@ module Rote
       tfn = template_name
       read_template(tfn)
       
-      blk[self] if blk
+      # Yield to the (extension mapping) block
+      yield self if block_given?
       
       # Eval COMMON.rb's
       eval_common_rubys
       
       # get script filenames, and eval them if found
       tfn = ruby_filename # nil if no file      
-      instance_eval(File.read(tfn),tfn) if tfn   
-      
-      # FIXME: Quick fix for incorrect COMMON.rb layout nesting.
-      # All we do here is reset the layout to be the last layout
-      # added. 
-      #
-      # If it turns out that the ability to nest from COMMON
-      # really is useless, we should remove the layout queue entirely,
-      # and then just have the render layout loop run until
-      # layout at end == layout at start.
-      @layout_names = [@layout_names.last] unless layout_names.empty?
+      instance_eval(File.read(tfn),tfn) if tfn         
     end
             
     # Returns the full filename of this Page's template. This is obtained by
@@ -174,7 +254,7 @@ module Rote
         page_filters << filter
       else
         if block
-          page_filters << Filters::Proc.new(block)
+          page_filters << Filters::TextFilter.new(&block)
         end
       end
     end    
@@ -186,7 +266,7 @@ module Rote
         post_filters << filter
       else
         if block
-          post_filters << Filters::Proc.new(block)
+          post_filters << Filters::TextFilter.new(&block)
         end
       end
     end    
@@ -200,17 +280,19 @@ module Rote
     
     alias :to_s :render
     
-    # Adds the specified layout to those that will be rendered. The specified
+    # Sets the page's base-layout as specified, or applies _nested_ _layout_ 
+    # if called during a layout render pass. The specified
     # basename should be the name of the layout file relative to the 
-    # +layout_dir+, with no extension.
+    # +layout_path+. If the layout has the same extension as the page source
+    # template, it may be omitted.
     #
     # *The* *layout* *is* *not* *read* *by* *this* *method*. It, and 
     # it's source, are loaded only at rendering time. This prevents
     # multiple calls by various scoped COMMON code, for example, from
     # making a mess in the Page binding.
     #
-    # This can only be called before the first call to +render+. After 
-    # that the instance is frozen.
+    # This can only be called before the first call to +render+ returns it's
+    # result. After that the Page instance is frozen.
     def layout(basename)
       if basename
         self.layout_names << "#{basename}#{@layout_defext if File.extname(basename).empty?}"
@@ -281,6 +363,16 @@ module Rote
         @content_for_layout = render_page_filters( erb.result(binding) )
       end
       
+      # FIXME: Quick fix for incorrect COMMON.rb layout nesting.
+      # All we do here is reset the layout to be the last layout
+      # added. 
+      #
+      # If it turns out that the ability to nest from COMMON/page
+      # really is useless, we should remove the layout queue entirely,
+      # and then just have the render layout loop run until
+      # layout at end == layout at start.
+      @layout_names = [@layout_names.last] unless layout_names.empty?
+      
       # Do layout _after_ page eval. As we go through this, the layouts
       # we load may add to the end of the layout names array, so nested
       # layout is supported by just chasing the end of the array until
@@ -313,7 +405,7 @@ module Rote
       @result 
     end
         
-    def inherit_common    # inherit_common is implicit now    vv0.2.99  v-0.5
+    def inherit_common    # inherit_common is implicit now    vv0.2.99  v-0.4
       warn "Warning: inherit_common is deprecated (inheritance is now implicit)"
     end
         

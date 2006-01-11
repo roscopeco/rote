@@ -2,10 +2,6 @@
 
 p{color:red}. *The guide is still under construction*
 
-p. It has not yet been fully updated to cover all new features in 0.3.x. 
-Although most features are mentioned, in some cases the documentation consists 
-soley of a link to the relevant "RDoc":<%= link_rel '/rdoc/index.html' %>
-
 <a name='top'></a>
 
 It is assumed that you have installed Rote already. If not, please
@@ -167,12 +163,33 @@ though ruby source is implicitly excluded). The directory layout beneath the
 page root is retained when transforming pages, and is also used to provide
 hierarchical structure to the common page code.
 
-The default behaviour is to transform all matched pages with ERB, and 
+The default behaviour is to transform all matched 
+<%= section_link 'template code and erb', 'templates' %> pages with ERB, and 
 optionally apply a second render pass with a <%= section_link 'layout' %>,
 before writing to the same base filename beneath the output directory.
 You can customise this behaviour by specifying 
 <%= section_link 'extension mappings' %> for specific file extensions - 
 see the <%= section_link 'Rake task configuration' %> section for details.
+
+Each page and layout template used by Rote may have associated with it an 
+optional Ruby source file, allowing variables to be defined for use in ERB
+code, and supporting interaction with Rote via the methods of the 
+"@Rote::Page@":<%= link_rel '/rdoc/classes/Rote/Page.html' %> class. Page
+and layout code is loaded from a @rb@ file alongside the template itself.
+Code can also be applied across multiple pages based on filesystem hierarchy
+by placing it in @COMMON.rb@ files in the *pages* tree. The order of evaluation
+of these files travels down from the most remote COMMON.rb to the page code
+itself, and this provides a simple yet fairly powerful way to apply various
+configuration options, filtering, and user variables across your pages.
+See <%= section_link 'template code and erb' %> for more information on the
+search path and evaluation order for page code.
+
+Rote additionally allows a variety of formatting and postprocessing options
+thanks to it's support for <%= section_link 'filters' %> - little bits of Ruby 
+that perform some text transformation, macro expansion, or postprocessing 
+during page rendering. Rote provides standard filters to support Textile 
+and Markdown formatting, syntax highlighting, processing with HTMLTidy, and
+more. 
 
 <%= section 4, 'Template code and ERB' %>
 
@@ -180,30 +197,57 @@ All templates may contain embedded Ruby code (ERB), delimited by the standard
 &lt;&#37; ... &#37;&gt; (for executed code) and &lt;&#37;= ... &#37;&gt; (for 
 output) tags. Any (valid) Ruby code may be placed in the templates, and 
 variables may be defined to allow information to be passed into templates.
-There are five places where you might define such variables. The following 
+There are four places where you might define such variables. The following 
 is in order of evaluation:
 
 * A block supplied to the <%= section_link 'extension mappings', 'extension mapping' %>
   that matched this page (if any).
 * Any COMMON.rb files from the filesystem root down to this directory.
-* This page's ruby code, _basename_.rb
-* In the template itself
+* This page's ruby code, _basename_.rb.
+* In the template itself (via ERB).
 
 When a @Page@ instance is created, Rote looks for these, and if found evaluates
 them, in order, in the same binding as the template is later rendered in (i.e. 
 the @Page@ instance binding). Therefore, you can define instance variables to 
 pass data around, or even helper methods if you wish.
 
+Additionally, when <%= section_link 'layout' %> is used the following evaluation 
+takes place *after rendering the template text* and can be used to make variables 
+available for the layout pass(es):
+
+* This layout's ruby code, _layout_basename_.rb.
+* In the layout itself (again, with ERB).
+
 Template code is used to support a great deal of flexibility in Rote, from 
 selecting layouts to mixing in format helpers to controlling the filter chain.
 You can find details of the methods available in the 
 "@Rote::Page@ RDoc":<%= link_rel '/rdoc/classes/Rote/Page.html' %>
 
+<%= section 4, 'Plaintext Formatting' %>
+
+If you are using Rote to generate HTML, you'll probably want to utilise some
+kind of _plain-text formatting_. Rote has out-of-the-box support for
+Textile, Markdown, and RDoc formatting, which can be applied to any page using 
+standard <%= section_link 'filters' %>. 
+
+These filters can be applied to any page directly from page or common code,
+and if you are using the built-in Rakefile (either using the @rote@ command to
+build, or with a @rake@ build created with the @rote create@ command) then
+the following extension mappings are defined by default, allowing the filters
+to be applied without resorting to page code:
+
+  .mhtml or .markdown      => Markdown formatting, .html output
+  .thtml or .textile       => Textile formatting, .html output
+  .rdhtml or .rdoc         => RDoc formatting, .html output
+  
+Each of these filters is covered (along with further usage instructions) in
+the <%= section_link 'filters' %> section.   
+
 <%= section 4, 'Layout' %>
 
-_Layouts_ do exactly what you'd expect - they allow common template to be
-applied across several pages. This is handled via multiple render passes,
-
+_Layouts_ allow common template to be applied across several pages.
+This is handled via multiple render passes, with each layout responsible
+for including the previously rendered content (via ERB).
 
 Layouts are stored under the @doc/layouts@ directory (by default). They may
 be organised into subdirectories, but this hierarchy is not connected to
@@ -217,7 +261,7 @@ specified, then the same extension as the page itself is assumed. Examples:
   * layout 'dark.txt'
   * &lt;&#37; layout 'my' &#37;&gt;
   
-_*Note* the absence of the = sign   in the ERB tag in the last example,_
+_*Note* the absence of the = sign in the ERB tag in the last example,_
 _indicating that this is code to be executed rather than code that should_
 _generate output._
 
@@ -250,6 +294,13 @@ in a further render pass. In all respects this is no different from the
 initial layout pass - layout code is executed, and rendering performed.
 Obviously, this may result in additional layouts being applied to the page.
 
+<div class='note'>
+Layouts can only be nested by calling @layout@ again from *layout code* 
+(or ERB in the layout template itself). Multiple calls to @layout@ from
+@COMMON.rb@ or page code will result in consistent page code behaviour,
+i.e. any previously-specified layout will be overriden.
+</div>
+
 There are no special requirements for layouts that are used in this way -
 from the user point of view a layout simply needs to include the 
 <code>@content_for_layout</code> where appropriate.
@@ -265,9 +316,10 @@ Along with this ability, a number of filters are provided as standard:
 For example If you're generating HTML, you'll probably want to use some plaintext 
 formatting, rather than writing HTML by hand. Rote directly supports this
 (thanks to "RedCloth":http://whytheluckystiff.net/ruby/redcloth and 
-"BlueCloth":http://www.deveiate.org/projects/BlueCloth) via _filters_, with both
-Textile and Markdown support out of the box (assuming those libraries are 
-available on your machine).
+"BlueCloth":http://www.deveiate.org/projects/BlueCloth) via _filters_, with
+Textile, RDoc and Markdown support out of the box (assuming those libraries are 
+available on your machine). See the <%= section_link 'plaintext formatting' %>
+for more details on this.
 
 h5. Filter chaining
 
@@ -381,11 +433,11 @@ This is a macro filter, and should be applied in the _page filter chain_:
 
 This filter uses the "Syntax":http://syntax.rubyforge.org/ library, passing the
 macro argument as the language ('ruby', 'xml' and 'yaml' are supported out of the 
-box). The output is wrapped in <pre class='[language]'><code> ... </code></pre> 
+box). The output is wrapped in 
+&lt;pre class='[language]'&gt;&lt;code&gt; ... &lt;/code&gt;&lt;/pre&gt;
 for output, with highlighting handled by <span> tags, allowing syntax colours and 
 styles to be applied via CSS. You can find a full list of the Ruby highlight classes
-in the
-"Syntax documentation":http://syntax.rubyforge.org/chapter-2.html
+in the "Syntax documentation":http://syntax.rubyforge.org/chapter-2.html
 but you will need to experiment with the highlighter to find the XML and YAML 
 classes.
 
@@ -396,13 +448,13 @@ Code to be highlighted is inserted into pages like so:
     def amethod
       "some code"		
     end	
-  # :code#
+  #:code
 #:code#
 
 <div class='note'>
-*Note* that in the above example, the end tag has an extra whitespace to work around
-a limitation of the Syntax plugin (and macros in general) - a macro cannot contain
-it's own end tag!
+Note that the closing tag in the above example is missing a closing '#' - this works
+around a limitation of the current Syntax filter (and macro implementation in general),
+which means that a macro cannot contain it's own end-tag.
 </div>
 
 Since macros are rendered separately from the page text, you don't have to worry much
@@ -778,11 +830,33 @@ from any Ruby code, by calling methods on the @Rake@ module.
 *Note* that this extension is intended, and tested, for Rote - it is not designed
 to be a general extension (though one could easily be extracted from it). In 
 particular it takes advantage of other extended functionality provided by Rote,
-and takes no account, for example, or parallel task execution. 
+and takes no account, for example, of parallel task execution. 
 
 By default, the cache is maintained in the project root, in a directory named
 @.rake_cache@. This is managed by Rote, so for the most part can be ignored, 
 though you can of course supply an alternate path if you wish (via @Rake.cache_dir=@).
+
+h6. Caching and clean builds
+
+When performing a clean build, the cache will also be removed (as part of the 
+@clobber@ task), and all dependencies will be re-evaluated and cached afresh.
+Caching exists only to allow accurate dependency resolution during incremental
+builds.
+
+h6. Disabling the cache
+
+There may be occasions when you want to disable use of the cache (for example when
+diagnosing unexpected dependency chains). This can be accomplished by setting
+an environment variable, NO_RAKE_CACHE prior to invoking Rote (or Rake). For a
+single invocation, the easiest way to do this is from the command-line:
+
+<pre><code>
+	rake clobber doc NO_RAKE_CACHE=true
+</code></pre>
+
+Specifying this option (or setting the variable) will completely disable use of
+the cache, causing any existing cache to be ignored and all dependencies determined
+during the run to be discarded.
 
 h5. Dependency-based block memoize
 
@@ -806,13 +880,6 @@ The following (OSX-specific) example illustrates usage of this feature:
     end
   end
 #:code#
-
-h6. Caching and clean builds
-
-When performing a clean build, the cache will also be removed (as part of the 
-@clobber@ task), and all dependencies will be re-evaluated and cached afresh.
-Caching exists only to allow accurate dependency resolution during incremental
-builds.
 
 <%= section 3, 'Final notes' %>
 

@@ -23,6 +23,7 @@ require 'pathname'
 require 'rake'
 
 module Rake
+  
   class << self
     # Directory for storing Rake dependency cache
     def cache_dir=(val); @cache_dir = val; end
@@ -33,15 +34,27 @@ module Rake
     # Array representing current tasks being executed
     def task_stack; @tasks ||= []; end
     # Reference to current task being executed
-    def current_task; task_stack.last; end
+    def current_task; task_stack.last; end    
+    # Determine whether dependency caching is enabled
+    def cache_enabled?
+      if @cache_enabled.nil?
+        @cache_enabled = !ENV['NO_RAKE_CACHE']
+      else 
+        @cache_enabled
+      end
+    end
+    
+    # Enable or disable dependency caching.
+    def cache_enabled=(b); @cache_enabled = b; end
 
     # Use this method to dynamically register one or more files
-    # as dependencies of the currently executing task.
-    def register_dependency(deps, t = nil)
-      t = (current_task.name if current_task) unless t
-      if t then
-        file t => deps
-        (cached_dependencies[t] ||= []) << deps
+    # as dependencies of the currently executing task (or the
+    # specified task if non-nil).
+    def register_dependency(deps, task = nil)
+      task = (current_task.name if current_task) unless task
+      if task then
+        file task => deps
+        (cached_dependencies[task] ||= []) << deps
       end
     end
   end
@@ -53,17 +66,14 @@ module Rake
     # loaded, and handling the task stack. The argument controls
     # whether or not cached dependencies are loaded and should not
     # be set false except in testing.
-    def invoke(do_cache = true)
+    def invoke
       # Invoke patched to record task stack and
       # load cached dependencies on first go.
-      Rake.load_cached_dependencies if do_cache && !$CACHEDEPS_LOADED
+      Rake.load_cached_dependencies if Rake.cache_enabled?
       
       begin
-        Rake.task_stack << self
-        
-        # TODO what's going on here?
-        # Rake.cached_dependencies[name] = [] if Rake.cached_dependencies[name] 
-        
+        Rake.task_stack << self        
+        Rake.cached_dependencies[name] = [] if Rake.cached_dependencies[name]         
         pre_autodep_invoke
       ensure
         Rake.task_stack.pop
@@ -110,6 +120,8 @@ module Rake
   # An at_exit handler is installed to save the dependencies
   # when rake exits.
   def self.load_cached_dependencies
+    return if $CACHEDEPS_LOADED
+    
     at_exit { self.save_cached_dependencies }
 
     return unless File.exists?(dependencies_file)
@@ -123,7 +135,8 @@ module Rake
   end
   
   def self.save_cached_dependencies
-    return if cached_dependencies.empty?
+    return if cached_dependencies.empty? || !Rake.cache_enabled?
+    
     mkdir_p cache_dir unless File.exists?(cache_dir)
     deps = {}
     cached_dependencies.each do |k,v|
