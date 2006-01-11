@@ -9,6 +9,8 @@ $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__),'../lib'))
 require 'rake'
 require 'rote/cache'
 
+Rake.cache_enabled = false
+
 module Rote  
   class TestCache < Test::Unit::TestCase
 
@@ -29,19 +31,26 @@ module Rote
     end
     
     def test_rake_task_stack
+      innerex, outerex = false, false
       assert_equal [], Rake.task_stack             
       
       outertask = task :outertask do        
-        assert_equal ['outertask'], Rake.task_stack         
+        assert_equal ['outertask'], Rake.task_stack.map { |t| t.name }                  
         
-        innertask = task :innertask do          
-          assert_equal ['outertask', 'innertask'], Rake.task_stack         
+        innertask = task :innertask do                    
+          assert_equal ['outertask', 'innertask'], Rake.task_stack.map { |t| t.name }
+          innerex = true
         end
         
-        assert_equal ['outertask'], Rake.task_stack         
+        innertask.invoke        
+        assert_equal ['outertask'], Rake.task_stack.map { |t| t.name }
+        outerex = true
       end    
       
-      assert_equal [], Rake.task_stack             
+      outertask.invoke      
+      assert_equal [], Rake.task_stack.map { |t| t.name }
+      assert innerex
+      assert outerex
     end
     
     def test_rake_register_dep_cached_deps
@@ -51,12 +60,12 @@ module Rote
       # there's no current task
       assert_nil Rake.register_dependency('dep')
       assert_equal({}, Rake.cached_dependencies)
-      
+            
       testtask = task :test_register_dep do
         assert_equal(['dep'], Rake.register_dependency('dep'))
       end
       
-      testtask.invoke(false)
+      testtask.invoke
       
       assert_equal({'test_register_dep' => ['dep']}, Rake.cached_dependencies)
     end

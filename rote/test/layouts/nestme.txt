@@ -1,1 +1,1 @@
-this: '<%= @content_for_layout %>'
+with nested: '<%= @content_for_layout %>'

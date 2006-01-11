@@ -57,7 +57,8 @@ module Rote
       #   <%= links.join(" - ") %>
       #
       # *Note* that this isn't populated until after
-      # the filter is run.
+      # the filter is run. The @links array will usually
+      # be used in layout.
       attr_reader :headings
       alias :links :headings
       

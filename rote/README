@@ -5,7 +5,7 @@
 Rote is a simple page-based template system that was written to make it
 easier to author and maintain non-dynamic websites and offline documentation. 
 Rote provides a simple commandline or Rake [http://rake.rubyforge.org] based 
-build for your pages, with page rendering (optionally supporting Textile, 
+build for your pages, with page rendering (optionally supporting Textile, RDoc, 
 Markdown, and embedded Ruby code with RedCloth [http://redcloth.rubyforge.org/]
 and ERB [http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html]), 
 layout, and general documentation / website build tasks.
@@ -120,7 +120,7 @@ though, so flame him if it breaks your day ;P
 * Homepage - http://rote.rubyforge.org/
 * Project - http://rubyforge.org/projects/rote
 * Issues - http://rubyforge.org/tracker/?group_id=1120
-* List - rote-devel@rubyforge.org
+* Lists - rote-users@rubyforge.org, rote-devel@rubyforge.org (http://rubyforge.org/mail/?group_id=1120)
 
 As you may have guessed, Rote's hosting and development services are provided
 by http://RubyForge.org .

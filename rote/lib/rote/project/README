@@ -44,6 +44,6 @@ WHAT NEXT?
   + Start Rote in monitor mode, and have your changes rendered as
     you work:
 
-        (rote|rake) monitor
+        (rote|rake) doc_monitor
 
 
