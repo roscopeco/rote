@@ -161,7 +161,7 @@ task :doc_upload => [ :doc ] do
       "html"
     ).upload
   else
-    raise "Skipping documentation upload - Need to set RUBYFORGE_ACCT to your rubyforge.org user name"
+    $stderr << "Skipping documentation upload - Need to set RUBYFORGE_ACCT to your rubyforge.org user name"
   end
 end
 
