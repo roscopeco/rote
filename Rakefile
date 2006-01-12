@@ -151,6 +151,20 @@ ws = Rote::DocTask.new(:doc) { |site|
 # add rdoc dep to doc task
 task :doc => [:rdoc]
 
+desc "Publish the documentation and web site"
+task :doc_upload => [ :doc ] do
+  if acct = ENV['RUBYFORGE_ACCT']
+    require 'rake/contrib/sshpublisher'
+    Rake::SshDirPublisher.new(
+      "#{acct}@rubyforge.org",
+      "/var/www/gforge-projects/rote",
+      "html"
+    ).upload
+  else
+    raise "Skipping documentation upload - Need to set RUBYFORGE_ACCT to your rubyforge.org user name"
+  end
+end
+
 # ====================================================================
 # Create a task that will package the Rote software into distributable
 # tar, zip and gem files.
@@ -370,7 +384,8 @@ task :release => [
   :alltests,
   :update_version,
   :package,
-  :tag] do
+  :tag,
+  :doc_upload] do
   
   announce 
   announce "**************************************************************"
@@ -405,9 +420,9 @@ task :prerelease do
     announce "Release Task Testing, skipping checked-in file test"
   else
     announce "Checking for unchecked-in files..."
-    data = `cvs -q update`
+    data = `svn status`
     unless data =~ /^$/
-      fail "CVS update is not clean ... do you have unchecked-in files?"
+      fail "SVN status is not clean ... do you have unchecked-in files?"
     end
     announce "No outstanding checkins found ... OK"
   end
@@ -433,20 +448,32 @@ task :update_version => [:prerelease] do
     if ENV['RELTEST']
       announce "Release Task Testing, skipping commiting of new version"
     else
-      sh %{cvs commit -m "Updated to version #{PKG_VERSION}" lib/rote.rb}
+      sh %{svn commit -m "Updated to version #{PKG_VERSION}" lib/rote.rb}
     end
   end
 end
 
-desc "Tag all the CVS files with the latest release number (REL=x.y.z)"
+desc "Create a new SVN tag with the latest release number (REL=x.y.z)"
 task :tag => [:prerelease] do
   reltag = "REL_#{PKG_VERSION.gsub(/\./, '_')}"
   reltag << ENV['REUSE'].gsub(/\./, '_') if ENV['REUSE']
   announce "Tagging CVS with [#{reltag}]"
   if ENV['RELTEST']
-    announce "Release Task Testing, skipping CVS tagging"
+    announce "Release Task Testing, skipping SVN tagging"
   else
-    sh %{cvs tag #{reltag}}
+    # need to get current base URL
+    s = `svn info`
+    if s =~ /URL:\s*([^\n]*)\n/
+      svnroot = $1
+      if svnroot =~ /^(.*)\/trunk/
+        svnbase = $1
+        sh %{svn cp #{svnroot} #{svnbase}/tags/#{reltag} -m "Release #{PKG_VERSION}"}
+      else
+        fail "Please merge to trunk before making a release"
+      end
+    else 
+      fail "Unable to determine repository URL from 'svn info' - is this a working copy?"
+    end  
   end
 end
 
