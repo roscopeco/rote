@@ -132,10 +132,5 @@ probably be totally useless to anyone but me. Keeping a list like this
 accurate and up to date is a recipe for disaster, so I'll take the safe 
 option and say 'thanks, everyone' :)
 
-Thanks also to Yukihiro Matsumoto for a remarkable platform, Masatoshi Seki for 
-embedding it in text, Jim Weirich for an elegant build tool, and Dean Allen 
-for making markup easy in Ruby. Thanks to the authors of all the libraries and
-tools used by Rote, and thanks too to the many people who've contributed
-and improved these things over the years - as ever, we stand on the shoulders
-of giants.
-
+Thanks also to Yukihiro Matsumoto for a remarkable platform, and all those
+who write and contribute to the libraries Rote depends on.
