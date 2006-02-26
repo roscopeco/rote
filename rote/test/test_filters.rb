@@ -9,13 +9,7 @@ $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__),'../lib'))
 
 require 'test/unit'
 require 'rote/page'
-require 'rote/filters/redcloth'
-require 'rote/filters/bluecloth'
-require 'rote/filters/rdoc'
-require 'rote/filters/toc'
-require 'rote/filters/syntax'
-require 'rote/filters/exec'
-require 'rote/filters/eval'
+require 'rote/filters'
 
 SYNTEST = <<-EOM  
   <p>Non-code</p>

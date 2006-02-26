@@ -200,7 +200,7 @@ module Rote
       assert_equal 'layout some text and some other text for a change.', t
     end    
     
-    def test_render_layout_code  
+    def test_render_layout_nested  
       t = new_test_page('nestedlayout').render.chomp
       assert_equal "layout with nested: 'some text and some other text' for a change.", t
 
