@@ -60,21 +60,17 @@ module Rake
   end
   
   class Task
-    alias :pre_autodep_invoke :invoke
+    alias :pre_autodep_execute :execute
     
-    # Invoke the task, loading cached dependencies if not already
-    # loaded, and handling the task stack. The argument controls
-    # whether or not cached dependencies are loaded and should not
-    # be set false except in testing.
-    def invoke
-      # Invoke patched to record task stack and
-      # load cached dependencies on first go.
+    # Execute the task, loading cached dependencies if not already
+    # loaded, and handling the task stack.
+    def execute
       Rake.load_cached_dependencies if Rake.cache_enabled?
       
       begin
         Rake.task_stack << self        
         Rake.cached_dependencies[name] = [] if Rake.cached_dependencies[name]         
-        pre_autodep_invoke
+        pre_autodep_execute
       ensure
         Rake.task_stack.pop
       end
