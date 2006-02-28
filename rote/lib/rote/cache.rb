@@ -124,7 +124,7 @@ module Rake
   # An at_exit handler is installed to save the dependencies
   # when rake exits.
   def self.load_cached_dependencies
-    return if $CACHEDEPS_LOADED
+    return unless !$CACHEDEPS_LOADED and Rake.cache_enabled?    
     
     at_exit { self.save_cached_dependencies }
 
