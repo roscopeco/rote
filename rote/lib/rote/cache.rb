@@ -58,19 +58,27 @@ module Rake
       end
     end
   end
+
+  # Patch load_imports so cached dependencies will be loaded
+  # after the main rakefile but before the tasks are executed
+  class Application
+    old_load_imports = instance_method(:load_imports)
+    define_method(:load_imports) do
+      Rake.load_cached_dependencies
+      old_load_imports.bind(self).call
+    end
+  end
   
   class Task
-    alias :pre_autodep_execute :execute
+    old_execute = instance_method(:execute)    
     
     # Execute the task, loading cached dependencies if not already
     # loaded, and handling the task stack.
-    def execute
-      Rake.load_cached_dependencies if Rake.cache_enabled?
-      
+    define_method(:execute) do      
       begin
         Rake.task_stack << self        
         Rake.cached_dependencies[name] = [] if Rake.cached_dependencies[name]         
-        pre_autodep_execute
+        old_execute.bind(self).call
       ensure
         Rake.task_stack.pop
       end
