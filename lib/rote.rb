@@ -1,5 +1,5 @@
 # rote.rb - main Rote module  
-# Copyright (c) 2005 Ross Bamford (and contributors)
+# Copyright (c) 2005, 2006 Ross Bamford (and contributors)
 # $Id$
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
