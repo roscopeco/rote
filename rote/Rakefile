@@ -19,7 +19,6 @@ end
 require 'rake/clean'
 require 'rake/testtask'
 require 'rake/rdoctask'
-
 # This needs to go at the front of the libpath
 # Otherwise, any pre-installed rote gets found,
 # and used from there. This is only necessary
@@ -31,6 +30,7 @@ require 'rote/filters/redcloth'
 require 'rote/filters/syntax'
 require 'rote/filters/tidy'
 require 'rote/format/html'
+require 'rote/extratasks'
 include Rote
 
 CLEAN.include('tidy.log')
@@ -108,7 +108,7 @@ end
 # Website / Doc tasks ------------------------------------------------
 
 # Create a task to build the RDOC documentation tree.
-rd = Rake::RDocTask.new("rdoc") { |rdoc|
+rd = Rake::RDocTask.new(:rdoc) { |rdoc|
   rdoc.rdoc_dir = 'html/rdoc'
 #  rdoc.template = 'kilmer'
 #  rdoc.template = 'css2'
@@ -119,6 +119,14 @@ rd = Rake::RDocTask.new("rdoc") { |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb', 'doc/**/*.rdoc')
   rdoc.rdoc_files.exclude(/\bcontrib\b/)
   rdoc.rdoc_files.exclude('lib/rote/project/**/*')
+}
+
+# Code coverage report
+Rote::RCovTask.new { |rcov|
+  rcov.test_files.include 'test/gem*.rb'
+  rcov.source_files.include 'lib/**/*.rb'
+  rcov.profile = true
+  rcov.output_dir = 'html/coverage'
 }
 
 # Create a task build the website / docs
@@ -148,8 +156,8 @@ ws = Rote::DocTask.new(:doc) { |site|
   site.res.include('**/*.css')
 }
 
-# add rdoc dep to doc task
-task :doc => [:rdoc]
+# add rdoc/rcov deps to doc task
+task :doc => [:rdoc, :rcov]
 
 desc "Publish the documentation and web site"
 task :doc_upload => [ :doc ] do
