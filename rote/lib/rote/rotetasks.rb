@@ -127,7 +127,10 @@ module Rote
     attr_reader :name
     
     # Base directories used by the task.
-    attr_accessor :output_dir, :layout_dir
+    attr_accessor :default_output_dir, :layout_dir
+    
+    alias :output_dir :default_output_dir 
+    alias :output_dir= :default_output_dir=
     
     # Globs for the +FileList+ that supplies the pages to transform. You 
     # should configure the +pages_dir+ and +include+ at least one entry
@@ -149,8 +152,8 @@ module Rote
     # file extensions. Keys are regexps that are matched in order 
     # against the search key.
     #
-    # The values are [extension, ({ |page| ...})] . If a mapping has a 
-    # block, it is executed when pages with a matching extension are,
+    # The values are [extension, ({ |page| ...}), out_dir] . If a mapping 
+    # has a block, it is executed when pages with a matching extension are,
     # instantiated (before common and page code). It can be used to apply
     # filters, for example, on a per-extension basis. 
     attr_reader :ext_mappings
@@ -158,8 +161,12 @@ module Rote
     # Define an extension mapping for the specified regex, which will 
     # be replaced with the specified extension. If a block is supplied
     # it will be called with each matching +Page+ as it's created.
-    def ext_mapping(match, extension, &block)
-      @ext_mappings[match] = [extension,block]      
+    # 
+    # Extension mappings also allow the output directory to be specified
+    # on a per-extension basis. If no output directory is specified, the
+    # default output directory is used.
+    def ext_mapping(match, extension, output_dir = self.default_output_dir, &block)
+      @ext_mappings[match] = [extension,block,output_dir]      
     end
     
     # If +show_page_tasks+ is +true+, then the file tasks created for each
@@ -211,10 +218,9 @@ module Rote
     #
     # Returns [target_fn, ({ |page| ...})]
     def target_fn(dir_rx, fn)
+      ext = File.extname(fn).sub(/^\./,'') # strip leading dot                  
+      new_ext, blk, output_dir = ext_mappings[ext] || [ext,nil,self.default_output_dir]               
       tfn = fn.sub(dir_rx, output_dir)      
-      ext = File.extname(tfn)
-      ext.sub!(/^\./,'') # strip leading dot                  
-      new_ext, blk = ext_mappings[ext] || [ext,nil]               
       [tfn.sub(/#{ext}$/,new_ext),blk]
     end
     
