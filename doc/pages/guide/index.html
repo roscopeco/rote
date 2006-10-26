@@ -599,6 +599,22 @@ doc.ext_mapping(/(html)/, '$1') do |page|
 end
 #:code#
 
+Extension mappings also support per-extension output directories, which
+can be supplied as a third parameter to the @ext_mapping@ method:
+
+doc.output_dir = 'html'
+
+#:code#ruby#
+doc.ext_mapping(/ttxt/, 'txt', 'plaintext') do |page|
+
+  # do stuff
+  
+end
+#:code#
+
+Where no output directory is supplied, the default output directory will
+be used.
+
 <%= section 4, 'Defining additional tasks' %>
 
 The command-line build will automatically look for a file in the top-level
