@@ -51,7 +51,7 @@ module Rote
         # determine structure of content and insert anchors where necessary
           headings = []
  
-          text = text.gsub /^(\s*h(\d))(.*?)(\.(.*))$/ do
+          text = text.gsub(/^(\s*h(\d))(.*?)(\.(.*))$/) do
           target = $~.dup
  
            if target[3] =~ /#([^#]+)\)/
