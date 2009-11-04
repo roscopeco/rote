@@ -78,7 +78,7 @@ module Rake
       begin
         Rake.task_stack << self        
         Rake.cached_dependencies[name] = [] if Rake.cached_dependencies[name]         
-        old_execute.bind(self).call
+        old_execute.bind(self).call({ })
       ensure
         Rake.task_stack.pop
       end
