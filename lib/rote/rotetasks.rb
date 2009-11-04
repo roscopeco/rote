@@ -347,7 +347,7 @@ module Rake
     alias :pre_rote_execute :execute
     # Execute the task, setting the _executed_ flag.
     # Used by the +monitor+ task.
-    def execute
+    def execute(args)
       @executed = true
       pre_rote_execute
     end
