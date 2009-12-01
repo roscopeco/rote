@@ -17,7 +17,7 @@
 #
 # Eventually this registration may become implicit with layout.
 
-require 'md5'
+require 'digest/md5'
 require 'yaml'
 require 'pathname'
 require 'rake'
