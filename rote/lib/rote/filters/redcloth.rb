@@ -31,10 +31,8 @@ module Rote
       end      
       
       def handler(text,page)
-        rc = ::RedCloth.new(text)        
-        # hack around a RedCloth warning
-        rc.instance_eval { @lite_mode = false }  
-        rc.to_html(*@redcloth_opts) 
+        rc = ::RedCloth.new(text, @redcloth_opts)
+        rc.to_html 
       end      
     end    
     

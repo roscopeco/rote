@@ -1,37 +1,40 @@
 #
-# Commandline launcher for Rote, (c)2005 Ross Bamford
+# Commandline launcher for Rote, (c)2005, 2012 Ross Bamford (and contributors)
 #
 # Get set up with library paths, however we're installed.
 
-def croak
+def croak(e)
 	puts "Cannot locate Rote libraries - Do you need to set $ROTE_LIB ?"
+  p e
 	exit(1)
-end
-
-begin 
-	require 'rubygems'
-rescue LoadError
-	# just ignore, don't use gems
 end
 
 fail = false
 rote_lib = nil
 
 begin
-	require 'rote'
-	require 'rote/app'
-		
+	require 'rote.rb'
+	require 'rote/app.rb'
+
 	# find this later
 	rote_lib = nil
-rescue LoadError
-	unless fail || !(rote_lib = ENV['ROTE_LIB'])	
-		$: << rote_lib		
-		# at least we can know this now...
+rescue LoadError => e
+	unless fail 
+    if rote_lib = ENV['ROTE_LIB']
+      $:.unshift rote_lib
+    else
+      begin 
+        require 'rubygems'
+      rescue LoadError
+        # just ignore, we're clutching at straws now...
+      end
+    end
+		# at least we can know this now, or we're failing next iter anyway...
 		builtin = File.join(rote_lib,'rote/builtin.rf')
 		fail = true		# next time.
 		retry
 	else
-		croak
+		croak(e)
 	end 
 end
 

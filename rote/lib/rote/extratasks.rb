@@ -1,6 +1,6 @@
 #--
 # Extra bonus Rake tasklibs for Rote and elsewhere
-# (c)2005, 2006 Ross Bamford (and contributors)
+# (c)2005, 2006, 2012 Ross Bamford (and contributors)
 #
 # See 'rote.rb' or LICENSE for licence information.
 # $Id$
@@ -49,13 +49,16 @@ module Rote
     # The color scale range for profiling output (dB) [not used]
     attr_accessor :range
     
+    # If +false+, the task will emit a warning rather than failing when Rcov command fails. [true]
+    attr_accessor :failonerror
+    
     # Create a new RCovTask, using the supplied block for configuration,
     # and define tasks with the specified base-name within Rake.
     #
     # Note that the named task just invokes a file task for the output
     # directory, which is dependent on test (and source, if specified)
     # file changes.
-    def initialize(name = :rcov) # :yield: self if block_given?      
+    def initialize(name = :rcov, failonerror = true) # :yield: self if block_given?      
       @taskname = name
       @rcov_cmd = 'rcov'
       @test_files = Rake::FileList.new
@@ -63,6 +66,7 @@ module Rote
       @load_paths = []
       @excludes = []      
       @output_dir = './coverage'
+      @failonerror = true
       
       yield self if block_given?
 
@@ -93,7 +97,11 @@ module Rote
 
           puts cmd
           unless system(cmd)
-            fail "RCov command '#{rcov_cmd}' failed (status #{$?.exitstatus})" 
+            if failonerror
+              fail "RCov command '#{rcov_cmd}' failed (status #{$?.exitstatus})" 
+            else 
+              warn "RCov command '#{rcov_cmd}' failed (status #{$?.exitstatus})" 
+            end
           end
         end
         

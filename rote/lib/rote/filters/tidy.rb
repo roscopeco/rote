@@ -25,7 +25,7 @@ module Rote
       # Create a new filter instance, using the specified output format,
       # and optionally a custom 'tidy' command and options.    
       def initialize(format = :xhtml, tidycmd = nil, tidyopts = '-q') 
-        @tidycmd = tidycmd || ENV['TIDYCMD'] || (PLATFORM =~ /mswin/ ? 'tidy.exe' : 'tidy')
+        @tidycmd = tidycmd || ENV['TIDYCMD'] || (RUBY_PLATFORM =~ /mswin/ ? 'tidy.exe' : 'tidy')
           # TODO windows 'tidy.exe' correct?
           
         @tidyopts = tidyopts

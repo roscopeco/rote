@@ -1,5 +1,5 @@
 # Rote application class
-# (c)2005 Ross Bamford (and contributors)
+# (c)2005, 2012 Ross Bamford (and contributors)
 #
 # See 'rote.rb' or LICENSE for licence information.
 # $Id$
@@ -35,7 +35,7 @@ module Rote
       raise "Missing builtin.rf (expected at '#{@rakefile}')!" unless File.exists?(@rakefile)
       
       @rakeopts = ENV['RAKE_OPTS'] || ''
-      @rake = ENV['RAKE_CMD'] || (PLATFORM =~ /mswin/ ? 'rake.cmd' : 'rake')
+      @rake = ENV['RAKE_CMD'] || (RUBY_PLATFORM =~ /mswin/ ? 'rake.cmd' : 'rake')
       
       process_args
       

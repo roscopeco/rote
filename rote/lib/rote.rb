@@ -1,5 +1,5 @@
 # rote.rb - main Rote module  
-# Copyright (c) 2005, 2006 Ross Bamford (and contributors)
+# Copyright (c) 2005-2012 Ross Bamford (and contributors)
 # $Id$
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,7 +41,7 @@ end
 require 'rake'
 
 # Master Rote version. Manage this from the Rake release support.
-ROTEVERSION = '0.3.6'
+ROTEVERSION = '0.3.7'
 
 #####
 ## *Rote* is a Rake (http://rake.rubyforge.org) based build tool for static

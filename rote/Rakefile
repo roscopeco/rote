@@ -1,6 +1,6 @@
 # Rote Rakefile (run with 'rake' command)
 #
-# Copyright 2005 Ross Bamford (and contributors). All rights reserved.
+# Copyright 2005, 2012 Ross Bamford (and contributors). All rights reserved.
 # Rote is distributed under an MIT style license.  See LICENSE for details.
 #
 # This Rakefile is heavily based on Rake's own Rakefile.
@@ -11,14 +11,14 @@
 
 begin
   require 'rubygems'
-  require 'rake/gempackagetask'
+  require 'rubygems/package_task'
 rescue Exception
   nil
 end
 
 require 'rake/clean'
 require 'rake/testtask'
-require 'rake/rdoctask'
+require 'rdoc/task'
 # This needs to go at the front of the libpath
 # Otherwise, any pre-installed rote gets found,
 # and used from there. This is only necessary
@@ -112,7 +112,7 @@ rd = Rake::RDocTask.new(:rdoc) { |rdoc|
   rdoc.rdoc_dir = 'html/rdoc'
 #  rdoc.template = 'kilmer'
 #  rdoc.template = 'css2'
-  rdoc.template = 'doc/jamis.rb'
+#  rdoc.template = 'doc/jamis.rb'
   rdoc.title    = "Rote"
   rdoc.options << '--line-numbers' << '--inline-source' << '--main' << 'README'
   rdoc.rdoc_files.include('README', 'LICENSE', 'TODO', 'CONTRIBUTORS')
@@ -127,6 +127,7 @@ Rote::RCovTask.new { |rcov|
   rcov.source_files.include 'lib/**/*.rb'
   rcov.profile = true
   rcov.output_dir = 'html/coverage'
+  rcov.failonerror = false   # don't stop the build if rcov doesn't work...
 }
 
 # Create a task build the website / docs
@@ -143,10 +144,10 @@ ws = Rote::DocTask.new(:doc) { |site|
     # use 'page' layout, textile formatting, ruby syntax, Tidy to xhtml
     page.layout 'page'
 
-    page.page_filter Filters::RedCloth.new(:textile)
+    page.page_filter Filters::RedCloth.new
     page.page_filter Filters::Syntax.new
     
-    page.post_filter Filters::Tidy.new
+    #page.post_filter Filters::Tidy.new
   end
   
   site.res.dir = 'doc/res'
@@ -234,7 +235,7 @@ else
       '--title' <<  'Rote -- Template-based doc support for Rake' <<
       '--main' << 'README' <<
       '--line-numbers' << 
-      '--inline-source' <<
+      #'--inline-source' <<   # now deprecated...
       '--template' << 'doc/jamis.rb'
       '-o' << 'html'      
 
@@ -261,7 +262,7 @@ else
     end  
   end
 
-  package_task = Rake::GemPackageTask.new(spec) do |pkg|
+  package_task = Gem::PackageTask.new(spec) do |pkg|
     pkg.need_zip = true
     pkg.need_tar_gz = true
     pkg.package_dir = 'pkg'    
