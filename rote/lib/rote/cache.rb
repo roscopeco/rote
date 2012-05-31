@@ -75,11 +75,11 @@ module Rake
     
     # Execute the task, loading cached dependencies if not already
     # loaded, and handling the task stack.
-    define_method(:execute) do      
+    define_method(:execute) do |*args|     
       begin
         Rake.task_stack << self        
         Rake.cached_dependencies[name] = [] if Rake.cached_dependencies[name]         
-        old_execute.bind(self).call({ })
+        old_execute.bind(self).call(*args)
       ensure
         Rake.task_stack.pop
       end
