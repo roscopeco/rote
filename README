@@ -15,14 +15,14 @@ layout, and general documentation / website build tasks.
 Rote requires the following (versions are as per my development environment,
 you may find you can use older versions, you may not).
 	
-* Ruby 1.8.x (http://ruby-lang.org/)
-* Rake 0.6.2 ('gem install rake')
+* Ruby 1.9.3 (http://ruby-lang.org/)
+* Rake 0.9.9.2 ('gem install rake')
 
 The following optional dependencies will be used if present:
 
-* RubyGems 0.8.11 (http://rubygems.rubyforge.org/) 
-* RedCloth 3.0.4 ('gem install RedCloth') (_Only required if Textile formatting is used_)
-* BlueCloth 1.0.0 ('gem install BlueCloth') (_Only required if Markdown or formatting is used_)
+* RubyGems 1.8.16 (http://rubygems.rubyforge.org/) 
+* RedCloth 4.2.9 ('gem install RedCloth') (_Only required if Textile formatting is used_)
+* BlueCloth 1.0.1 ('gem install BlueCloth') (_Only required if Markdown or formatting is used_)
 * Syntax 1.0.0 ('gem install syntax') (_Only required if syntax highlighting formatting is used_)
 * HTMLTidy (http://tidy.sourceforge.net/) (_Only required if Tidy filter is used_)
 
@@ -108,7 +108,7 @@ version consistency.
 If you are bundling Rote with your product, please ensure you use an official
 release version whenever possible. If you must use a developmental version,
 please modify the package version to reflect the fact that it is a custom
-build (e.g. 0.1.3-mycompany-20051021) to prevent inconsistent development
+build (e.g. 0.1.3-mycompany-20121021) to prevent inconsistent development
 packages from escaping into the wild.
 
 === Further information
