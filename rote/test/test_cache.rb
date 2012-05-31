@@ -8,6 +8,7 @@ $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__),'../lib'))
 
 require 'rake'
 require 'rote/cache'
+require 'test/unit'
 
 Rake.cache_enabled = false
 
