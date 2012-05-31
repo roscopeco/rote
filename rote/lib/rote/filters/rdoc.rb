@@ -7,8 +7,8 @@
 #++
 
 require 'rote/filters/base'
-require 'rdoc/markup/simple_markup'
-require 'rdoc/markup/simple_markup/to_html'
+require 'rdoc/markup'
+require 'rdoc/markup/to_html'
 
 module Rote
   module Filters
@@ -16,10 +16,9 @@ module Rote
     #####
     ## Page filter supporting RDoc markup.     
     class RDoc < TextFilter
-      def initialize(markup = SM::SimpleMarkup.new, output = SM::ToHtml.new)
+      def initialize(markup = ::RDoc::Markup::ToHtml.new)
         @markup = markup
-        @output = output
-        self.handler_blk = proc { |text,page| @markup.convert(text, @output) }
+        self.handler_blk = proc { |text,page| @markup.convert(text) }
       end      
     end
   end
