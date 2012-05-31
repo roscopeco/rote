@@ -50,7 +50,7 @@ else
 end
 
 if ENV['REL']
-  PKG_VERSION = ENV['REL']
+  PKG_VERSION = ENV['REL'].dup
 else
   PKG_VERSION = CURRENT_VERSION
 end
