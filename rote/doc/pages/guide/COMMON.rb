@@ -14,7 +14,7 @@ end
 
 def section(level, name, toplink = true)
 %Q{
-#{"[#{section_link('Top')}]" if toplink}
+#{"[#{section_link('Top')}]" if toplink}\n
 h#{level}. #{name}
 }
 end
