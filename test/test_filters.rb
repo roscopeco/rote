@@ -109,7 +109,7 @@ module Rote
       t = Filters::RedCloth.new.filter('*Textile* _Test_', nil)
       assert_equal '<p><strong>Textile</strong> <em>Test</em></p>', t
 
-      t = Filters::RedCloth.new(:textile).filter('*Textile* _Test_', nil)
+      t = Filters::RedCloth.new.filter('*Textile* _Test_', nil)
       assert_equal '<p><strong>Textile</strong> <em>Test</em></p>', t
     end
 
@@ -135,7 +135,7 @@ module Rote
     unless defined?(TEST_FROM_GEM)
       def test_render_rdoc
         t = Filters::RDoc.new.filter("== RDoc\n=== Markup",nil)
-        assert_equal "<h2>RDoc</h2>\n<h3>Markup</h3>\n", t
+        assert_equal "\n<h2>RDoc</h2>\n\n<h3>Markup</h3>\n", t
       end
     end
     
