@@ -1,6 +1,6 @@
 #--
 # Rote page class
-# (c)2005, 2006 Ross Bamford (and contributors)
+# (c)2005, 2006, 2012 Ross Bamford (and contributors)
 #
 # See 'rote.rb' or LICENSE for licence information.
 # $Id$
@@ -150,7 +150,7 @@ module Rote
     #
     # *Deprecated* This has no knowledge of nested layout,
     # and operates only on the innermost layout.
-    attr_reader :layout_text    # Deprecated vv0.3.2 v-0.4    
+    attr_reader :layout_text    # layout_text is deprecated (doesn't work with nested layout) vv0.3.2 v-0.4    
     
     # The basename from which this page's template was read, 
     # relative to the +base_path+.
@@ -389,7 +389,7 @@ module Rote
       @layout_names.each do |fn|
         txt = load_layout(fn)
         
-        @layout_text ||= txt    # legacy support    vv0.3.2 v-0.4
+        @layout_text ||= txt    # layout_text legacy support    vv0.3.2 v-0.4
         
         # render into the layout if supplied.
         if txt

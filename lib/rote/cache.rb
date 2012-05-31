@@ -1,7 +1,7 @@
 # Dependency caching / memoize to disk for Rake / Rote
 # Contributed by Jonathan Paisley (very slightly modified)
 #--
-# (c)2005, 2006 Ross Bamford (and contributors)
+# (c)2005, 2006, 2012 Ross Bamford (and contributors)
 #
 # See 'rote.rb' or LICENSE for licence information.
 # $Id$
@@ -22,9 +22,10 @@ require 'yaml'
 require 'pathname'
 require 'rake'
 
-module Rake
-  
+module Rake 
   class << self
+    include Rake::DSL
+    
     # Directory for storing Rake dependency cache
     def cache_dir=(val); @cache_dir = val; end
     def cache_dir; @cache_dir ||= ".rake_cache"; end
@@ -54,7 +55,7 @@ module Rake
       task = (current_task.name if current_task) unless task
       if task then
         file task => deps
-        (cached_dependencies[task] ||= []) << deps
+         (cached_dependencies[task] ||= []) << deps
       end
     end
   end
