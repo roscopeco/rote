@@ -33,6 +33,23 @@ require 'rote/format/html'
 require 'rote/extratasks'
 include Rote
 
+# workaround a (possible) bug in Rake, or maybe a problem we've introduced...
+module Rake
+  class << self
+    old_rake_check_options = instance_method(:rake_check_options).bind(self)
+    old_rake_output_message = instance_method(:rake_output_message).bind(self)
+    
+    define_method(:rake_check_options) do |*args|
+      old_rake_check_options.call(*args)
+    end
+
+    define_method(:rake_output_message) do |*args|
+      old_rake_output_message.call(*args)
+    end
+  end
+end
+# end workaround 
+
 CLEAN.include('tidy.log')
 CLOBBER.include('TAGS')
 CLOBBER.include('html')
