@@ -230,7 +230,7 @@ module Rote
       tasks = res_fl.select { |fn| not File.directory?(fn) }.map do |fn|
         tfn, = target_fn(/^#{res.dir}/, fn)
         
-        desc "#{fn} => #{tfn}" #if show_file_tasks?
+        desc "#{fn} => #{tfn}" if show_file_tasks?
         file tfn => [fn] do
           dn = File.dirname(tfn)
           mkdir_p dn unless File.exists?(dn)
@@ -250,7 +250,7 @@ module Rote
       gen_files = pages_fl.select { |fn| not File.directory?(fn) }.map do |fn|
         tfn, blk = target_fn(/^#{pages.dir}/, fn) 
                  
-        desc "#{fn} => #{tfn}" #if show_file_tasks?
+        desc "#{fn} => #{tfn}" if show_file_tasks?
         file tfn => [fn] do
           dn = File.dirname(tfn)
           mkdir_p dn unless File.exists?(dn)
