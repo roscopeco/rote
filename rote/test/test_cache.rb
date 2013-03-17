@@ -15,6 +15,8 @@ Rake.cache_enabled = false
 module Rote  
   class TestCache < Test::Unit::TestCase
 
+    include Rake::DSL
+
     def test_rake_cache_dir
       assert_equal '.rake_cache', Rake.cache_dir
       Rake.cache_dir = './.cache'
