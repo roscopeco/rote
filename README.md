@@ -6,7 +6,7 @@ What is this?
 
 Rote is a simple page-based template system that was written to make it
 easier to author and maintain non-dynamic websites and offline documentation. 
-Rote provides a simple commandline or Rake [http://rake.rubyforge.org] based 
+Rote provides a simple commandline or [Rake](http://rake.rubyforge.org) based
 build for your pages, with page rendering (optionally supporting Textile, RDoc, 
 Markdown, and embedded Ruby code with [RedCloth](http://redcloth.rubyforge.org/)
 and [ERB](http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html)), 
@@ -24,12 +24,12 @@ you may find you can use older versions, you may not).
 The following optional dependencies will be used if present:
 
 * RubyGems 1.8.16 (http://rubygems.rubyforge.org/) 
-* RedCloth 4.2.9 ('gem install RedCloth') (_Only required if Textile formatting is used_)
-* BlueCloth 1.0.1 ('gem install BlueCloth') (_Only required if Markdown or formatting is used_)
-* Syntax 1.0.0 ('gem install syntax') (_Only required if syntax highlighting formatting is used_)
-* HTMLTidy (http://tidy.sourceforge.net/) (_Only required if Tidy filter is used_)
+* RedCloth 4.2.9 ('gem install RedCloth') (*Only required if Textile formatting is used*)
+* BlueCloth 1.0.1 ('gem install BlueCloth') (*Only required if Markdown or formatting is used*)
+* Syntax 1.0.0 ('gem install syntax') (*Only required if syntax highlighting formatting is used*)
+* HTMLTidy (http://tidy.sourceforge.net/) (*Only required if Tidy filter is used*)
 
-[RubyGems](http://rubygems.org) is *highly recommended*,
+[RubyGems](http://rubygems.org) is **highly recommended**,
 and makes for not only an easier install but a cleaner library path.
 Rote is tested with Gems 2.0.3.
 
@@ -59,7 +59,8 @@ this method.
 ### ... with install.rb?
 
 If you don't have RubyGems, you can install from one of the tarball or zip
-packages, using the following command:
+packages found on [our RubyForge page](http://http://rubyforge.org/frs/?group_id=1120)
+, using the following command:
 ```
 	ruby install.rb
 ```	
@@ -83,7 +84,7 @@ With that done, you should be able to run
 to verify that the command-line wrapper is working. You should of course see
 the version number of your Rote installation.
 
-*NOTE* Windows users - you may experience problems at this point, with Rote
+**NOTE** Windows users - you may experience problems at this point, with Rote
 complaining that 'rake' is an invalid command. To fix this, simply set an
 environment variable, RAKE_CMD, with the command to execute for rake
 (e.g. rake.bat).
