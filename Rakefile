@@ -131,21 +131,22 @@ rd = Rake::RDocTask.new(:rdoc) { |rdoc|
 #  rdoc.template = 'css2'
 #  rdoc.template = 'doc/jamis.rb'
   rdoc.title    = "Rote"
-  rdoc.options << '--line-numbers' << '--inline-source' << '--main' << 'README'
-  rdoc.rdoc_files.include('README', 'LICENSE', 'TODO', 'CONTRIBUTORS')
+  rdoc.options << '--line-numbers' << '--inline-source' << '--main' << 'README.md'
+  rdoc.rdoc_files.include('README.md', 'LICENSE', 'TODO', 'CONTRIBUTORS')
   rdoc.rdoc_files.include('lib/**/*.rb', 'doc/**/*.rdoc')
   rdoc.rdoc_files.exclude(/\bcontrib\b/)
   rdoc.rdoc_files.exclude('lib/rote/project/**/*')
 }
 
 # Code coverage report
-Rote::RCovTask.new { |rcov|
-  rcov.test_files.include 'test/gem*.rb'
-  rcov.source_files.include 'lib/**/*.rb'
-  rcov.profile = true
-  rcov.output_dir = 'html/coverage'
-  rcov.failonerror = false   # don't stop the build if rcov doesn't work...
-}
+# TODO removed for now as rcov doesn't like Ruby 1.9
+#Rote::RCovTask.new { |rcov|
+#  rcov.test_files.include 'test/gem*.rb'
+#  rcov.source_files.include 'lib/**/*.rb'
+#  rcov.profile = true
+#  rcov.output_dir = 'html/coverage'
+#  rcov.failonerror = false   # don't stop the build if rcov doesn't work...
+#}
 
 # Create a task build the website / docs
 ws = Rote::DocTask.new(:doc) { |site| 
@@ -175,7 +176,7 @@ ws = Rote::DocTask.new(:doc) { |site|
 }
 
 # add rdoc/rcov deps to doc task
-task :doc => [:rdoc, :rcov]
+task :doc => [:rdoc]
 
 desc "Publish the documentation and web site"
 task :doc_upload => [ :doc ] do
@@ -442,15 +443,17 @@ task :prerelease do
   end
 
   # Are all source files checked in?
-  if ENV['RELTEST']
-    announce "Release Task Testing, skipping checked-in file test"
-  else
-    announce "Checking for unchecked-in files..."
-    data = `svn status`
-    unless data =~ /^$/
-      fail "SVN status is not clean ... do you have unchecked-in files?"
-    end
-    announce "No outstanding checkins found ... OK"
+  announce "Checking for unchecked-in files..."
+  data = `git status`
+  unless data =~ /^nothing to commit (working directory clean)/
+    fail "GIT status is not clean ... do you have unchecked-in files?"
+  end
+  announce "No outstanding checkins found ... OK"
+    
+  # Check we're on master
+  branch = /^\*\s+(.*)$/.match(`git branch`)[1]
+  if !branch.eql? 'master'
+    fail "Please merge to master before making a release"
   end
 end
 
@@ -472,34 +475,22 @@ task :update_version => [:prerelease] do
     end
     mv "lib/rote.rb.new", "lib/rote.rb"
     if ENV['RELTEST']
-      announce "Release Task Testing, skipping commiting of new version"
+      announce "Release Task Testing; Would exec: git commit -m \"Updated to version #{PKG_VERSION}\" lib/rote.rb"
     else
-      sh %{svn commit -m "Updated to version #{PKG_VERSION}" lib/rote.rb}
+      sh %{git commit -m "Updated to version #{PKG_VERSION}" lib/rote.rb}
     end
   end
 end
 
-desc "Create a new SVN tag with the latest release number (REL=x.y.z)"
+desc "Create a new Git tag with the latest release number (REL=x.y.z)"
 task :tag => [:prerelease] do
   reltag = "REL_#{PKG_VERSION.gsub(/\./, '_')}"
   reltag << ENV['REUSE'].gsub(/\./, '_') if ENV['REUSE']
-  announce "Tagging CVS with [#{reltag}]"
+  announce "Tagging Git with [#{reltag}]"
   if ENV['RELTEST']
-    announce "Release Task Testing, skipping SVN tagging"
+    announce "Release Task Testing; Would exec: git tag -a #{reltag} -m \"Release #{PKG_VERSION}\""
   else
-    # need to get current base URL
-    s = `svn info`
-    if s =~ /URL:\s*([^\n]*)\n/
-      svnroot = $1
-      if svnroot =~ /^(.*)\/trunk/
-        svnbase = $1
-        sh %{svn cp #{svnroot} #{svnbase}/tags/#{reltag} -m "Release #{PKG_VERSION}"}
-      else
-        fail "Please merge to trunk before making a release"
-      end
-    else 
-      fail "Unable to determine repository URL from 'svn info' - is this a working copy?"
-    end  
+    sh %{git tag -a #{reltag} -m "Release #{PKG_VERSION}"}
   end
 end
 
