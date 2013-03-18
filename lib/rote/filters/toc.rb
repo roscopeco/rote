@@ -66,7 +66,7 @@ module Rote
         # find headings *and insert named anchors*
         text.gsub(%r[<(#{@tags_re})>(.*?)</\1>]) do
           headings << (h = Heading[$1,$2])
-          %Q[<a name='#{h.anchor}'></a>#{$&}]
+          %Q[<a id='#{h.anchor}'></a>#{$&}]
         end        
       end   
     end

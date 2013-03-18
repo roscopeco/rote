@@ -1,6 +1,6 @@
 <% @page_title = 'User guide' %>
 
-<a name='top'></a>
+<a id='top'></a>
 
 It is assumed that you have installed Rote already. If not, please consult the "README":<%= link_rel '/index.html' %> for installation instructions.
 
@@ -15,12 +15,11 @@ It is assumed that you have installed Rote already. If not, please consult the "
 
 To get started quickly, we'll use the built-in project template, which provides a standard Rote directory tree with a single page, and Rakefile ready for customisation. The template gives a convenient way to get started on a new Rote project. To invoke it, just type:
 
-<p><pre><code>        rote create someproject</code></pre></p>
+pre.        rote create someproject
 
 If all goes well, you should see a single line (@cp_r ...@) indicating that Rote copied the template to your specified directory (@someproject@ in this case). This directory will have the following layout:
 
-<p><pre><code>
-  someproject
+pre.  someproject
   |
   |--> Rakefile
   |
@@ -37,8 +36,6 @@ If all goes well, you should see a single line (@cp_r ...@) indicating that Rote
   |         |--> index.thtml
   |         |--> index.rb
 			  
-</code></pre></p>
-
 Template sources under the 'pages' directory may have any extension (except @rb@), and will be rendered to the same base-name under the output directory, with their file extension supplied by the original, possible via an <%= section_link 'extension_mappings', 'extension mapping' %> 
 See the section on Layouts below for details on layout name resolution.
 
@@ -59,8 +56,8 @@ built-in version of the standard Rakefile.
 
 Given the above layout, you can generate the documentation set by running:
 
-<p><pre><code>        rote</code></pre></p>
-	
+pre.        rote
+
 from the top-level directory (@project@ in the example above), you should get a 'html' directory created with the (transformed) templates, and any 
 resources should be copied as necessary. 
 
@@ -71,21 +68,21 @@ rote again, then just that file will be updated. Even dependencies that are dete
 The file tasks are named for the target files, so for example to generate just the top-level index.html (regardless of whether it's been modified)
 you'd run:
 
-<p><pre><code>        rote html/index.html</code></pre></p>
+pre.        rote html/index.html
 
 The @clobber@ task supports deleting all output files to start from scratch:
 
-<p><pre><code>        rote clobber</code></pre></p>
+pre.        rote clobber
 
 Of course, multiple file or task names (or a mixture) can be specified.
 You can get a list of valid tasks in the current context with:
 
-<p><pre><code>        rote --tasks</code></pre></p>
-	
+pre.        rote --tasks
+
 Further command-line usage information is available with:
 	
-<p><pre><code>        rote --usage</code></pre></p>
-	
+pre.        rote --usage
+
 and Unix installations performed with @install.rb@ should also make a manpage available for the @rote@ command.
 
 <div class='note'>
@@ -100,7 +97,7 @@ If you are wanting to build documentation as part of a larger build process, or 
 	
 There is nothing special about this Rakefile, and it can use any of the other Rake tasks, or indeed any other Ruby code. It is run with a command like:
 
-<pre><code>        rake doc</code></pre>
+pre.        rake doc
 
 If all goes well, you should see each command and transformation output to your console as Rote runs. 
 
@@ -295,7 +292,7 @@ This is a macro filter, and should be applied in the _page filter chain_:
   page_filter Filters::Syntax.new
 #:code#	  
 
-This filter uses the "Syntax":http://syntax.rubyforge.org/ library, passing the macro argument as the language ('ruby', 'xml' and 'yaml' are supported out of the box). The output is wrapped in &lt;pre class='[language]'&gt;&lt;code&gt; ... &lt;/code&gt;&lt;/pre&gt; for output, with highlighting handled by <span> tags, allowing syntax colours and styles to be applied via CSS. You can find a full list of the Ruby highlight classes
+This filter uses the "Syntax":http://syntax.rubyforge.org/ library, passing the macro argument as the language ('ruby', 'xml' and 'yaml' are supported out of the box). The output is wrapped in &lt;pre class='[language]'&gt;&lt;code&gt; ... &lt;/code&gt;&lt;/pre&gt; for output, with highlighting handled by &lt;span&gt; tags, allowing syntax colours and styles to be applied via CSS. You can find a full list of the Ruby highlight classes
 in the "Syntax documentation":http://syntax.rubyforge.org/chapter-2.html but you will need to experiment with the highlighter to find the XML and YAML classes.
 
 Code to be highlighted is inserted into pages like so:
@@ -337,7 +334,7 @@ Filters are of course very simple to write. See the 'Writing filters' subsection
 <%= section 4, 'Format helpers' %>
 
 p{color:red}. *TODO* This section is under construction.
-Please see "@Rote::Format::HTML@":<%= link_rel '/rdoc/classes/Rote/Format/HTML.html' %> for currently available information.
+Please see "@Rote::Format::HTML@":<%= link_rel '/rdoc/Rote/Format/HTML.html' %> for currently available information.
 
 <%= section 3, 'Resources' %>
 
