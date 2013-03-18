@@ -131,7 +131,7 @@ rd = Rake::RDocTask.new(:rdoc) { |rdoc|
 #  rdoc.template = 'css2'
 #  rdoc.template = 'doc/jamis.rb'
   rdoc.title    = "Rote"
-  rdoc.options << '--line-numbers' << '--inline-source' << '--main' << 'README.md'
+  rdoc.options << '--line-numbers' << '--main' << 'README.md'
   rdoc.rdoc_files.include('README.md', 'LICENSE', 'TODO', 'CONTRIBUTORS')
   rdoc.rdoc_files.include('lib/**/*.rb', 'doc/**/*.rdoc')
   rdoc.rdoc_files.exclude(/\bcontrib\b/)
@@ -221,6 +221,7 @@ else
     s.name = 'rote'
     s.version = PKG_VERSION
     s.summary = "Adds template-based doc support to Rake."
+    s.license = "MIT"
     s.description = <<-EOF
       Rote is a set of Rake task libraries and utilities that
       enable easy rendering of textual documentation formats
@@ -251,10 +252,8 @@ else
     s.extra_rdoc_files = rd.rdoc_files.reject { |fn| fn =~ /\.rb$/ }.to_a
     s.rdoc_options <<
       '--title' <<  'Rote -- Template-based doc support for Rake' <<
-      '--main' << 'README' <<
+      '--main' << 'README.md' <<
       '--line-numbers' << 
-      #'--inline-source' <<   # now deprecated...
-      '--template' << 'doc/jamis.rb'
       '-o' << 'html'      
 
     s.test_files = Dir.glob('test/gem_*.rb')

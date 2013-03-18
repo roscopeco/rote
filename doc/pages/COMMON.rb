@@ -17,11 +17,9 @@
 					{:title => 'RDoc',
 					 :url => '/rdoc/'},
 					{:title => 'Issue tracker',
-					 :url => 'http://rubyforge.org/tracker/?group_id=1120'},
-					{:title => 'Project home',
-					 :url => 'http://rubyforge.org/projects/rote'},					 
-					{:title => 'Browse CVS',
-					 :url => 'http://rubyforge.org/cgi-bin/viewcvs.cgi/?cvsroot=rote'},
+					 :url => 'https://github.com/roscopeco/rote/issues'},
+					{:title => 'Source Code',
+					 :url => 'http://github.com/roscopeco/rote'},
 					{:title => 'Licence',
 					 :url => '/license.html'}					 
 					]

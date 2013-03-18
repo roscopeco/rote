@@ -90,7 +90,7 @@ module Rote
 Usage: rote [options] [task1] .. [taskN]
 
 Where [taskN] is a valid task or target name for the current project. 
-Rite generates targets for each page source, and also defines a number
+Rote generates targets for each page source, and also defines a number
 of top-level tasks for various things. Use the '--tasks' option to get
 a list of valid tasks.
 

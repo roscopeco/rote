@@ -1,3 +1,5 @@
 *.swp
 .rake_cache
 html
+pkg
+
