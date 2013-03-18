@@ -444,7 +444,7 @@ task :prerelease do
   # Are all source files checked in?
   announce "Checking for unchecked-in files..."
   data = `git status`
-  unless data =~ /^nothing to commit (working directory clean)/
+  unless data =~ /nothing to commit (working directory clean)/m
     fail "GIT status is not clean ... do you have unchecked-in files?"
   end
   announce "No outstanding checkins found ... OK"
