@@ -41,7 +41,7 @@ end
 require 'rake'
 
 # Master Rote version. Manage this from the Rake release support.
-ROTEVERSION = '0.3.9'
+ROTEVERSION = '0.4.0'
 
 #####
 ## *Rote* is a Rake (http://rake.rubyforge.org) based build tool for static
