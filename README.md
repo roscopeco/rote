@@ -7,10 +7,14 @@ What is this?
 Rote is a simple page-based template system that was written to make it
 easier to author and maintain non-dynamic websites and offline documentation. 
 Rote provides a simple commandline or [Rake](http://rake.rubyforge.org) based
-build for your pages, with page rendering (optionally supporting Textile, RDoc, 
-Markdown, and embedded Ruby code with [RedCloth](http://redcloth.rubyforge.org/)
-and [ERB](http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html)), 
-layout, and general documentation / website build tasks.
+build for your pages, with page rendering (optionally supporting 
+[HAML](http://haml.info), [Textile](http://redcloth.org/), 
+[RDoc](http://rdoc.rubyforge.org/), 
+[Markdown](http://www.deveiate.org/projects/BlueCloth), and 
+[ERB](http://ruby-doc.org/stdlib-1.9.3/libdoc/erb/rdoc/ERB.html), when 
+appropriate libraries are available), layout, CSS rendering with both 
+[Sass](http://http://sass-lang.com/) and [LESS](http://lesscss.org/), and 
+general documentation / website build tasks.
 
 Prerequisites
 -------------
@@ -23,15 +27,26 @@ you may find you can use older versions, you may not).
 
 The following optional dependencies will be used if present:
 
-* RubyGems 1.8.16 (http://rubygems.rubyforge.org/) 
-* RedCloth 4.2.9 ('gem install RedCloth') (*Only required if Textile formatting is used*)
-* BlueCloth 1.0.1 ('gem install BlueCloth') (*Only required if Markdown or formatting is used*)
-* Syntax 1.0.0 ('gem install syntax') (*Only required if syntax highlighting formatting is used*)
-* HTMLTidy (http://tidy.sourceforge.net/) (*Only required if Tidy filter is used*)
+* RubyGems 1.8.16 (2.0.3 recommended) (http://rubygems.rubyforge.org/) 
+* HAML 4.0.0 ( *Only required if HAML is used in your site* )
+* Sass 3.2.6 ( *Only required if SCSS/SASS is used in your site* )
+* LESS 1.3.3 ( *Only required if LESS is used in your site* )
+* RedCloth 4.2.9 ('gem install RedCloth') ( *Only required if Textile formatting is used* )
+* BlueCloth 1.0.1 ('gem install BlueCloth') ( *Only required if Markdown or formatting is used* )
+* Syntax 1.0.0 ('gem install syntax') ( *Only required if syntax highlighting formatting is used* )
+* HTMLTidy (http://tidy.sourceforge.net/) ( *Only required if Tidy filter is used* )
+
+The version numbers above indicate either the versions Rote is tested with, or
+the minimum version numbers it is know to work with. YMMV when working with
+other versions.
 
 [RubyGems](http://rubygems.org) is **highly recommended**,
 and makes for not only an easier install but a cleaner library path.
 Rote is tested with Gems 2.0.3.
+
+If you are developing Rote and plan to run the unit tests, you will need all
+the above dependencies (except Rubygems) to successfully complete a full test 
+run. 
 
 Please note that Rote is written and tested on Linux - I have no facilities
 to test with, e.g. Windows, and would like very much to hear about any issues 
