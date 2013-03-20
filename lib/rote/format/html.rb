@@ -43,7 +43,7 @@ module Rote
         thr
       end
           
-      alias :link_rel :relative    # Alias 'link_rel' is deprecated, vv0.2.99 v-0.4
+      alias :link_rel :relative
     end # HTML
   end # Format
 end # Rote
