@@ -23,7 +23,7 @@ module Rote
     
       # Create a new filter instance, using the specified output format,
       # and optionally a custom 'tidy' command and options.    
-      def initialize(format = :scss, sasscmd = ENV['SASSCMD'], sassopts = '') 
+      def initialize(format = :scss, sassopts = '', sasscmd = ENV['SASSCMD'])
         @sasscmd = sasscmd || (RUBY_PLATFORM =~ /mswin/ ? 'sass.bat' : 'sass')
           # TODO windows 'sass.bat' correct?
           
@@ -35,16 +35,15 @@ module Rote
       
       def filter(text, page)
         # TODO need to properly capture and log warnings here
-        result = IO.popen("#{@sasscmd} #{self.sassopts} #{'--scss' if @format.eql? :scss} --stdin","r+") do |fp|
+        result = IO.popen("#{@sasscmd} #{self.sassopts} #{'--scss' if @format.eql? :scss} --stdin 2>&1","r+") do |fp|
            Thread.new { fp.write(text); fp.close_write }
            fp.read
         end
         
-        if $?.exitstatus < 2
+        if $?.exitstatus.eql? 0
           result
         else
-          warn 'sass command failed (exitstatus: $?)'
-          text
+          fail "sass command failed (exitstatus: #$?): #{result}"
         end
       end
       

@@ -96,6 +96,53 @@ TOCEXPECTALL = <<-EOM
   <p>This is section two</p>  
 EOM
 
+SCSSTEST = <<-EOM
+  body {
+    background: {
+      color: white;
+    }
+  }
+EOM
+
+SASSTEST = <<-EOM
+body
+  background-color: #ffffff
+EOM
+
+SASSEXPECT = <<-EOM
+body {
+  background-color: white; }
+EOM
+
+LESSTEST = <<-EOM
+@the-border: 1px;
+@base-color: #111;
+@red:        #842210;
+
+#header {
+  color: (@base-color * 3);
+  border-left: @the-border;
+  border-right: (@the-border * 2);
+}
+
+#footer {
+  color: (@base-color + #003300);
+  border-color: desaturate(@red, 10%);
+}
+EOM
+
+LESSEXPECT = <<-EOM
+#header {
+  color: #333333;
+  border-left: 1px;
+  border-right: 2px;
+}
+#footer {
+  color: #114411;
+  border-color: #7d2717;
+}
+EOM
+
 module Rote  
   class TestFilters < Test::Unit::TestCase
     
@@ -185,8 +232,29 @@ module Rote
       # Make sure Stdout was returned to normal
       assert $stdout.class != StringIO
     end
+    
+    ############## Sass filter #################
+    def test_sass_filter_bad
+      assert_raise(RuntimeError) do
+        Filters::Sass.new.filter('malformed {', nil)
+      end
+    end
+
+    def test_sass_filter_good
+      assert_equal SASSEXPECT, Filters::Sass.new.filter(SCSSTEST, nil)
+      assert_equal SASSEXPECT, Filters::Sass.new(:sass).filter(SASSTEST, nil)
+    end
+    
+    ############## Less filter #################
+    def test_less_filter_bad
+      assert_raise(RuntimeError) do
+        Filters::Less.new.filter('malformed {', nil)
+      end
+    end
+
+    def test_less_filter_good
+      assert_equal LESSEXPECT, Filters::Less.new.filter(LESSTEST, nil)
+    end
   end
-  
-  
 end    
   

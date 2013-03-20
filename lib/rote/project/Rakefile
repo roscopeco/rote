@@ -75,6 +75,10 @@ ws = Rote::DocTask.new(:doc) do |site|
   site.ext_mapping('sass', 'css') do |page|
     page.post_filter Filters::Sass.new :sass
   end
+
+  site.ext_mapping('less', 'css') do |page|
+    page.post_filter Filters::Less.new
+  end
 end
 
 task :default => [:doc]
