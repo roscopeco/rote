@@ -167,6 +167,10 @@ ws = Rote::DocTask.new(:doc) { |site|
     
     #page.post_filter Filters::Tidy.new
   end
+
+  site.ext_mapping('scss', 'css') do |page|
+    page.post_filter Filters::Sass.new
+  end
   
   site.res.dir = 'doc/res'
   site.res.include('**/*.png')

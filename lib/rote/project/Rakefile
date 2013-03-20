@@ -57,11 +57,24 @@ ws = Rote::DocTask.new(:doc) do |site|
   site.ext_mapping(/rdhtml|rdoc/, 'html') do |page|
     page.extend Format::HTML
     page.page_filter Filters::RDoc.new
-  end      
+  end
+
+  site.ext_mapping('haml', 'html') do |page|
+    page.extend Format::HTML
+    page.page_filter Filters::Haml.new
+  end
   
   site.ext_mapping(/html/, 'html') do |page|
     page.extend Format::HTML
-  end    
+  end
+
+  site.ext_mapping('scss', 'css') do |page|
+    page.post_filter Filters::Sass.new
+  end
+
+  site.ext_mapping('sass', 'css') do |page|
+    page.post_filter Filters::Sass.new :sass
+  end
 end
 
 task :default => [:doc]
