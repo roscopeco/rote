@@ -83,16 +83,16 @@ TOCTEST = <<-EOM
 EOM
 
 TOCEXPECTH2 = <<-EOM
-  <a name='section_one'></a><h2>Section One</h2>
+  <a id='section_one'></a><h2>Section One</h2>
   <p>This is section one</p>  
   <h3>Section Two</h3>
   <p>This is section two</p>  
 EOM
 
 TOCEXPECTALL = <<-EOM
-  <a name='section_one'></a><h2>Section One</h2>
+  <a id='section_one'></a><h2>Section One</h2>
   <p>This is section one</p>  
-  <a name='section_two'></a><h3>Section Two</h3>
+  <a id='section_two'></a><h3>Section Two</h3>
   <p>This is section two</p>  
 EOM
 
