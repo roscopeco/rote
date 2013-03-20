@@ -93,10 +93,8 @@ How do I use it?
 ----------------
 
 Please see the user guide for usage information. The latest version can be
-found online at http://github.com/roscopeco/rote , and documentation source for
+found online at http://rote.rubyforge.org , and documentation source for
 a specific release is included in the release package. 
-
-See above for instructions on building the documentation set.
 
 A note about version numbers
 ----------------------------
@@ -125,8 +123,9 @@ Rote is developed by Ross Bamford (roscopeco at gmail dot com), with help from
 the developers listed in CONTRIBUTORS. Any bugs are probably down to Ross, 
 though, so flame him if it breaks your day ;P
 
-* Homepage - http://github.com/roscopeco/rote
-* Issues - https://github.com/roscopeco/rote/issues
+* Homepage - http://rote.rubyforge.org
+* Source - http://github.com/roscopeco/rote
+* Issues - http://github.com/roscopeco/rote/issues
 * Lists - rote-users@rubyforge.org, rote-devel@rubyforge.org (http://rubyforge.org/mail/?group_id=1120)
 
 Thanks

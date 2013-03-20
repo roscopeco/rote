@@ -20,6 +20,8 @@
 					 :url => 'https://github.com/roscopeco/rote/issues'},
 					{:title => 'Source Code',
 					 :url => 'http://github.com/roscopeco/rote'},
+          {:title => 'Mailing lists',
+           :url => 'http://rubyforge.org/mail/?group_id=1120'},
 					{:title => 'Licence',
 					 :url => '/license.html'}					 
 					]
