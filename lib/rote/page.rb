@@ -145,13 +145,6 @@ module Rote
     # The text of the template to use for this page.
     attr_reader :template_text
 
-    # The text of the layout to use for this page. This is read in
-    # when (if) the page source calls layout(basename).
-    #
-    # *Deprecated* This has no knowledge of nested layout,
-    # and operates only on the innermost layout.
-    attr_reader :layout_text    # layout_text is deprecated (doesn't work with nested layout) vv0.3.2 v-0.4    
-    
     # The basename from which this page's template was read, 
     # relative to the +base_path+.
     attr_reader :template_name
@@ -163,7 +156,6 @@ module Rote
     # from COMMON.rb since its behaviour is undefined until all page code is
     # evaluated and the final base_layout is known.
     def base_layout_name; layout_names.first; end       
-    alias :layout_name :base_layout_name    # Compat alias, please migrate  vv0.3.3 v-0.4
     
     # The base path for template resolution.
     attr_reader :base_path
@@ -202,7 +194,6 @@ module Rote
       @result = nil
       @layout_defext = File.extname(template_name)
       @layout_path = layout_dir[STRIP_SLASHES,1]
-      @layout_text = nil
       @base_path = pages_dir[STRIP_SLASHES,1]
       
       @page_filters, @post_filters = [], []
@@ -234,9 +225,8 @@ module Rote
     # Returns the full filename of the first queued layout. This is
     # the innermost layout, usually specified by the page itself.
     def base_layout_filename
-      layout_fn(layout_name)
+      layout_fn(base_layout_name)
     end
-    alias :layout_filename :base_layout_filename    # Compat alias, please migrate  vv0.3.3 v-0.4
     
     # Returns the full filename of this Page's ruby source. If no source is
     # found for this page (not including common source) this returns +nil+.
@@ -389,8 +379,6 @@ module Rote
       @layout_names.each do |fn|
         txt = load_layout(fn)
         
-        @layout_text ||= txt    # layout_text legacy support    vv0.3.2 v-0.4
-        
         # render into the layout if supplied.
         if txt
           erb = ERB.new(txt)
@@ -403,10 +391,6 @@ module Rote
       freeze
       
       @result 
-    end
-        
-    def inherit_common    # inherit_common is implicit now    vv0.2.99  v-0.4
-      warn "Warning: inherit_common is deprecated (inheritance is now implicit)"
     end
         
     # Find and evaluate all COMMON.rb files from page dir up to FS root.

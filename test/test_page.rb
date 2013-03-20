@@ -47,14 +47,6 @@ module Rote
       assert_equal 'Just some text', p.template_text.chomp
     end
             
-    def test_layout_text
-      (p = new_test_page('justtext')).render
-      assert_nil p.layout_text
-      
-      (p = new_test_page('withcode')).render
-      assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
-    end
-    
     def test_base_path
       p = new_test_page('justtext')
       assert_equal 'test/pages', p.base_path
@@ -129,7 +121,7 @@ module Rote
     ############## layout code #################
     def test_layout_code
       (p = new_test_page('withcode')).render
-      assert_equal 'test/layouts/simple.txt', p.layout_filename
+      assert_equal 'test/layouts/simple.txt', p.base_layout_filename
       assert p.instance_eval { @layout_code_works }            
     end
     
@@ -138,7 +130,7 @@ module Rote
     def test_default_layout_params
       (p = Page.new('samedir.txt','test/pages/')).render        
       assert_equal '<%= @global %>', p.template_text.chomp
-      assert_equal 'Lay <%= @content_for_layout %> out.', p.layout_text.chomp
+      assert_equal ['baselayout.txt'], p.layout_names
     end      
     
     # this is testing also that layouts can be specified in the template itself    
@@ -146,12 +138,12 @@ module Rote
       p = new_test_page('custext')
       
       # Should have no layout yet (until render)
-      assert_nil p.layout_text
+      assert_empty p.layout_names
       
       # Render will load layout, it'll be available after
       assert_equal "layout \nsome other text for a change.", p.render.chomp
 
-      assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
+      assert_equal ['withext.ext'], p.layout_names
     end
     
     ############## filters ################
@@ -219,11 +211,8 @@ module Rote
       p = new_test_page('withcode')
       
       # It has a layout, but since it's not rendered it's not loaded yet
-      assert_nil p.layout_text
+      assert_equal ['simple.txt'], p.layout_names
 
-      p.layout(nil)
-      assert_nil p.layout_text     
-      
       assert_equal 'layout some text and some other text for a change.', p.render.chomp      
       assert p.instance_eval { @layout_code_works }      
       
@@ -236,7 +225,7 @@ module Rote
     
     def test_render_switch_to_bad_layout
       (p = new_test_page('withcode')).render
-      assert_equal 'layout <%= @content_for_layout %> for a change.', p.layout_text.chomp
+      assert_equal ['simple.txt'], p.layout_names
 
       begin      
         p.layout('nonexistent')
