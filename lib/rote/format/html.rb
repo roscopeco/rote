@@ -22,9 +22,60 @@ module Rote
     # +instance_eval+.
     module HTML
       include ERB::Util
+
+      #:nodoc:all
+      class Tag
+        def initialize(name, *args, &blk)
+          @name = name
+          @attrs = {}
+          @content = blk ? blk.call : ""
+          merge_args!(args)
+        end
+
+        def to_s
+          "<#{@name}#{" #{@attrs.keys.map do |k| 
+            "#{k.to_s.gsub('_', '-')}='#{@attrs[k]}'" 
+          end.join(' ')}" unless @attrs.keys.empty?}>#{@content}</#{@name}>"
+        end
+
+        def method_missing(clz, *args, &blk)
+          if @attrs[:class]
+            @attrs[:class] += " #{clz.to_s.gsub('_', '-')}"
+          else
+            @attrs[:class] = clz.to_s.gsub('_', '-')
+          end
+          merge_args!(args)
+          @content += blk.call.to_s unless blk.nil?
+          self
+        end
+
+        private
+
+        def merge_args!(args)
+          args.each do |arg|
+            if arg.is_a? Hash
+              @attrs.merge!(arg) { |k, o, n| [o, n].flatten.join(' ') } if arg.is_a? Hash
+            elsif arg.is_a? Array
+              @content += arg.join(' ')
+            elsif arg.is_a? Proc
+              @content += arg.call.to_s
+            else
+              @content += arg.to_s
+            end
+          end
+        end
+      end
       
       ###################################################################
       ## HELPERS
+
+      def tag(name, *args, &blk)
+        Tag.new(name, *args, &blk)
+      end
+
+      def method_missing(*args, &blk)
+        tag(*args, &blk)
+      end
       
     end # HTML
   end # Format
