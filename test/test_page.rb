@@ -117,6 +117,28 @@ module Rote
       p = new_test_page('withcode')
       assert_equal 'test/pages/withcode.rb', p.ruby_filename              
     end
+
+    ############## relative ###############
+
+    def test_relative
+      p = new_test_page('justtext')
+      p.instance_eval do 
+        self.extend Test::Unit::Assertions
+
+        @template_name = "three.rhtml" 
+        assert_equal '', relative('')
+        assert_equal 'not-absolute.html', relative('not-absolute.html')
+        assert_equal 'doc/not-absolute.html', relative('doc/not-absolute.html')
+        assert_equal 'doc/absolute.html', relative('/doc/absolute.html')
+        assert_equal 'doc/files/deep/other.html', relative('/doc/files/deep/other.html')
+        
+        @template_name = "one/two/three.rhtml" 
+        assert_equal 'not-absolute.html', relative('not-absolute.html')
+        assert_equal 'doc/not-absolute.html', relative('doc/not-absolute.html')
+        assert_equal '../../doc/absolute.html', relative('/doc/absolute.html')
+        assert_equal '../../doc/files/deep/other.html', relative('/doc/files/deep/other.html')
+      end
+    end
     
     ############## layout code #################
     def test_layout_code

@@ -235,6 +235,23 @@ module Rote
       File.exists?(fn) ? fn : nil
     end
 
+    # Make the given output-root-relative path relative to the
+    # current page's path. This is handy when you do both local
+    # preview from some deep directory, and remote deployment
+    # to a root
+    def relative(href)
+      thr = href
+      
+      if thr.is_a?(String) && href[0,1] == '/'    # only interested in absolute        
+        dtfn = File.dirname(template_name) + '/'
+        
+        count = dtfn == './' ? 0 : dtfn.split('/').length
+        thr = ('../' * count) + href[1..href.length]
+      end
+      
+      thr
+    end
+
     # Append +filter+ to this page's page-filter chain, or create 
     # a new Rote::Filters::TextFilter with the supplied block.
     # This method should be preferred over direct manipulation of
