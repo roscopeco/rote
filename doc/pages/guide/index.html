@@ -2,7 +2,7 @@
 
 <a id='top'></a>
 
-It is assumed that you have installed Rote already. If not, please consult the "README":<%= link_rel '/index.html' %> for installation instructions.
+It is assumed that you have installed Rote already. If not, please consult the "README":<%= relative '/index.html' %> for installation instructions.
 
 <%= section 3, 'Conventions', false %>
 
@@ -116,7 +116,7 @@ though ruby source is implicitly excluded). The directory layout beneath the pag
 
 The default behaviour is to transform all matched <%= section_link 'template code and erb', 'templates' %> pages with ERB, and optionally apply a second render pass with a <%= section_link 'layout' %>, before writing to the same base filename beneath the output directory. You can customise this behaviour by specifying <%= section_link 'extension mappings' %> for specific file extensions - see the <%= section_link 'Rake task configuration' %> section for details.
 
-Each page and layout template used by Rote may have associated with it an optional Ruby source file, allowing variables to be defined for use in ERB code, and supporting interaction with Rote via the methods of the "@Rote::Page@":<%= link_rel '/rdoc/classes/Rote/Page.html' %> class. Page and layout code is loaded from a @rb@ file alongside the template itself.
+Each page and layout template used by Rote may have associated with it an optional Ruby source file, allowing variables to be defined for use in ERB code, and supporting interaction with Rote via the methods of the "@Rote::Page@":<%= relative '/rdoc/classes/Rote/Page.html' %> class. Page and layout code is loaded from a @rb@ file alongside the template itself.
 
 Code can also be applied across multiple pages based on filesystem hierarchy by placing it in @COMMON.rb@ files in the *pages* tree. The order of evaluation of these files travels down from the most remote COMMON.rb to the page code itself, and this provides a simple yet fairly powerful way to apply various configuration options, filtering, and user variables across your pages.
 
@@ -140,7 +140,7 @@ Additionally, when <%= section_link 'layout' %> is used the following evaluation
 * This layout's ruby code, _layout_basename_.rb.
 * In the layout itself (again, with ERB).
 
-Template code is used to support a great deal of flexibility in Rote, from selecting layouts to mixing in format helpers to controlling the filter chain. You can find details of the methods available in the "@Rote::Page@ RDoc":<%= link_rel '/rdoc/classes/Rote/Page.html' %>
+Template code is used to support a great deal of flexibility in Rote, from selecting layouts to mixing in format helpers to controlling the filter chain. You can find details of the methods available in the "@Rote::Page@ RDoc":<%= relative '/rdoc/classes/Rote/Page.html' %>
 
 <%= section 4, 'Plaintext Formatting' %>
 
@@ -222,7 +222,7 @@ h5. Standard filters
 
 Rote supplies the following filters 'out of the box':
 
-h6. *"Filters::BlueCloth":<%= link_rel '/rdoc/classes/Rote/Filters/RedCloth.html' %>* - Supports conversion of plain-text (Markdown) formatting to HTML.
+h6. *"Filters::BlueCloth":<%= relative '/rdoc/classes/Rote/Filters/RedCloth.html' %>* - Supports conversion of plain-text (Markdown) formatting to HTML.
 	  
 This is a text filter, and should be applied in the _page filter chain_:
 		
@@ -231,7 +231,7 @@ This is a text filter, and should be applied in the _page filter chain_:
   page_filter Filters::BlueCloth.new
 #:code#
 	  
-h6. *"Filters::Exec":<%= link_rel '/rdoc/classes/Rote/Filters/Exec.html' %>* - Pipes the macro body to an external command, and replaces the macro with the output of that command.
+h6. *"Filters::Exec":<%= relative '/rdoc/classes/Rote/Filters/Exec.html' %>* - Pipes the macro body to an external command, and replaces the macro with the output of that command.
 	  
 This is a macro filter, and should be applied in the _page filter chain_:
 	  
@@ -248,7 +248,7 @@ Code can then be inserted in the page like:
   #:exec#
 #:code#
 		
-h6. *"Filters::Eval":<%= link_rel '/rdoc/classes/Rote/Filters/Eval.html' %>* - Evaluates the macro body as Ruby code, capturing standard output and using it as the macro replacement.
+h6. *"Filters::Eval":<%= relative '/rdoc/classes/Rote/Filters/Eval.html' %>* - Evaluates the macro body as Ruby code, capturing standard output and using it as the macro replacement.
 	  
 This is a macro filter, and should be applied in the _page filter chain_:
 	  
@@ -265,7 +265,7 @@ Code can then be inserted in the page like:
   #:eval#
 #:code#
 		
-h6. *"Filters::RDoc":<%= link_rel '/rdoc/classes/Rote/Filters/RDoc.html' %>* - Supports RDoc formatting with optional custom markup, to any supported output format (defaults to HTML).
+h6. *"Filters::RDoc":<%= relative '/rdoc/classes/Rote/Filters/RDoc.html' %>* - Supports RDoc formatting with optional custom markup, to any supported output format (defaults to HTML).
 	  
 This is a text filter, and should be applied in the _page filter chain_:
 		
@@ -274,7 +274,7 @@ This is a text filter, and should be applied in the _page filter chain_:
   page_filter Filters::RDoc.new
 #:code#
 	  
-h6. *"Filters::RedCloth":<%= link_rel '/rdoc/classes/Rote/Filters/RedCloth.html' %>* - Supports conversion of plain-text (Textile) formatting to HTML.
+h6. *"Filters::RedCloth":<%= relative '/rdoc/classes/Rote/Filters/RedCloth.html' %>* - Supports conversion of plain-text (Textile) formatting to HTML.
 	  
 This is a text filter, and should be applied in the _page filter chain_:
 		
@@ -283,7 +283,7 @@ This is a text filter, and should be applied in the _page filter chain_:
   page_filter Filters::RedCloth.new
 #:code#
 	  
-h6. *"Filters::Syntax":<%= link_rel '/rdoc/classes/Rote/Filters/Syntax.html' %>* - Supports @code@ <%= section_link 'macros' %> with pluggable syntax highlighting (via the "Syntax library":http://syntax.rubyforge.org/) and Ruby-code support out of the box.
+h6. *"Filters::Syntax":<%= relative '/rdoc/classes/Rote/Filters/Syntax.html' %>* - Supports @code@ <%= section_link 'macros' %> with pluggable syntax highlighting (via the "Syntax library":http://syntax.rubyforge.org/) and Ruby-code support out of the box.
 	  
 This is a macro filter, and should be applied in the _page filter chain_:
 		
@@ -311,7 +311,7 @@ Note that the closing tag in the above example is missing a closing '#' - this w
 
 Since macros are rendered separately from the page text, you don't have to worry much about spacing and so forth - your code will not be touched by any of the formatting filters.
 
-h6. *"Filters::Tidy":<%= link_rel '/rdoc/classes/Rote/Filters/Tidy.html' %>* - Post filter that corrects markup and semantic errors in HTML markup to produce valid HTML or XHTML using the "HTML Tidy":http://tidy.sourceforge.net/ command-line tool.
+h6. *"Filters::Tidy":<%= relative '/rdoc/classes/Rote/Filters/Tidy.html' %>* - Post filter that corrects markup and semantic errors in HTML markup to produce valid HTML or XHTML using the "HTML Tidy":http://tidy.sourceforge.net/ command-line tool.
 	  
 This is a *post filter*. It should be applied in the appropriate filter chain:
 		
@@ -320,7 +320,7 @@ This is a *post filter*. It should be applied in the appropriate filter chain:
   post_filter Filters::Tidy.new
 #:code#	  
 	  
-h6. *"Filters::TOC":<%= link_rel '/rdoc/classes/Rote/Filters/TOC.html' %>* - Supports automatic generation of basic navigation from headings in documents. See the RDoc for more details. It should be applied as a page filter, and a reference is usually required for use in the layout:
+h6. *"Filters::TOC":<%= relative '/rdoc/classes/Rote/Filters/TOC.html' %>* - Supports automatic generation of basic navigation from headings in documents. See the RDoc for more details. It should be applied as a page filter, and a reference is usually required for use in the layout:
 	  
 #:code#ruby#
   # in page code or common.rb
@@ -334,7 +334,7 @@ Filters are of course very simple to write. See the 'Writing filters' subsection
 <%= section 4, 'Format helpers' %>
 
 p{color:red}. *TODO* This section is under construction.
-Please see "@Rote::Format::HTML@":<%= link_rel '/rdoc/Rote/Format/HTML.html' %> for currently available information.
+Please see "@Rote::Format::HTML@":<%= relative '/rdoc/Rote/Format/HTML.html' %> for currently available information.
 
 <%= section 3, 'Resources' %>
 
@@ -391,7 +391,7 @@ ws = Rote::DocTask.new(:doc) do |doc|
 end 
 #:code#
 
-Please refer to the "RDoc":<%= link_rel '/rdoc/classes/Rote/DocTask.html' %> for specific information on each method.
+Please refer to the "RDoc":<%= relative '/rdoc/classes/Rote/DocTask.html' %> for specific information on each method.
 
 <%= section 4, 'Extension mappings' %>
 
@@ -568,7 +568,7 @@ The standard TOC filter takes this route.
 
 <%= section 4, 'Rake Extensions' %>
 
-Rote supplies a number of non-intrusive extensions a number of the Rake classes, in order to support dynamic dependency caching, caching dependency-based block memoize, and task reset for use in monitor mode. These features are very new, and only lightly documented at present. You are advised to see the "RDoc":<%= link_rel '/rdoc' %> and source if you want to find out more.
+Rote supplies a number of non-intrusive extensions a number of the Rake classes, in order to support dynamic dependency caching, caching dependency-based block memoize, and task reset for use in monitor mode. These features are very new, and only lightly documented at present. You are advised to see the "RDoc":<%= relative '/rdoc' %> and source if you want to find out more.
 
 These extensions were almost exclusively contributed by Jonathan Paisley.
 

@@ -5,7 +5,7 @@
 
 <head>
 	<title><% if @page_title %><%= @page_title %> - <% end %><%= @site_title %></title>
-	<link rel='stylesheet' href='<%= link_rel '/stylesheets/normal.css' %>' media='screen'/>	
+	<link rel='stylesheet' href='<%= relative '/css/normal.css' %>' media='screen'/>	
 </head>
 
 <body>
@@ -13,17 +13,17 @@
 		<tr>
 			<td class='toplogo'>
 				<!-- LOGO -->
-				<img class='smalllogo' title='Rote' alt='rote' src='<%= link_rel '/images/rote-small.png' %>'/>
+				<img class='smalllogo' title='Rote' alt='rote' src='<%= relative '/img/rote-small.png' %>'/>
 			</td>		
 			<td class='toprpotlogo'>
 				<!-- LOGO -->
-				<img class='smallrpotlogo' title='Roscopeco' alt='roscopeco' src='<%= link_rel '/images/rpot-tiny.png' %>'/>
+				<img class='smallrpotlogo' title='Roscopeco' alt='roscopeco' src='<%= relative '/img/rpot-tiny.png' %>'/>
 			</td>		
 		</tr>		
 		<tr class='topnav'>		
 			<td colspan='2'>
 				<% @navigation.each_with_index do |nav, i| %>
-					<a class='nav' href='<%= link_rel nav[:url] %>'><%= nav[:title] %></a>										
+					<a class='nav' href='<%= relative nav[:url] %>'><%= nav[:title] %></a>										
 					<% unless i == (@navigation.length - 1) %>|<% end %>
 				<% end %>
 				<% unless @toc.nil? or @toc.links.empty? %>
@@ -45,9 +45,12 @@
 	<div class='copyright'><strong>&copy; 2005-2013 Ross Bamford &amp; Contributors</strong><br/>
 		Managed with <a href='http://ruby-lang.org'>Ruby</a> + <a href='http://rake.rubyforge.org'>Rake</a> + <a href='http://rote.rubyforge.org/'>Rote</a><br/>
 		Hosting &amp; development services provided by <a href='http://github.com'>GitHub</a> &amp; <a href='http://rubyforge.org/'>RubyForge.org</a><br/>
-		<a href='http://validator.w3.org/check?uri=referer'><img src='<%= link_rel '/images/icon_xhtml_1-1_blue.gif' %>' alt='XHTML 1.1'/></a>
+		<a href='http://validator.w3.org/check?uri=referer'><img src='<%= relative '/img/icon_xhtml_1-1_blue.gif' %>' alt='XHTML 1.1'/></a>
 		<p/>&nbsp;
 	</div>			
+
+  <!-- LOAD BOOTSTRAP -->
+  <script src="js/bootstrap.min.js"></script>
 </body>
 </html>
 
