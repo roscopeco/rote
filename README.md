@@ -20,10 +20,10 @@ Prerequisites
 -------------
 
 Rote requires the following (versions are as per my development environment,
-you may find you can use older versions, you may not).
+you may find you can use different versions, you may not).
 	
 * Ruby 1.9.3 (http://ruby-lang.org/)
-* Rake 0.9.9.2 ('gem install rake')
+* Rake 10.0.4 ('gem install rake')
 
 The following optional dependencies will be used if present:
 
