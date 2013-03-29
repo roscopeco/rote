@@ -173,12 +173,7 @@ module Rote
     # output file will be shown in the Rake task listing from the command line.
     attr_accessor :show_file_tasks         
     alias :show_file_tasks? :show_file_tasks
-    alias :show_file_tasks= :show_file_tasks=
-    
-    # *Deprecated* alias for +show_file_tasks+. vv0.2.2 v-0.5
-    alias :show_page_tasks? :show_file_tasks      
-    alias :show_page_tasks= :show_file_tasks=
-    
+
     # The approximate number of seconds between update checks when running
     # monitor mode (Default: 1)
     attr_accessor :monitor_interval    

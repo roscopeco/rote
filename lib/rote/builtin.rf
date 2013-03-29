@@ -47,8 +47,3 @@ task :create do
 	end
 end
 
-# DEPRECATED - publish.rf will be unsupported. 			vv0.2.3		v-0.5   1
-import 'publish.rf' if File.exists?('publish.rf')
-
-
-
