@@ -1,3 +1,5 @@
+> **note**: This repository is archived and development / support is discontinued.
+
 ROTE - A static website build tool for Ruby
 ===========================================
 
